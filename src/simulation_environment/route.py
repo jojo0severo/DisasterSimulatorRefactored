@@ -1,15 +1,13 @@
-# based on https://github.com/agentcontest/massim/blob/master/server/src/main/java/massim/scenario/city/data/Route.java
 import math
-from pyroutelib3 import Router
+import pyroutelib3
 from itertools import zip_longest
 from directory_path import dir as root
 
 
-class Route:
-
+class Router:
     def __init__(self, map_name):
         map_file_location = root / map_name
-        self.router = Router("car", str(map_file_location))
+        self.router = pyroutelib3.Router("car", str(map_file_location))
 
     def get_closest_node(self, lat, lon):
         return self.router.findNode(lat, lon)

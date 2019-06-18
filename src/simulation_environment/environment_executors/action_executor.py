@@ -1,45 +1,25 @@
-# based https://github.com/agentcontest/massim/blob/master/server/src/main/java/massim/scenario/city/ActionExecutor.java
-import copy
 from simulation_environment.exceptions.exceptions import *
 
 
 class ActionExecutor:
 
-    def __init__(self, router, logger):
+    def __init__(self, router, cdm_location):
         self.router = router
-        self.logger = logger
+        self.cdm_location = cdm_location
 
-    def execute_actions(self, actions, cdm_location, step):
+    def execute_actions(self, steps, agents, token_action_list):
         action_results = []
 
-        for obj in actions:
-            token = obj['token']
-            action = (obj['action'], *obj['parameters'])
-            result = self.execute(self.world.agents[token], action, cdm_location, step)
+        for token, action in token_action_list:
+            action_name = action[0]
+            parameters = action[1]
+            result = self.execute(steps, agents[token], action_name, parameters)
 
-            agent_info_copy = copy.deepcopy(self.world.agents[obj['token']].agent_info)
-            agent_copy = copy.deepcopy(self.world.agents[obj['token']].json())
-            parameters = action[1] if len(action) == 2 else []
-
-            self.logger.register_agent_action(
-                token=agent_copy['token'],
-                role=agent_copy['role'],
-                result=True if result is None else result,
-                name=agent_info_copy,
-                action=action[0],
-                parameters=parameters
-            )
-            action_results.append((obj['token'], agent_copy, result))
+            action_results.append((token, result))
 
         return action_results
 
-    def execute(self, agent, action, cdm_location, step):
-        action_name = action[0]
-        parameters = action[1:]
-
-        agent.last_action = action_name
-        agent.last_action_result = False
-
+    def execute(self, steps, agent, action_name, parameters):
         if action_name is None:
             return 'No action given.'
 
@@ -50,7 +30,7 @@ class ActionExecutor:
             if action_name == 'move':
                 if len(parameters) == 1:
                     if parameters[0] == 'cdm':
-                        location = cdm_location
+                        location = self.cdm_location
                     else:
                         raise FailedUnknownFacility('Unknown facility')
                 else:
@@ -70,7 +50,7 @@ class ActionExecutor:
 
                 if not agent.route:
                     self.get_route(agent, location, list_of_nodes)
-                elif agent.route[-1] != location:
+                elif agent.route[0] != location:
                     self.get_route(agent, location, list_of_nodes)
 
                 if not agent.destination_distance:
@@ -85,10 +65,7 @@ class ActionExecutor:
                 if len(parameters) < 1 or len(parameters) > 2:
                     raise FailedWrongParam('Less than 1 or more than 2 parameters were given.')
 
-                # ================= TEST CODE HERE ==================
-                agent.location = cdm_location
-
-                if self.check_location(agent.location, cdm_location):
+                if self.check_location(agent.location, self.cdm_location):
                     if len(parameters) == 1:
                         self.agent_delivery(agent=agent, kind='physical', item=parameters[0])
 
@@ -103,10 +80,7 @@ class ActionExecutor:
                 if len(parameters) < 1 or len(parameters) > 2:
                     raise FailedWrongParam('Less than 1 or more than 2 parameters were given.')
 
-                # ================= TEST CODE HERE ==================
-                # agent.location = cdm_location
-
-                if self.check_location(agent.location, cdm_location):
+                if self.check_location(agent.location, self.cdm_location):
                     if len(parameters) == 1:
                         self.agent_delivery(agent=agent, kind='virtual', item=parameters[0])
 
@@ -121,10 +95,7 @@ class ActionExecutor:
                 if len(parameters) > 0:
                     raise FailedWrongParam('Parameters were given.')
 
-                # ================= TEST CODE HERE ==================
-                # agent.location = cdm_location
-
-                if self.check_location(agent.location, cdm_location):
+                if self.check_location(agent.location, self.cdm_location):
                     agent.charge()
                     agent.last_action_result = True
 
@@ -137,9 +108,6 @@ class ActionExecutor:
 
                 for event in self.world.events:
                     for victim in event['victims']:
-
-                        # ================= TEST CODE HERE ==================
-                        agent.location = victim.location
 
                         if victim.active and self.check_location(victim.location, agent.location):
                             agent.add_physical_item(victim)
@@ -155,8 +123,6 @@ class ActionExecutor:
 
                 for event in self.world.events:
                     for water_sample in event['water_samples']:
-                        # ================= TEST CODE HERE ==================
-                        # agent.location = water_sample.location
 
                         if water_sample.active and self.check_location(water_sample.location, agent.location):
                             agent.add_physical_item(water_sample)
@@ -172,9 +138,6 @@ class ActionExecutor:
 
                 for event in self.world.events:
                     for photo in event['photos']:
-
-                        # ================= TEST CODE HERE ==================
-                        # agent.location = photo.location
 
                         if photo.active and self.check_location(photo.location, agent.location):
                             agent.add_virtual_item(photo)
@@ -320,8 +283,6 @@ class ActionExecutor:
                 raise FailedNoRoute()
 
             agent.destination_distance = self.router.node_distance(start_node, end_node)
-
-        print("ROUTE ->>> ", agent.route)
 
     def check_location(self, x, y):
         proximity = self.proximity

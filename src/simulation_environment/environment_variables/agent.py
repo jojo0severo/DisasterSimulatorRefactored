@@ -1,39 +1,27 @@
-# based on https://github.com/agentcontest/massim/blob/master/server/src/main/java/massim/scenario/city/data/Entity.java
-
 from simulation_environment.exceptions.exceptions import *
 
 
 class Agent:
 
-    def __init__(self, agent_token, role, role_name, cdm_location, agent_info):
-        """
-        [Object that represents an instance of an agents 'controller',
-        responsible for the manipulation of all its perceptions]
-
-        :param agent_token: 'Manipulated' agent's id.
-        :param role: The agent's main function over the simulation,
-        which covers its skills and limitations.
-        """
-        self.token = agent_token
-        self.last_action = None
-        self.last_action_result = False
+    def __init__(self, token, role_name, cdm_location, battery, speed, physical_capacity, virtual_capacity):
+        self.is_active = True
+        self.token = token
+        self.role = role_name
         self.location = cdm_location
-        self.route = []
+        self.max_charge = battery
+        self.actual_battery = battery
+        self.speed = speed
+        self.virtual_storage = virtual_capacity
+        self.virtual_capacity = virtual_capacity
+        self.physical_storage = physical_capacity
+        self.physical_capacity = physical_capacity
         self.physical_storage_vector = []
         self.virtual_storage_vector = []
-        self.is_active = True
+        self.last_action = None
+        self.last_action_result = False
+        self.route = []
         self.social_assets = []
-        self.role = role_name
-        self.physical_storage = role.physical_capacity
-        self.virtual_storage = role.virtual_capacity
-        self.virtual_capacity = role.virtual_capacity
-        self.physical_capacity = role.physical_capacity
-        self.actual_battery = role.battery
-        self.max_charge = role.battery
-        self.speed = role.speed
         self.destination_distance = 0
-        self.abilities = role.abilities
-        self.agent_info = agent_info
 
     def discharge(self):
         if self.destination_distance:
@@ -114,10 +102,3 @@ class Agent:
             self.virtual_storage += removed_item.size
 
         return removed
-
-    def json(self):
-        copy = self.__dict__.copy()
-        del copy['agent_info']
-        copy['location'] = {'lat': copy['location'][0], 'lon': copy['location'][1]}
-        copy['route'] = [{'lat': position[0], 'lon': position[1]} for position in copy['route']]
-        return copy
