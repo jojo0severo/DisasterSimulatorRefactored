@@ -1,13 +1,12 @@
 import math
 import pyroutelib3
 from itertools import zip_longest
-from directory_path import dir as root
 
 
-class Router:
-    def __init__(self, map_name):
-        map_file_location = root / map_name
-        self.router = pyroutelib3.Router("car", str(map_file_location))
+class Map:
+    def __init__(self, map_location, proximity):
+        self.router = pyroutelib3.Router("car", map_location)
+        self.proximity = proximity
 
     def get_closest_node(self, lat, lon):
         return self.router.findNode(lat, lon)
@@ -15,26 +14,54 @@ class Router:
     def get_node_coord(self, node):
         return self.router.nodeLatLon(node)
 
+    def check_location(self, a, b):
+        ax, ay = a
+        bx, by = b
+
+        if self.check_proximity(ax, bx):
+            if self.check_proximity(ay, by):
+                return True
+
+        return False
+
+    def check_proximity(self, a, b):
+        if a >= b:
+            if a - self.proximity <= b:
+                return True
+
+            return False
+
+        if a + self.proximity >= b:
+            return True
+        return False
+
     def align_coords(self, lat, lon):
         return self.get_node_coord(self.get_closest_node(lat, lon))
 
-    def get_route(self, start, end, role, speed=4, list_of_nodes=None):
+    def get_route(self, start, end, role, speed, list_of_nodes):
         if role == 'drone':
             return self.generate_coordinates_for_drones(start, end, speed)
+
         elif role == 'boat':
             return self.generate_coordinates_for_boats(start, end, speed, list_of_nodes)
 
-        if start not in list_of_nodes:
-            coords = []
-            result, nodes = self.router.doRoute(start, end)
-            for node in nodes:
-                if node not in list_of_nodes:
-                    coords.append(list(self.get_node_coord(node)))
-                else:
-                    return "no_route", []
-            return result, coords
+        else:
+            if start not in list_of_nodes:
+                result, nodes = self.router.doRoute(start, end)
 
-        return "no_route", []
+                if result == 'no_route':
+                    return False, [], 0
+
+                checked_nodes = []
+                for node in nodes:
+                    if node in list_of_nodes:
+                        return False, [], 0
+
+                    checked_nodes.append(node)
+
+                return True, checked_nodes, self.node_distance(start, end)
+
+            return False, [], 0
 
     def nodes_in_radius(self, coord, radius):
         result = []
@@ -68,7 +95,7 @@ class Router:
         longest = y_axis[-1] if len(x_axis) > len(y_axis) else x_axis[-1]
         distance = self.router.distance(self.coords_to_radian(start), self.coords_to_radian(end))
 
-        return list(zip_longest(x_axis, y_axis, fillvalue=longest)), distance
+        return True, list(zip_longest(x_axis, y_axis, fillvalue=longest)), distance
 
     def generate_coordinates_for_boats(self, start, end, speed, list_of_nodes=None):
         start_node = self.get_closest_node(*start)
@@ -91,8 +118,8 @@ class Router:
                 longest = y_axis[-1] if len(x_axis) > len(y_axis) else x_axis[-1]
                 distance = self.router.distance(self.coords_to_radian(start), self.coords_to_radian(end))
 
-                return list(zip_longest(x_axis, y_axis, fillvalue=longest)), distance
-        return [], 0
+                return True, list(zip_longest(x_axis, y_axis, fillvalue=longest)), distance
+        return False, [], 0
 
     def decrease_until_reached(self, start, end, speed, list_of_nodes=None):
         if start == end:

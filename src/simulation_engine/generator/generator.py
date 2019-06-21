@@ -1,16 +1,17 @@
 import random
-from simulation_environment.environment_variables.flood import Flood
-from simulation_environment.environment_variables.photo import Photo
-from simulation_environment.environment_variables.victim import Victim
-from simulation_environment.environment_variables.water_sample import WaterSample
-from simulation_environment.environment_variables.social_asset import SocialAsset
+from src.simulation_engine.simulation_objects.flood import Flood
+from src.simulation_engine.simulation_objects.photo import Photo
+from src.simulation_engine.simulation_objects.victim import Victim
+from src.simulation_engine.simulation_objects.water_sample import WaterSample
+from src.simulation_engine.simulation_objects.social_asset import SocialAsset
 
 
 class Generator:
-    def __init__(self, config, router):
+    def __init__(self, config, map):
         self.map_variables: dict = config['map']
         self.generate_variables: dict = config['generate']
-        self.router = router
+        self.map = map
+        self.victim_id = 0
         random.seed(config['map']['randomSeed'])
 
     def generate_events(self) -> list:
@@ -31,6 +32,7 @@ class Generator:
         flood_probability: int = self.generate_variables['floodProbability']
         i: int = 1
         while i < steps_number:
+            event: dict = {'flood': None, 'victims': [], 'water_samples': [], 'photos': []}
             if random.randint(0, 100) <= flood_probability:
                 event['flood'] = self.generate_flood()
                 nodes: list = event['flood'].list_of_nodes
@@ -66,16 +68,16 @@ class Generator:
         flood_lat: float = random.uniform(self.map_variables['minLat'], self.map_variables['maxLat'])
         flood_lon: float = random.uniform(self.map_variables['minLon'], self.map_variables['maxLon'])
 
-        dimensions['location']: tuple = self.router.align_coords(flood_lat, flood_lon)
+        dimensions['location']: tuple = self.map.align_coords(flood_lat, flood_lon)
 
         if dimensions['shape'] == 'circle':
-            list_of_nodes: list = self.router.nodes_in_radius(dimensions['location'], dimensions['radius'])
+            list_of_nodes: list = self.map.nodes_in_radius(dimensions['location'], dimensions['radius'])
 
         else:
             if dimensions['height'] < dimensions['length']:
-                list_of_nodes: list = self.router.nodes_in_radius(dimensions['location'], dimensions['height'])
+                list_of_nodes: list = self.map.nodes_in_radius(dimensions['location'], dimensions['height'])
             else:
-                list_of_nodes: list = self.router.nodes_in_radius(dimensions['location'], dimensions['length'])
+                list_of_nodes: list = self.map.nodes_in_radius(dimensions['location'], dimensions['length'])
 
         period: int = random.randint(self.generate_variables['flood']['minPeriod'],
                                      self.generate_variables['flood']['maxPeriod'])
@@ -91,7 +93,7 @@ class Generator:
         photos: list = [0] * amount
         i: int = 0
         while i < amount:
-            photo_location: tuple = self.router.get_node_coord(random.choice(nodes))
+            photo_location: tuple = self.map.get_node_coord(random.choice(nodes))
 
             photo_victims: list = []
             if random.randint(0, 100) <= victim_probability:
@@ -116,9 +118,10 @@ class Generator:
         while i < amount:
             victim_size: int = random.randint(victim_min_size, victim_max_size)
             victim_lifetime: int = random.randint(victim_min_lifetime, victim_max_lifetime)
-            victim_location: tuple = self.router.get_node_coord(random.choice(nodes))
+            victim_location: tuple = self.map.get_node_coord(random.choice(nodes))
 
-            victims[i] = Victim(victim_size, victim_lifetime, victim_location, photo_call)
+            victims[i] = Victim(self.victim_id, victim_size, victim_lifetime, victim_location, photo_call)
+            self.victim_id += 1
             i += 1
 
         return victims
@@ -131,7 +134,7 @@ class Generator:
         water_samples: list = [0] * amount
         i: int = 0
         while i < amount:
-            water_sample_location: tuple = self.router.get_node_coord(random.choice(nodes))
+            water_sample_location: tuple = self.map.get_node_coord(random.choice(nodes))
             water_samples[i] = WaterSample(water_sample_size, water_sample_location)
             i += 1
 

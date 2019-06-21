@@ -1,6 +1,7 @@
 class Victim:
 
-    def __init__(self, size: int, lifetime: int, location: tuple, photo: bool):
+    def __init__(self, identifier: int, size: int, lifetime: int, location: tuple, photo: bool):
+        self.identifier: int = identifier
         self.type: str = 'victim'
         self.size: int = size
         self.lifetime: int = lifetime

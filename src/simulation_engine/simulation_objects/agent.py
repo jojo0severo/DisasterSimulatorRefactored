@@ -1,13 +1,13 @@
-from simulation_environment.exceptions.exceptions import *
+from src.simulation_engine.exceptions.exceptions import *
 
 
 class Agent:
 
-    def __init__(self, token, role_name, cdm_location, battery, speed, physical_capacity, virtual_capacity):
+    def __init__(self, token, cdm_location, role_name, battery, speed, physical_capacity, virtual_capacity):
         self.is_active = True
         self.token = token
-        self.role = role_name
         self.location = cdm_location
+        self.role = role_name
         self.max_charge = battery
         self.actual_battery = battery
         self.speed = speed
@@ -33,8 +33,15 @@ class Agent:
         return self.actual_battery - int(self.speed / 5) if self.actual_battery - self.speed / 5 else 0
 
     def charge(self):
-
         self.actual_battery = self.max_charge
+
+    def clear_physical_storage(self):
+        self.physical_storage_vector.clear()
+        self.physical_storage = self.physical_capacity
+
+    def clear_virtual_storage(self):
+        self.virtual_storage_vector.clear()
+        self.virtual_storage = self.virtual_capacity
 
     def add_physical_item(self, item):
 
@@ -54,7 +61,7 @@ class Agent:
         self.virtual_storage -= size
         self.virtual_storage_vector.append(item)
 
-    def remove_physical_item(self, item, amount=1):
+    def remove_physical_item(self, item, amount):
         if self.physical_storage == self.physical_capacity:
             raise FailedItemAmount('The agents has no victims or water samples to deliver.')
 
@@ -78,7 +85,7 @@ class Agent:
 
         return removed
 
-    def remove_virtual_item(self, item, amount=1):
+    def remove_virtual_item(self, item, amount):
         if self.virtual_storage == self.virtual_capacity:
             raise FailedItemAmount('The agents has no photos to deliver.')
 
@@ -102,3 +109,15 @@ class Agent:
             self.virtual_storage += removed_item.size
 
         return removed
+
+    def disconnect(self):
+        self.is_active = False
+        self.last_action_result = False
+        self.actual_battery = 0
+        self.physical_storage = 0
+        self.virtual_storage = 0
+        self.destination_distance = 0
+        self.route.clear()
+        self.physical_storage_vector.clear()
+        self.virtual_storage_vector.clear()
+        self.social_assets.clear()
