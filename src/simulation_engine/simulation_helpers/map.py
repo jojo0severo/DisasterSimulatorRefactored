@@ -6,7 +6,7 @@ from itertools import zip_longest
 class Map:
     def __init__(self, map_location, proximity):
         self.router = pyroutelib3.Router("car", map_location)
-        self.proximity = proximity
+        self.proximity = proximity/1000
 
     def get_closest_node(self, lat, lon):
         return self.router.findNode(lat, lon)
