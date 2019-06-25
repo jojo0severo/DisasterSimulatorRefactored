@@ -4,10 +4,7 @@ class Agent:
         self.token = token
         self.registered = False
         self.worker = False
-        self.agent_info = obj
-        self.simulation_info = {}
         self.action_name = ''
         self.action_params = []
+        self.agent_info = obj
 
-    def format(self):
-        return {'token': self.token, 'agent_info': self.agent_info}
