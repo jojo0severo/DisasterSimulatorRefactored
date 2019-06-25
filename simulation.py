@@ -18,10 +18,7 @@ formatter = JsonFormatter(config_path)
 def start():
     message = request.get_json(force=True)
 
-    if 'secret' not in message:
-        return jsonify(message='This endpoint can not be accessed.')
-
-    if message['secret'] != secret:
+    if 'secret' not in message or secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     return jsonify(formatter.start())
@@ -31,10 +28,7 @@ def start():
 def register_agent():
     message = request.get_json(force=True)
 
-    if 'secret' not in message:
-        return jsonify(message='This endpoint can not be accessed.')
-
-    if message['secret'] != secret:
+    if 'secret' not in message or secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     return jsonify(formatter.connect_agent(message['token']))
@@ -47,7 +41,7 @@ def delete_agent():
     if 'secret' not in message:
         return jsonify(message='This endpoint can not be accessed.')
 
-    if message['secret'] != secret:
+    if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     return jsonify(formatter.disconnect_agent(message['token']))
@@ -60,13 +54,13 @@ def do_actions():
     if 'secret' not in message:
         return jsonify(message='This endpoint can not be accessed.')
 
-    if message['secret'] != secret:
+    if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     return jsonify(formatter.do_step(message['actions']))
 
 
-@app.route('/recycle', methods=['PUT'])
+@app.route('/restart', methods=['PUT'])
 def restart():
     global formatter
 
@@ -75,24 +69,22 @@ def restart():
     if 'secret' not in message:
         return jsonify(message='This endpoint can not be accessed.')
 
-    if message['secret'] != secret:
+    if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     formatter = JsonFormatter(config_path)
 
-    requests.post(f'http://{base_url}:{api_port}/start')
-
     return jsonify({'status': 1, 'message': 'Simulation restarted.'})
 
 
-@app.route('/finish', methods=['GET'])
+@app.route('/terminate', methods=['GET'])
 def finish():
     message = request.get_json(force=True)
 
     if 'secret' not in message:
         return jsonify(message='This endpoint can not be accessed.')
 
-    if message['secret'] != secret:
+    if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     os._exit(0)
@@ -108,4 +100,7 @@ if __name__ == '__main__':
     if requests.post(f'http://{base_url}:{api_port}/start_connections'):
         serve(app, host=base_url, port=simulation_port)
     else:
-        print('Errors during startup')
+        print('Errors occurred during startup.')
+
+
+
