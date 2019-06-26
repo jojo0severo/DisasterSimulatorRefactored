@@ -78,7 +78,8 @@ def restart():
     if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
-    formatter = JsonFormatter(config_path)
+    formatter.log()
+    formatter.regenerate()
 
     return jsonify({'status': 1, 'message': 'Simulation restarted.'})
 
