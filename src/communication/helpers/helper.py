@@ -4,10 +4,10 @@ from src.communication.controllers.controller import Controller
 
 class Helper:
     def __init__(self, matches, agents_amount, first_step_time, secret):
-        self.controller = Controller(matches, int(agents_amount), int(first_step_time), secret)
+        self.controller = Controller(int(matches), int(agents_amount), int(first_step_time), secret)
 
     def burn(self, matches, agents_amount, first_step_time):
-        self.controller.burn(matches, int(agents_amount), int(first_step_time))
+        self.controller.burn(int(matches), int(agents_amount), int(first_step_time))
 
     def do_internal_verification(self, request):
         try:
