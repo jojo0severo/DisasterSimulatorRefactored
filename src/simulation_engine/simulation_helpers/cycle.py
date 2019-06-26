@@ -392,3 +392,13 @@ class Cycle:
 
                 if not identifiers:
                     return
+
+    def __del__(self):
+        del self.map
+        del self.steps
+        del self.social_assets
+        del self.delivered_items
+        del self.current_step
+        del self.max_steps
+        del self.cdm_location
+        del self.agents_manager
