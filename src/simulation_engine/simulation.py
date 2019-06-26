@@ -47,8 +47,8 @@ class Simulation:
         actions_results = self.cycler.execute_actions(agent_action_list)
         step = self.cycler.get_step()
 
-        self.cycler.update_steps()
         self.cycler.current_step += 1
+        self.cycler.update_steps()
 
         if self.cycler.check_steps():
             self.terminated = True

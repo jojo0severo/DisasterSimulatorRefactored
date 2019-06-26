@@ -51,7 +51,7 @@ class JsonFormatter:
         try:
             response = self.copycat.do_step(agent_action_list)
             if response is None:
-                return {'status': 0, 'agents': [], 'event': {}, 'message': 'Simulation finished.'}
+                return {'status': 1, 'agents': [], 'event': {}, 'message': 'Simulation finished.'}
 
             json_agents = self.jsonify_agents([obj['agent'] for obj in response[0]])
             messages = [obj['message'] for obj in response[0]]
@@ -102,7 +102,6 @@ class JsonFormatter:
     @staticmethod
     def jsonify_events(events_list):
         if events_list['flood'] is None:
-
             return {'flood': '', 'victims': [], 'water_samples': [], 'photos': []}
 
         json_flood = {
