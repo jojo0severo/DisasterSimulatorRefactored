@@ -1,4 +1,5 @@
 import copy
+import datetime
 from src.simulation_engine.simulation import Simulation
 
 
@@ -7,6 +8,16 @@ class CopyCat:
         self.config = config
         self.logs = {}
         self.simulation = Simulation(config)
+
+    def log(self):
+        self.logs[self.config['map']['id']] = self.simulation.log()
+
+    def regenerate(self):
+        self.config['map']['map'].pop()
+
+        del self.simulation
+
+        self.simulation = Simulation(self.config)
 
     def connect_agent(self, token):
         response = self.simulation.connect_agent(token)
