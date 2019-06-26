@@ -71,12 +71,22 @@ class Cycle:
                     for photo in self.steps[i]['photos']:
                         photo.active = False
 
+                        for victim in photo.victims:
+                            victim.active = False
+
                 else:
                     for victim in self.steps[i]['victims']:
-                        if victim.active:
+                        if victim.lifetime <= 0:
+                            victim.active = False
+                        else:
                             victim.lifetime -= 1
+
+                    for photo in self.steps[i]['photos']:
+                        for victim in photo.victims:
                             if victim.lifetime <= 0:
                                 victim.active = False
+                            else:
+                                victim.lifetime -= 1
 
     def execute_actions(self, token_action_dict):
         tokens = self.agents_manager.get_tokens()
