@@ -226,29 +226,41 @@ def finish_step():
         sim_response = requests.post(f'http://{base_url}:{simulation_port}/do_actions',
                                      json={'actions': tokens_actions_list, 'secret': secret}).json()
 
-        notify_agents('action_result', sim_response)
-
         helper.controller.clear_workers()
-        helper.controller.processing_actions = False
+
+        if sim_response['status'] == 0:
+            print(sim_response['message'])
+            helper.controller.processing_actions = False
+            multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
 
         if sim_response['message'] == 'Simulation finished.':
             if helper.controller.check_remaining_matches():
-                sim_response = requests.put(f'http://{base_url}:{simulation_port}/restart', json={'secret': secret}).json()
+                requests.put(f'http://{base_url}:{simulation_port}/restart', json={'secret': secret})
+
+                sim_response = requests.post(f'http://{base_url}:{simulation_port}/restart', json={'secret': secret}).json()
+
                 notify_agents('simulation_started', sim_response)
 
+                helper.controller.processing_actions = False
+                multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
+
             else:
-                requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret})
-                
+                requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': True})
+
                 notify_agents('simulation_ended', {'status': 1, 'message': 'Simulation ended all matches.'})
 
-                requests.get(f'http://{base_url}:{api_port}/terminate', json={'secret': secret})
+                os._exit(0)
 
-        multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
+        else:
+            notify_agents('action_result', sim_response)
+
+            helper.controller.processing_actions = False
+            multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
 
     except requests.exceptions.ConnectionError:
         pass
 
-    return jsonify('')
+    return jsonify(0)
 
 
 def step_controller(ready_queue):
@@ -259,7 +271,10 @@ def step_controller(ready_queue):
     except queue.Empty:
         pass
 
-    requests.get(f'http://{base_url}:{api_port}/finish_step', json=secret)
+    try:
+        requests.get(f'http://{base_url}:{api_port}/finish_step', json={'secret': secret})
+    except requests.exceptions.ConnectionError:
+        pass
 
 
 @app.route('/send_action', methods=['POST'])
