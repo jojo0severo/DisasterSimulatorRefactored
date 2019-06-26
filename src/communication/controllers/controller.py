@@ -78,7 +78,7 @@ class Controller:
         self.agents_manager.clear_workers()
 
     def finish_connection_timer(self):
-        self.start_time += self.time_limit + 1
+        self.start_time -= self.time_limit
 
     def check_socket_connected(self, token):
         return True if self.socket_manager.get_socket(token) is not None else False
@@ -119,7 +119,7 @@ class Controller:
 
     def check_remaining_matches(self):
         self.current_match += 1
-        return self.current_match - 1 < self.max_matches
+        return self.current_match <= self.max_matches
 
     def check_working_agents(self):
         return self.agents_manager.get_workers_amount() == self.agents_manager.get_agents_amount()
