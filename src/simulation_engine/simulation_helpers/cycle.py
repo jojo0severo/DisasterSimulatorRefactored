@@ -6,13 +6,18 @@ from src.simulation_engine.simulation_helpers.agents_manager import AgentsManage
 
 class Cycle:
     def __init__(self, config):
-        self.map = Map(config['map']['map'], config['map']['proximity'])
+        self.map = Map(config['map']['map'][0], config['map']['proximity'])
         generator = Generator(config, self.map)
         self.steps = generator.generate_events()
         self.social_assets = generator.generate_social_assets()
+        self.max_floods = generator.flood_id
+        self.max_victims = generator.victim_id
+        self.max_photos = generator.photo_id
+        self.max_water_samples = generator.water_sample_id
+        self.max_social_assets = generator.social_asset_id
         self.delivered_items = []
         self.current_step = 0
-        self.max_steps = len(self.steps)
+        self.max_steps = config['map']['steps']
         self.cdm_location = (config['map']['centerLat'], config['map']['centerLon'])
         self.agents_manager = AgentsManager(config['roles'], config['agents'], self.cdm_location)
 
