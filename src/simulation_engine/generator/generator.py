@@ -11,7 +11,11 @@ class Generator:
         self.map_variables: dict = config['map']
         self.generate_variables: dict = config['generate']
         self.map = map
-        self.victim_id = 0
+        self.flood_id: int = 0
+        self.victim_id: int = 0
+        self.photo_id: int = 0
+        self.water_sample_id: int = 0
+        self.social_asset_id: int = 0
         random.seed(config['map']['randomSeed'])
 
     def generate_events(self) -> list:
@@ -82,7 +86,9 @@ class Generator:
         period: int = random.randint(self.generate_variables['flood']['minPeriod'],
                                      self.generate_variables['flood']['maxPeriod'])
 
-        return Flood(period, dimensions, list_of_nodes)
+        self.flood_id = self.flood_id + 1
+
+        return Flood(self.flood_id, period, dimensions, list_of_nodes)
 
     def generate_photos(self, nodes: list) -> list:
         victim_probability: int = self.generate_variables['photo']['victimProbability']
@@ -99,7 +105,8 @@ class Generator:
             if random.randint(0, 100) <= victim_probability:
                 photo_victims = self.generate_victims(nodes, True)
 
-            photos[i] = Photo(photo_size, photo_victims, photo_location)
+            photos[i] = Photo(self.photo_id, photo_size, photo_victims, photo_location)
+            self.photo_id = self.photo_id + 1
             i += 1
 
         return photos
@@ -121,7 +128,7 @@ class Generator:
             victim_location: tuple = self.map.get_node_coord(random.choice(nodes))
 
             victims[i] = Victim(self.victim_id, victim_size, victim_lifetime, victim_location, photo_call)
-            self.victim_id += 1
+            self.victim_id = self.victim_id + 1
             i += 1
 
         return victims
@@ -135,7 +142,8 @@ class Generator:
         i: int = 0
         while i < amount:
             water_sample_location: tuple = self.map.get_node_coord(random.choice(nodes))
-            water_samples[i] = WaterSample(water_sample_size, water_sample_location)
+            water_samples[i] = WaterSample(self.water_sample_id, water_sample_size, water_sample_location)
+            self.water_sample_id = self.water_sample_id + 1
             i += 1
 
         return water_samples
@@ -161,7 +169,8 @@ class Generator:
             social_asset_size: int = random.randint(asset_min_size, asset_max_size)
             occupation: str = random.choice(professions)
 
-            social_assets[i] = SocialAsset(social_asset_size, asset_location, occupation)
+            social_assets[i] = SocialAsset(self.social_asset_id, social_asset_size, asset_location, occupation)
+            self.social_asset_id = self.social_asset_id + 1
             i += 1
 
         return social_assets

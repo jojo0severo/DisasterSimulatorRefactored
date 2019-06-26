@@ -1,6 +1,7 @@
 
 class SocialAsset:
-    def __init__(self, size: int, location: tuple, profession: str):
+    def __init__(self, identifier: int, size: int, location: tuple, profession: str):
+        self.identifier: int = identifier
         self.type: str = 'social_asset'
         self.size: int = size
         self.active: bool = False
