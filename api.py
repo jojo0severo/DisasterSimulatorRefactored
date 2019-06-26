@@ -320,21 +320,9 @@ def notify_agents(event, response):
         socket.emit(event, json.dumps(info), room=room)
 
 
-@app.route('/terminate', methods=['GET'])
-def terminate():
-    message = request.get_json(force=True)
-
-    if 'secret' not in message:
-        return jsonify(message='This endpoint can not be accessed.')
-
-    if not helper.controller.check_secret(message['secret']):
-        return jsonify(message='This endpoint can not be accessed.')
-
-    os._exit(0)
-
-
 if __name__ == '__main__':
     app.config['SECRET_KEY'] = secret
     app.config['JSON_SORT_KEYS'] = False
     print(f'API: Serving on http://{base_url}:{api_port}')
+
     socket.run(app=app, host=base_url, port=api_port)
