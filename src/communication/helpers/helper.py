@@ -10,7 +10,19 @@ class Helper:
         self.controller.burn(matches, int(agents_amount), int(first_step_time))
 
     def do_internal_verification(self, request):
-        pass
+        try:
+            message = request.get_json(force=True)
+
+            if 'secret' in message:
+                if message['secret'] == self.controller.secret:
+                    return False, message
+
+                return True, 'Different secret provided.'
+
+            return True, 'Message does not contain secret.'
+
+        except json.JSONDecodeError:
+            return True, 'JSON format error.'
 
     def do_connection_verifications(self, request_object):
         error = True
