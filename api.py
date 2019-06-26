@@ -25,13 +25,10 @@ actions_queue = Queue()
 @app.route('/start_connections', methods=['POST'])
 def start_connections():
     try:
-        message = request.get_json(force=True)
+        errors, message = helper.do_internal_verification(request)
 
-        if 'secret' not in message:
-            return jsonify(message='This endpoint can not be accessed.')
-
-        if not helper.controller.check_secret(message['secret']):
-            return jsonify(message='This endpoint can not be accessed.')
+        if errors:
+            return jsonify(message=f'This endpoint can not be accessed. {message}')
 
         if message['back'] != 1:
             helper.controller.started = True
@@ -192,13 +189,10 @@ def disconnect_registered_agent(message):
 @app.route('/start_step_cycle', methods=['GET'])
 def start_step_cycle():
     try:
-        message = request.get_json(force=True)
+        errors, message = helper.do_internal_verification(request)
 
-        if 'secret' not in message:
-            return jsonify(message='This endpoint can not be accessed.')
-
-        if not helper.controller.check_secret(message['secret']):
-            return jsonify(message='This endpoint can not be accessed.')
+        if errors:
+            return jsonify(message=f'This endpoint can not be accessed. {message}')
 
         helper.controller.finish_connection_timer()
 
@@ -216,13 +210,10 @@ def start_step_cycle():
 
 @app.route('/finish_step', methods=['GET'])
 def finish_step():
-    message = request.get_json(force=True)
+    errors, message = helper.do_internal_verification(request)
 
-    if 'secret' not in message:
-        return jsonify(message='This endpoint can not be accessed.')
-
-    if not helper.controller.check_secret(message['secret']):
-        return jsonify(message='This endpoint can not be accessed.')
+    if errors:
+        return jsonify(message=f'This endpoint can not be accessed. {message}')
 
     try:
         helper.controller.processing_actions = True
