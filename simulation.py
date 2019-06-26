@@ -94,20 +94,41 @@ def finish():
     if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
-    os._exit(0)
+    if 'api' in message and message['api']:
+        formatter.log()
+        formatter.save_logs()
+        multiprocessing.Process(target=auto_destruction, daemon=True).start()
+
+    elif 'api' in message and not message['api']:
+        os._exit(0)
+
+    return jsonify('')
+
+
+def auto_destruction():
+    time.sleep(1)
+    try:
+        requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': False})
+    except requests.exceptions.ConnectionError:
+        pass
 
 
 if __name__ == '__main__':
     app.debug = False
     app.config['SECRET_KEY'] = secret
     app.config['JSON_SORT_KEYS'] = False
+
     CORS(app)
 
     print('Simulation', end=': ')
-    if requests.post(f'http://{base_url}:{api_port}/start_connections'):
-        serve(app, host=base_url, port=simulation_port)
-    else:
-        print('Errors occurred during startup.')
+
+    try:
+        if requests.post(f'http://{base_url}:{api_port}/start_connections', json={'secret': secret, 'back': 0}):
+            serve(app, host=base_url, port=simulation_port)
+        else:
+            print('Errors occurred during startup.')
+    except requests.exceptions.ConnectionError:
+        print('API is not online.')
 
 
 
