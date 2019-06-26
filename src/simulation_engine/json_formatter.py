@@ -150,3 +150,103 @@ class JsonFormatter:
             json_photos.append(json_photo)
 
         return {'flood': json_flood, 'victims': json_victims, 'water_samples': json_water_samples, 'photos': json_photos}
+
+    @staticmethod
+    def jsonify_delivered_items(items):
+        json_items = []
+        for item in items:
+            if item.type == 'victim':
+                json_item = {
+                    'type': 'victim',
+                    'location': list(item.location),
+                    'size': item.size,
+                    'lifetime': item.lifetime
+                }
+
+            elif item.type == 'photo':
+                json_photo_victims = []
+
+                for victim in item.victims:
+                    json_victim = {
+                        'type': 'victim',
+                        'location': list(victim.location),
+                        'size': victim.size,
+                        'lifetime': victim.lifetime
+                    }
+                    json_photo_victims.append(json_victim)
+
+                json_item = {
+                    'type': 'photo',
+                    'location': list(item.location),
+                    'size': item.size,
+                    'victims': json_photo_victims
+                }
+
+            elif item.type == 'water_sample':
+                json_item = {
+                    'type': 'water_sample',
+                    'location': list(item.location),
+                    'size': item.size
+                }
+
+            else:
+                json_item = {
+                    'type': 'Unknown'
+                }
+
+            json_items.append(json_item)
+
+        return json_items
+
+    @staticmethod
+    def jsonify_action_token_by_step(action_token_by_step):
+        json_action_token_by_step = []
+        for step, action_token_list in action_token_by_step:
+            json_token_action = []
+            for action_token in action_token_list:
+                json_token_action.append({'token': action_token[1], 'action': action_token[0]})
+
+            json_action_token_by_step.append({'step': step, 'token_action': json_token_action})
+
+        return json_action_token_by_step
+
+    @staticmethod
+    def jsonify_amount_of_actions_by_step(amount_of_actions_by_step):
+        return [{'step': step, 'actions_amount': actions_amount} for step, actions_amount in amount_of_actions_by_step]
+
+    @staticmethod
+    def jsonify_actions_by_step(actions_by_step):
+        return [{'step': step, 'actions': actions} for step, actions in actions_by_step]
+
+    def log(self):
+        self.copycat.log()
+
+    def save_logs(self):
+        year, month, day, hour, minute, logs = self.copycat.get_logs()
+        path = pathlib.Path(__file__).parents[2] / str(year) / str(month) / str(day)
+
+        os.makedirs(str(path.absolute()), exist_ok=True)
+
+        hour = '{:0>2d}'.format(hour)
+        minute = '{:0>2d}'.format(minute)
+
+        for log in logs:
+            json_items = self.jsonify_delivered_items(logs[log]['environment']['delivered_items'])
+            json_agents = self.jsonify_agents(logs[log]['agents']['agents'])
+            json_active_agents = self.jsonify_agents(logs[log]['agents']['active_agents'])
+            json_action_token_by_step = self.jsonify_action_token_by_step(logs[log]['actions']['action_token_by_step'])
+            json_acts_by_step = self.jsonify_amount_of_actions_by_step(logs[log]['actions']['amount_of_actions_by_step'])
+            json_actions_by_step = self.jsonify_actions_by_step(logs[log]['actions']['actions_by_step'])
+
+            logs[log]['environment']['delivered_items'] = json_items
+            logs[log]['agents']['agents'] = json_agents
+            logs[log]['agents']['active_agents'] = json_active_agents
+            logs[log]['actions']['action_token_by_step'] = json_action_token_by_step
+            logs[log]['actions']['amount_of_actions_by_step'] = json_acts_by_step
+            logs[log]['actions']['actions_by_step'] = json_actions_by_step
+
+            path /= f'LOG FILE {log} at {hour}h {minute}min.txt'
+
+            with open(str(path.absolute()), 'w') as file:
+                file.write(json.dumps(logs[log], sort_keys=False, indent=4))
+                file.write('\n\n' + '=' * 200 + '\n\n')
