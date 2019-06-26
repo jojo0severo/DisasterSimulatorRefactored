@@ -18,7 +18,10 @@ formatter = JsonFormatter(config_path)
 def start():
     message = request.get_json(force=True)
 
-    if 'secret' not in message or secret != message['secret']:
+    if 'secret' not in message:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     return jsonify(formatter.start())
@@ -28,7 +31,10 @@ def start():
 def register_agent():
     message = request.get_json(force=True)
 
-    if 'secret' not in message or secret != message['secret']:
+    if 'secret' not in message:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
     return jsonify(formatter.connect_agent(message['token']))
