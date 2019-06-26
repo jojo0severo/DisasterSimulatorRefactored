@@ -55,7 +55,11 @@ def first_step_time_controller(ready_queue):
     agents_connected = False
 
     try:
-        agents_connected = ready_queue.get(block=True, timeout=int(first_step_time))
+        if int(agents_amount) > 0:
+            agents_connected = ready_queue.get(block=True, timeout=int(first_step_time))
+
+        else:
+            agents_connected = True
 
     except queue.Empty:
         pass
@@ -249,7 +253,8 @@ def finish_step():
 
 def step_controller(ready_queue):
     try:
-        ready_queue.get(block=True, timeout=int(step_time))
+        if int(agents_amount) > 0:
+            ready_queue.get(block=True, timeout=int(step_time))
 
     except queue.Empty:
         pass
