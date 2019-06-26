@@ -257,6 +257,14 @@ class Cycle:
                     self.agents_manager.edit_agent(token, 'last_action_result', True)
                     return
 
+            for photo in self.steps[i]['photos']:
+                for victim in photo.victims:
+                    if victim.active and self.map.check_location(victim.location, agent.location):
+                        victim.active = False
+                        self.agents_manager.add_physical(token, victim)
+                        self.agents_manager.edit_agent(token, 'last_action_result', True)
+                        return
+
         raise FailedUnknownItem('No victim by the given location is known.')
 
     def _collect_water(self, token, parameters):
