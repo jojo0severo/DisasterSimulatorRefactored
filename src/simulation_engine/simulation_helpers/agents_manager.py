@@ -77,3 +77,9 @@ class AgentsManager:
 
     def get_tokens(self):
         return list(self.agents.keys())
+
+    def __del__(self):
+        self.agents.clear()
+        del self.agents
+        del self.cdm_location
+        del self.roles
