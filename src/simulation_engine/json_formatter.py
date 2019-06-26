@@ -1,10 +1,15 @@
+import os
 import json
+import pathlib
 from src.simulation_engine.copycat import CopyCat
 
 
 class JsonFormatter:
     def __init__(self, config):
         self.copycat = CopyCat(json.load(open(config, 'r')))
+
+    def regenerate(self):
+        self.copycat.regenerate()
 
     def connect_agent(self, token):
         try:
