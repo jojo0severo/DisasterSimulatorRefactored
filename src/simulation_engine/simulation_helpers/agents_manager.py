@@ -10,6 +10,12 @@ class AgentsManager:
         self.cdm_location = cdm_location
         self.roles = self.generate_roles(roles_info, agents_info)
 
+    def restart(self, roles_info, agents_info, cdm_location):
+        self.agents.clear()
+        self.cdm_location = cdm_location
+        self.roles.clear()
+        self.roles = self.generate_roles(roles_info, agents_info)
+
     @staticmethod
     def generate_roles(roles_info, agents_info):
         roles = []
@@ -77,9 +83,3 @@ class AgentsManager:
 
     def get_tokens(self):
         return list(self.agents.keys())
-
-    def __del__(self):
-        self.agents.clear()
-        del self.agents
-        del self.cdm_location
-        del self.roles

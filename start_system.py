@@ -23,14 +23,13 @@ class SimulationParser:
         self.parser.add_argument('-g', required=False, type=bool, default=False)
         self.parser.add_argument('-step_t', required=False, type=int, default=30)
         self.parser.add_argument('-first_t', required=False, type=int, default=60)
-        self.parser.add_argument('-matches', required=False, type=int, default=1)
         self.parser.add_argument('-mtd', required=False, type=str, default='time')
 
     def get_arguments(self):
         args = self.parser.parse_args()
 
         return [args.conf, args.url, args.sp, args.ap, args.pyv, args.g,
-                args.step_t, args.first_t, args.matches, args.mtd]
+                args.step_t, args.first_t, args.mtd]
 
 
 class EnvironmentHandler:
@@ -76,11 +75,11 @@ class Starter:
         self.env_handler = EnvironmentHandler()
 
     def start(self):
-        config_file, base_url, simulation_port, api_port, python_version, globally, step_time, first_step_time, \
-            matches_number, method = self.parser.get_arguments()
+        config_file, base_url, simulation_port, api_port, python_version, globally, step_time, \
+                first_step_time, method = self.parser.get_arguments()
 
         with open(config_file, 'r') as configuration_file:
-            agents_amount = sum(json.loads(configuration_file)['agents'].values())
+            agents_amount = sum(json.load(configuration_file)['agents'].values())
 
         self.env_handler.create_environment(globally, python_version)
         secret = secrets.token_urlsafe(15)
@@ -89,32 +88,29 @@ class Starter:
         simulation_process_arguments = (simulation_arguments, self.env_handler.venv_path, python_version)
         simulation_process = Process(target=self.start_simulation, args=simulation_process_arguments, daemon=True)
 
-        api_arguments = [config_file, base_url, api_port, simulation_port, step_time, first_step_time,
-                         matches_number, agents_amount, method, secret]
+        api_arguments = [base_url, api_port, simulation_port, step_time, first_step_time, agents_amount, method, secret]
         api_process_arguments = (api_arguments, self.env_handler.venv_path, python_version)
         api_process = Process(target=self.start_api, args=api_process_arguments, daemon=True)
 
-        simulation_process.start()
         api_process.start()
+        simulation_process.start()
 
-        simulation_process.join()
         api_process.join()
-
-        simulation_process.close()
-        api_process.close()
+        simulation_process.join()
 
     @staticmethod
     def start_simulation(simulation_arguments, venv_path, python_version):
-        simulation_module_path = root / 'src' / 'simulation.py'
+        simulation_module_path = root / 'simulation.py'
         subprocess.call([
-            f'{str(venv_path)}python{python_version}', str(simulation_module_path.absolute()), *simulation_arguments
+            f'{str(venv_path)}python{python_version}', str(simulation_module_path.absolute()),
+            *map(str, simulation_arguments)
         ])
 
     @staticmethod
     def start_api(api_arguments, venv_path, python_version):
-        api_module_path = root / 'src' / 'api.py'
+        api_module_path = root / 'api.py'
         subprocess.call([
-            f"{str(venv_path)}python{python_version}", str(api_module_path.absolute()), *api_arguments
+            f"{str(venv_path)}python{python_version}", str(api_module_path.absolute()), *map(str, api_arguments)
         ])
 
 

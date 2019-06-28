@@ -11,12 +11,12 @@ from flask import Flask, request, jsonify
 from src.communication.helpers.helper import Helper
 from src.communication.helpers import json_formatter
 
-base_url, api_port, simulation_port, step_time, first_step_time, matches, agents_amount, method, secret = sys.argv[1:]
+base_url, api_port, simulation_port, step_time, first_step_time, agents_amount, method, secret = sys.argv[1:]
 
 app = Flask(__name__)
 socket = SocketIO(app=app)
 
-helper = Helper(matches, agents_amount, first_step_time, secret)
+helper = Helper(agents_amount, first_step_time, secret)
 every_agent_registered_queue = Queue()
 one_agent_registered_queue = Queue()
 actions_queue = Queue()
@@ -229,27 +229,24 @@ def finish_step():
         helper.controller.clear_workers()
 
         if sim_response['status'] == 0:
-            print(sim_response['message'])
-            helper.controller.processing_actions = False
-            multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
+            print('Error: ' + sim_response['message'])
+            print('An internal error occurred. Shutting down...')
+            requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': True})
+            os._exit(1)
 
         if sim_response['message'] == 'Simulation finished.':
-            if helper.controller.check_remaining_matches():
-                requests.put(f'http://{base_url}:{simulation_port}/restart', json={'secret': secret})
+            sim_response = requests.put(f'http://{base_url}:{simulation_port}/restart', json={'secret': secret}).json()
 
-                sim_response = requests.post(f'http://{base_url}:{simulation_port}/restart', json={'secret': secret}).json()
+            if sim_response['status'] == 0:
+                requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': True})
+                notify_agents('simulation_ended', {'status': 1, 'message': 'Simulation ended all matches.'})
+                os._exit(0)
 
+            else:
                 notify_agents('simulation_started', sim_response)
 
                 helper.controller.processing_actions = False
                 multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
-
-            else:
-                requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': True})
-
-                notify_agents('simulation_ended', {'status': 1, 'message': 'Simulation ended all matches.'})
-
-                os._exit(0)
 
         else:
             notify_agents('action_result', sim_response)

@@ -21,6 +21,23 @@ class Cycle:
         self.cdm_location = (config['map']['centerLat'], config['map']['centerLon'])
         self.agents_manager = AgentsManager(config['roles'], config['agents'], self.cdm_location)
 
+    def restart(self, config_file):
+        self.map.restart(config_file['map']['map'][0], config_file['map']['proximity'])
+        generator = Generator(config_file, self.map)
+        self.steps = generator.generate_events()
+        self.social_assets = generator.generate_social_assets()
+        self.max_floods = generator.flood_id
+        self.max_victims = generator.victim_id
+        self.max_photos = generator.photo_id
+        self.max_water_samples = generator.water_sample_id
+        self.max_social_assets = generator.social_asset_id
+        self.delivered_items = []
+        self.current_step = 0
+        self.max_steps = config_file['map']['steps']
+        self.cdm_location = (config_file['map']['centerLat'], config_file['map']['centerLon'])
+        self.agents_manager.restart(config_file['roles'], config_file['agents'], self.cdm_location)
+
+
     def connect_agent(self, token):
         return self.agents_manager.connect_agent(token)
 
@@ -28,7 +45,7 @@ class Cycle:
         return self.agents_manager.disconnect_agent(token)
 
     def check_steps(self):
-        return self.current_step == self.max_steps
+        return self.current_step == self.max_steps + 1
 
     def get_step(self):
         return self.steps[self.current_step]
@@ -413,10 +430,3 @@ class Cycle:
 
     def __del__(self):
         del self.map
-        del self.steps
-        del self.social_assets
-        del self.delivered_items
-        del self.current_step
-        del self.max_steps
-        del self.cdm_location
-        del self.agents_manager

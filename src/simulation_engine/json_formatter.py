@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import pathlib
 from src.simulation_engine.copycat import CopyCat
@@ -7,6 +8,12 @@ from src.simulation_engine.copycat import CopyCat
 class JsonFormatter:
     def __init__(self, config):
         self.copycat = CopyCat(json.load(open(config, 'r')))
+
+    def log(self):
+        if not self.copycat.log():
+            return {'status': 0, 'message': 'No more maps available for matches.'}
+        else:
+            return {'status': 1, 'message': 'New match generated.'}
 
     def regenerate(self):
         self.copycat.regenerate()
@@ -222,12 +229,9 @@ class JsonFormatter:
     def jsonify_actions_by_step(actions_by_step):
         return [{'step': step, 'actions': actions} for step, actions in actions_by_step]
 
-    def log(self):
-        self.copycat.log()
-
     def save_logs(self):
-        year, month, day, hour, minute, logs = self.copycat.get_logs()
-        path = pathlib.Path(__file__).parents[2] / str(year) / str(month) / str(day)
+        year, month, day, hour, minute, config_file, logs = self.copycat.get_logs()
+        path = pathlib.Path(__file__).parents[2] / str(year) / str(month) / str(day) / str(config_file)
 
         os.makedirs(str(path.absolute()), exist_ok=True)
 
@@ -249,8 +253,8 @@ class JsonFormatter:
             logs[log]['actions']['amount_of_actions_by_step'] = json_acts_by_step
             logs[log]['actions']['actions_by_step'] = json_actions_by_step
 
-            path /= f'LOG FILE {log} at {hour}h {minute}min.txt'
+            map_log = re.sub('([\w\s\d]+?\\\\)|([\w\s\d]+?/)|(\.\w+)', '', log)
 
-            with open(str(path.absolute()), 'w') as file:
+            with open(str((path / f'LOG FILE {map_log} at {hour}h {minute}min.txt').absolute()), 'w') as file:
                 file.write(json.dumps(logs[log], sort_keys=False, indent=4))
-                file.write('\n\n' + '=' * 200 + '\n\n')
+                file.write('\n\n' + '=' * 120 + '\n\n')

@@ -31,10 +31,17 @@ class Simulation:
 
         return agents, step
 
+    def restart(self, config_file):
+        self.cycler.restart(config_file)
+        self.terminated = False
+        self.actions_amount = 0
+        self.actions_by_step.clear()
+        self.actions_amount_by_step.clear()
+        self.action_token_by_step.clear()
+
     def do_step(self, agent_action_list):
         if self.terminated:
             return None
-
 
         actions = [token_action_param['action'] for token_action_param in agent_action_list]
         tokens = [token_action_param['token'] for token_action_param in agent_action_list]
@@ -111,7 +118,7 @@ class Simulation:
 
         return {
             'environment': {
-                'current_step': current_step,
+                'current_step': max_steps if current_step >= max_steps else current_step,
                 'max_steps': max_steps,
                 'delivered_items': delivered_items,
                 'floods_amount': floods_amount,
@@ -139,17 +146,3 @@ class Simulation:
                 'action_token_by_step': self.action_token_by_step
             },
         }
-
-    def __del__(self):
-        del self.cycler
-        del self.terminated
-        del self.actions_amount
-
-        self.actions_amount_by_step.clear()
-        del self.actions_amount_by_step
-
-        self.actions_by_step.clear()
-        del self.actions_by_step
-
-        self.action_token_by_step.clear()
-        del self.action_token_by_step

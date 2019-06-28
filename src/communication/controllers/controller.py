@@ -5,7 +5,7 @@ from src.communication.controllers.agents_manager import Manager
 
 class Controller:
 
-    def __init__(self, max_matches, agents_amount, time_limit, internal_secret):
+    def __init__(self, agents_amount, time_limit, internal_secret):
         self.agents_manager = Manager()
         self.socket_manager = SocketManager()
         self.start_time = None
@@ -13,35 +13,8 @@ class Controller:
         self.started = False
         self.terminated = False
         self.agents_amount = agents_amount
-        self.max_matches = max_matches
-        self.current_match = 0
         self.secret = internal_secret
-        self.setting_new_match = False
         self.processing_actions = False
-
-    def burn(self, max_matches, agents_amount, time_limit):
-        self.agents_manager.clear()
-        self.socket_manager.clear()
-        del self.agents_manager
-        del self.socket_manager
-        del self.start_time
-        del self.time_limit
-        del self.started
-        del self.terminated
-        del self.agents_amount
-        del self.max_matches
-        del self.current_match
-        del self.processing_actions
-        self.agents_manager = Manager()
-        self.socket_manager = SocketManager()
-        self.start_time = None
-        self.time_limit = time_limit
-        self.started = False
-        self.terminated = False
-        self.processing_actions = False
-        self.agents_amount = agents_amount
-        self.max_matches = max_matches
-        self.current_match = 0
 
     def start_timer(self):
         self.start_time = time.time()
@@ -116,10 +89,6 @@ class Controller:
 
     def check_agent_action(self, token):
         return True if self.agents_manager.get_agent(token).action_name else False
-
-    def check_remaining_matches(self):
-        self.current_match += 1
-        return self.current_match <= self.max_matches
 
     def check_working_agents(self):
         return self.agents_manager.get_workers_amount() == self.agents_manager.get_agents_amount()

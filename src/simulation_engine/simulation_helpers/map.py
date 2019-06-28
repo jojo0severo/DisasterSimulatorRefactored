@@ -8,6 +8,11 @@ class Map:
         self.router = pyroutelib3.Router("car", map_location)
         self.proximity = proximity/1000
 
+    def restart(self, map_location, proximity):
+        del self.router
+        self.router = pyroutelib3.Router("car", map_location)
+        self.proximity = proximity/1000
+
     def get_closest_node(self, lat, lon):
         return self.router.findNode(lat, lon)
 

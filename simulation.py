@@ -80,10 +80,12 @@ def restart():
     if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
-    formatter.log()
-    formatter.regenerate()
+    response = formatter.log()
 
-    return jsonify({'status': 1, 'message': 'Simulation restarted.'})
+    if response['status'] == 1:
+        formatter.regenerate()
+
+    return jsonify(response)
 
 
 @app.route('/terminate', methods=['GET'])
@@ -97,7 +99,6 @@ def finish():
         return jsonify(message='This endpoint can not be accessed.')
 
     if 'api' in message and message['api']:
-        formatter.log()
         formatter.save_logs()
         multiprocessing.Process(target=auto_destruction, daemon=True).start()
 
