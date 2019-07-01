@@ -7,3 +7,4 @@ class Photo:
         self.victims: list = victims
         self.location: tuple = location
         self.active: bool = False
+        self.analyzed: bool = False

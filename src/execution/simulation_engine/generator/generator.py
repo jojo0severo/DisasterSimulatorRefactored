@@ -13,10 +13,11 @@ class Generator:
         self.map = map
         self.flood_id: int = 0
         self.victim_id: int = 0
+        self.photo_victim_id: int = 0
         self.photo_id: int = 0
         self.water_sample_id: int = 0
         self.social_asset_id: int = 0
-        random.seed(config['map']['randomSeed'])
+        random.seed(config['map']['randomSeed'][0])
 
     def generate_events(self) -> list:
         steps_number: int = self.map_variables['steps'] + 1
@@ -26,7 +27,7 @@ class Generator:
         nodes: list = flood.list_of_nodes
         event: dict = {
             'flood': flood,
-            'victims': self.generate_victims(nodes, False),
+            'victims': self.generate_victims(nodes),
             'water_samples': self.generate_water_samples(nodes),
             'photos': self.generate_photos(nodes)
         }
@@ -40,7 +41,7 @@ class Generator:
             if random.randint(0, 100) <= flood_probability:
                 event['flood'] = self.generate_flood()
                 nodes: list = event['flood'].list_of_nodes
-                event['victims']: list = self.generate_victims(nodes, False)
+                event['victims']: list = self.generate_victims(nodes)
                 event['water_samples']: list = self.generate_water_samples(nodes)
                 event['photos']: list = self.generate_photos(nodes)
 
@@ -103,7 +104,7 @@ class Generator:
 
             photo_victims: list = []
             if random.randint(0, 100) <= victim_probability:
-                photo_victims = self.generate_victims(nodes, True)
+                photo_victims = self.generate_photo_victims(nodes)
 
             photos[i] = Photo(self.photo_id, photo_size, photo_victims, photo_location)
             self.photo_id = self.photo_id + 1
@@ -111,7 +112,7 @@ class Generator:
 
         return photos
 
-    def generate_victims(self, nodes: list, photo_call: bool) -> list:
+    def generate_victims(self, nodes: list) -> list:
         victim_min_size: int = self.generate_variables['victim']['minSize']
         victim_max_size: int = self.generate_variables['victim']['maxSize']
 
@@ -127,7 +128,29 @@ class Generator:
             victim_lifetime: int = random.randint(victim_min_lifetime, victim_max_lifetime)
             victim_location: tuple = self.map.get_node_coord(random.choice(nodes))
 
-            victims[i] = Victim(self.victim_id, victim_size, victim_lifetime, victim_location, photo_call)
+            victims[i] = Victim(self.victim_id, victim_size, victim_lifetime, victim_location, False)
+            self.victim_id = self.victim_id + 1
+            i += 1
+
+        return victims
+
+    def generate_photo_victims(self, nodes: list) -> list:
+        victim_min_size: int = self.generate_variables['victim']['minSize']
+        victim_max_size: int = self.generate_variables['victim']['maxSize']
+
+        victim_min_lifetime: int = self.generate_variables['victim']['minLifetime']
+        victim_max_lifetime: int = self.generate_variables['victim']['maxLifetime']
+
+        amount: int = random.randint(self.generate_variables['victim']['minAmount'],
+                                     self.generate_variables['victim']['maxAmount'])
+        victims: list = [0] * amount
+        i: int = 0
+        while i < amount:
+            victim_size: int = random.randint(victim_min_size, victim_max_size)
+            victim_lifetime: int = random.randint(victim_min_lifetime, victim_max_lifetime)
+            victim_location: tuple = self.map.get_node_coord(random.choice(nodes))
+
+            victims[i] = Victim(self.victim_id, victim_size, victim_lifetime, victim_location, True)
             self.victim_id = self.victim_id + 1
             i += 1
 

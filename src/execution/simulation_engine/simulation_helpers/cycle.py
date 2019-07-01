@@ -37,7 +37,6 @@ class Cycle:
         self.cdm_location = (config_file['map']['centerLat'], config_file['map']['centerLon'])
         self.agents_manager.restart(config_file['roles'], config_file['agents'], self.cdm_location)
 
-
     def connect_agent(self, token):
         return self.agents_manager.connect_agent(token)
 
@@ -322,12 +321,15 @@ class Cycle:
         if len(agent.virtual_storage_vector) == 0:
             raise FailedItemAmount('The agent has no photos to analyze.')
 
-        identifiers = []
+        photo_identifiers = []
+        victim_identifiers = []
         for photo in agent.virtual_storage_vector:
             for victim in photo.victims:
-                identifiers.append(victim.identifier)
+                victim_identifiers .append(victim.identifier)
 
-        self._update_victims_state(identifiers)
+            photo_identifiers.append(photo.identifier)
+
+        self._update_photos_state(photo_identifiers)
         self.agents_manager.edit_agent(token, 'last_action_result', True)
         self.agents_manager.clear_agent_virtual_storage(token)
 
@@ -418,15 +420,14 @@ class Cycle:
         else:
             raise FailedLocation('The agent is not located at the CDM.')
 
-    def _update_victims_state(self, identifiers):
+    def _update_photos_state(self, identifiers):
         for i in range(self.current_step):
-            for victim in self.steps[i]['victims']:
-                if victim.identifier in identifiers:
-                    victim.active = False
-                    identifiers.remove(victim.identifier)
-
-                if not identifiers:
-                    return
+            for photo in self.steps[i]['photos']:
+                if photo.identifier in identifiers:
+                    identifiers.remove(photo.identifier)
+                    photo.analyzed = True
+                    for victim in photo.victims:
+                        victim.active = True
 
     def __del__(self):
         del self.map

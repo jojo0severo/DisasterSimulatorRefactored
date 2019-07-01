@@ -16,7 +16,15 @@ class JsonFormatter:
             return {'status': 1, 'message': 'New match generated.'}
 
     def regenerate(self):
-        self.copycat.regenerate()
+        try:
+            response = self.copycat.regenerate()
+            json_agents = self.jsonify_agents(response[0])
+            json_events = self.jsonify_events(response[1])
+
+            return {'status': 1, 'agents': json_agents, 'event': json_events, 'message': 'Simulation restarted.'}
+
+        except Exception as e:
+            return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}
 
     def connect_agent(self, token):
         try:
@@ -143,18 +151,20 @@ class JsonFormatter:
         for photo in events_list['photos']:
             json_photo_victims = []
             for victim in photo.victims:
-                json_victim = {
-                    'type': 'victim',
-                    'location': list(victim.location),
-                    'size': victim.size,
-                    'lifetime': victim.lifetime
-                }
-                json_photo_victims.append(json_victim)
+                if victim.active:
+                    json_victim = {
+                        'type': 'victim',
+                        'location': list(victim.location),
+                        'size': victim.size,
+                        'lifetime': victim.lifetime
+                    }
+                    json_photo_victims.append(json_victim)
 
             json_photo = {
                 'type': 'photo',
                 'location': list(photo.location),
                 'size': photo.size,
+                'analyzed': photo.analyzed,
                 'victims': json_photo_victims
             }
 

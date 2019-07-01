@@ -80,10 +80,12 @@ def restart():
     if secret != message['secret']:
         return jsonify(message='This endpoint can not be accessed.')
 
-    response = formatter.log()
+    can_restart = formatter.log()
 
-    if response['status'] == 1:
-        formatter.regenerate()
+    if can_restart['status'] == 1:
+        response = formatter.regenerate()
+    else:
+        response = can_restart
 
     return jsonify(response)
 

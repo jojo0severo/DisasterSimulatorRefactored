@@ -39,6 +39,8 @@ class Simulation:
         self.actions_amount_by_step.clear()
         self.action_token_by_step.clear()
 
+        return self.start()
+
     def do_step(self, agent_action_list):
         if self.terminated:
             return None
@@ -78,6 +80,7 @@ class Simulation:
         victims_saved = 0
         victims_dead = 0
         photos_taken = 0
+        photos_analyzed = 0
         photos_ignored = 0
         water_samples_collected = 0
         water_samples_ignored = 0
@@ -89,21 +92,34 @@ class Simulation:
             floods_amount += 1
 
             for victim in self.cycler.steps[i]['victims']:
-                if not victim.active and victim.lifetime:
+                if not victim.active and victim.lifetime > 0:
                     victims_saved += 1
+                    print('Flood')
+                    print(self.cycler.steps[i]['flood'].active)
+                    print(self.cycler.steps[i]['flood'].period)
+                    print()
+                    print('Victim')
+                    print(victim.identifier)
+                    print(victim.active)
+                    print(victim.lifetime)
+                    print(victim.in_photo)
+                    print('\n' + '=' * 100 + '\n')
 
-                elif not victim.active:
+                elif not victim.lifetime:
                     victims_dead += 1
 
             for photo in self.cycler.steps[i]['photos']:
                 if not photo.active:
                     photos_taken += 1
 
+                if photo.analyzed:
+                    photos_analyzed += 1
+
                     for victim in photo.victims:
-                        if not victim.active and victim.lifetime:
+                        if not victim.active and victim.lifetime > 0:
                             victims_saved += 1
 
-                        elif not victim.active:
+                        elif not victim.lifetime:
                             victims_dead += 1
 
                 else:
@@ -127,6 +143,7 @@ class Simulation:
                 'victims_dead': victims_dead,
                 'total_photos': self.cycler.max_photos,
                 'photos_taken': photos_taken,
+                'photos_analyzed': photos_analyzed,
                 'photos_ignored': photos_ignored,
                 'total_water_samples': self.cycler.max_water_samples,
                 'water_samples_collected': water_samples_collected,
