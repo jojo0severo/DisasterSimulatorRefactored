@@ -6,7 +6,7 @@ import multiprocessing
 from flask import request, jsonify
 from flask import Flask
 from flask_cors import CORS
-from src.simulation_engine.json_formatter import JsonFormatter
+from execution.simulation_engine.json_formatter import JsonFormatter
 from waitress import serve
 
 config_path, base_url, simulation_port, api_port, secret = sys.argv[1:]

@@ -2,7 +2,7 @@ import os
 import re
 import json
 import pathlib
-from src.simulation_engine.copycat import CopyCat
+from execution.simulation_engine.copycat import CopyCat
 
 
 class JsonFormatter:
@@ -241,7 +241,7 @@ class JsonFormatter:
 
     def save_logs(self):
         year, month, day, hour, minute, config_file, logs = self.copycat.get_logs()
-        path = pathlib.Path(__file__).parents[2] / str(year) / str(month) / str(day) / str(config_file)
+        path = pathlib.Path(__file__).parents[3] / str(year) / str(month) / str(day) / str(config_file)
 
         os.makedirs(str(path.absolute()), exist_ok=True)
 

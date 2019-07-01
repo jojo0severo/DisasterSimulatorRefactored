@@ -1,9 +1,9 @@
 import random
-from src.simulation_engine.simulation_objects.flood import Flood
-from src.simulation_engine.simulation_objects.photo import Photo
-from src.simulation_engine.simulation_objects.victim import Victim
-from src.simulation_engine.simulation_objects.water_sample import WaterSample
-from src.simulation_engine.simulation_objects.social_asset import SocialAsset
+from execution.simulation_engine.simulation_objects.flood import Flood
+from execution.simulation_engine.simulation_objects.photo import Photo
+from execution.simulation_engine.simulation_objects.victim import Victim
+from execution.simulation_engine.simulation_objects.water_sample import WaterSample
+from execution.simulation_engine.simulation_objects.social_asset import SocialAsset
 
 
 class Generator:

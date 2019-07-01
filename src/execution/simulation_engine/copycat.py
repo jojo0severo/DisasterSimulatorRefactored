@@ -1,7 +1,7 @@
 import copy
 import random
 import datetime
-from src.simulation_engine.simulation import Simulation
+from execution.simulation_engine.simulation import Simulation
 
 
 class CopyCat:
