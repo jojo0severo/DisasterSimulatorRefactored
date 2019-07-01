@@ -17,7 +17,7 @@ class Generator:
         self.photo_id: int = 0
         self.water_sample_id: int = 0
         self.social_asset_id: int = 0
-        random.seed(config['map']['randomSeed'][0])
+        random.seed(config['map']['randomSeed'])
 
     def generate_events(self) -> list:
         steps_number: int = self.map_variables['steps'] + 1
