@@ -6,7 +6,7 @@ from execution.simulation_engine.simulation_helpers.agents_manager import Agents
 
 class Cycle:
     def __init__(self, config):
-        self.map = Map(config['map']['map'][0], config['map']['proximity'])
+        self.map = Map(config['map']['maps'][0], config['map']['proximity'])
         generator = Generator(config, self.map)
         self.steps = generator.generate_events()
         self.social_assets = generator.generate_social_assets()
@@ -22,7 +22,7 @@ class Cycle:
         self.agents_manager = AgentsManager(config['roles'], config['agents'], self.cdm_location)
 
     def restart(self, config_file):
-        self.map.restart(config_file['map']['map'][0], config_file['map']['proximity'])
+        self.map.restart(config_file['map']['maps'][0], config_file['map']['proximity'])
         generator = Generator(config_file, self.map)
         self.steps = generator.generate_events()
         self.social_assets = generator.generate_social_assets()

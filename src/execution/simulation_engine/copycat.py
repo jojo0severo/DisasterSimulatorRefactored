@@ -1,5 +1,4 @@
 import copy
-import random
 import datetime
 from execution.simulation_engine.simulation import Simulation
 
@@ -11,20 +10,14 @@ class CopyCat:
         self.simulation = Simulation(config)
 
     def log(self):
-        self.logs[self.config['map']['map'][0]] = self.simulation.log()
-        self.config['map']['map'].pop(0)
+        self.logs[self.config['map']['maps'][0]] = self.simulation.log()
+        self.config['map']['maps'].pop(0)
 
-        if not self.config['map']['map']:
+        if not self.config['map']['maps']:
             return 0
         return 1
 
     def regenerate(self):
-        if len(self.config['map']['randomSeed']) == len(self.config['map']['map']) - 1:
-            self.config['map']['randomSeed'].pop(0)
-
-        else:
-            self.config['map']['randomSeed'] = random.SystemRandom.shuffle(self.config['map']['randomSeed'])
-
         return self.simulation.restart(self.config)
 
     def connect_agent(self, token):
