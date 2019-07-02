@@ -13,6 +13,9 @@ class SocketManager:
     def get_sockets(self):
         return list(self.socket_clients.values())
 
+    def get_tokens(self):
+        return list(self.socket_clients.keys())
+
     def get_socket(self, token):
         return self.socket_clients.get(token)
 

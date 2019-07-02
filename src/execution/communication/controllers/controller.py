@@ -40,6 +40,9 @@ class Controller:
     def get_sockets(self):
         return self.socket_manager.get_sockets()
 
+    def get_tokens(self):
+        return self.socket_manager.get_tokens()
+
     def edit_agent(self, token, attribute, new_value):
         self.agents_manager.edit_agent(token, attribute, new_value)
 
@@ -87,8 +90,8 @@ class Controller:
     def check_token_registered(self, info_token):
         return self.agents_manager.get_agent(info_token).registered
 
-    def check_agent_action(self, token):
-        return True if self.agents_manager.get_agent(token).action_name else False
+    def check_agent_worked(self, token):
+        return self.agents_manager.get_agent(token).worker
 
     def check_working_agents(self):
         return self.agents_manager.get_workers_amount() == self.agents_manager.get_agents_amount()
