@@ -240,7 +240,7 @@ def finish_step():
             if sim_response['status'] == 0:
                 requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': True})
                 notify_agents('simulation_ended', {'status': 1, 'message': 'Simulation ended all matches.'})
-                os._exit(0)
+                multiprocessing.Process(target=auto_destruction, daemon=True).start()
 
             else:
                 notify_agents('simulation_started', sim_response)
@@ -315,6 +315,26 @@ def notify_agents(event, response):
 
         room = helper.controller.get_socket(token)
         socket.emit(event, json.dumps(info), room=room)
+
+
+@app.route('/terminate')
+def terminate():
+    errors, message = helper.do_internal_verification(request)
+
+    if errors:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    os._exit(0)
+
+    return jsonify('')
+
+
+def auto_destruction():
+    time.sleep(1)
+    try:
+        requests.get(f'http://{base_url}:{api_port}/terminate', json={'secret': secret})
+    except requests.exceptions.ConnectionError:
+        pass
 
 
 if __name__ == '__main__':
