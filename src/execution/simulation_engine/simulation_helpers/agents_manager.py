@@ -11,10 +11,13 @@ class AgentsManager:
         self.roles = self.generate_roles(roles_info, agents_info)
 
     def restart(self, roles_info, agents_info, cdm_location):
+        tokens = list(self.agents.keys())
         self.agents.clear()
         self.cdm_location = cdm_location
         self.roles.clear()
         self.roles = self.generate_roles(roles_info, agents_info)
+        for token in tokens:
+            self.connect_agent(token)
 
     @staticmethod
     def generate_roles(roles_info, agents_info):
