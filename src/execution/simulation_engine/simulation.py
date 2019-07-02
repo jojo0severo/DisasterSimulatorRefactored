@@ -94,16 +94,6 @@ class Simulation:
             for victim in self.cycler.steps[i]['victims']:
                 if not victim.active and victim.lifetime > 0:
                     victims_saved += 1
-                    print('Flood')
-                    print(self.cycler.steps[i]['flood'].active)
-                    print(self.cycler.steps[i]['flood'].period)
-                    print()
-                    print('Victim')
-                    print(victim.identifier)
-                    print(victim.active)
-                    print(victim.lifetime)
-                    print(victim.in_photo)
-                    print('\n' + '=' * 100 + '\n')
 
                 elif not victim.lifetime:
                     victims_dead += 1
