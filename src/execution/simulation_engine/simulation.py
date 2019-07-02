@@ -42,9 +42,6 @@ class Simulation:
         return self.start()
 
     def do_step(self, agent_action_list):
-        if self.terminated:
-            return None
-
         actions = [token_action_param['action'] for token_action_param in agent_action_list]
         tokens = [token_action_param['token'] for token_action_param in agent_action_list]
 
@@ -52,6 +49,9 @@ class Simulation:
         self.actions_amount_by_step.append((self.cycler.current_step, len(agent_action_list)))
         self.actions_by_step.append((self.cycler.current_step, actions))
         self.action_token_by_step.append((self.cycler.current_step, zip(tokens, actions)))
+
+        if self.terminated:
+            return None
 
         actions_results = self.cycler.execute_actions(agent_action_list)
         step = self.cycler.get_step()
@@ -73,8 +73,8 @@ class Simulation:
         delivered_items = self.cycler.delivered_items
         agents_amount = len(self.cycler.agents_manager.get_tokens())
         agents = self.cycler.agents_manager.get_agents_info()
-        active_agents_amount = sum([1 if agent.active else 0 for agent in self.cycler.agents_manager.get_agents_info()])
-        active_agents = [agent for agent in self.cycler.agents_manager.get_agents_info() if agent.active]
+        active_agents_amount = sum([1 if agent.is_active else 0 for agent in self.cycler.agents_manager.get_agents_info()])
+        active_agents = [agent for agent in self.cycler.agents_manager.get_agents_info() if agent.is_active]
 
         floods_amount = 0
         victims_saved = 0
