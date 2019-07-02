@@ -30,7 +30,7 @@ class Manager:
             for token in self.agents:
                 if self.agents[token].worker:
                     action_name = self.agents[token].action_name
-                    action_params = self.agents[token].action_param
+                    action_params = self.agents[token].action_params
 
                     actions.append({'token': token, 'action': action_name, 'parameters': action_params})
 
@@ -40,7 +40,7 @@ class Manager:
             for token in self.agents:
                 if self.agents[token].worker:
                     action_name = self.agents[token].action_name
-                    action_params = self.agents[token].action_param
+                    action_params = self.agents[token].action_params
 
                     actions.append({'token': token, 'action': action_name, 'parameters': action_params})
 
