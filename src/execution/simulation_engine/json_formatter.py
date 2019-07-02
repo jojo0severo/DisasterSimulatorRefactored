@@ -85,13 +85,19 @@ class JsonFormatter:
 
         return json_agents
 
-    @staticmethod
-    def jsonify_agent(agent):
-        json_physical_items = [item.__dict__ for item in agent.physical_storage_vector]
+    def jsonify_agent(self, agent):
+        json_physical_items = self.jsonify_delivered_items(agent.physical_storage_vector)
 
-        json_virtual_items = [item.__dict__ for item in agent.virtual_storage_vector]
+        json_virtual_items = self.jsonify_delivered_items(agent.virtual_storage_vector)
 
-        json_social_assets = [social_asset.__dict__ for social_asset in agent.social_assets]
+        json_social_assets = []
+        for social_asset in agent.social_assets:
+            json_social_asset = {
+                'type': social_asset.type,
+                'location': social_asset.location,
+                'profession': social_asset.profession
+            }
+            json_social_assets.append(json_social_asset)
 
         json_route = [list(location) for location in agent.route]
 
