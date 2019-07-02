@@ -17,32 +17,29 @@ token = None
 @socket.on('simulation_started')
 def simulation_started(msg):
     print()
-    # print('Simulation started: ', end='')
-    # print(msg)
-    # print('Send action: ', end='')
+    print('Simulation started: ', end='')
+    print(msg)
     action = random.choice(actions)
-    print(action)
+    print(f'Send action {action}: ', end='')
     requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': action, 'parameters': []}).json()
-    # print()
+    print()
 
 
 @socket.on('simulation_ended')
 def simulation_ended(msg):
-    # print('Simulation ended: ', end='')
-    # print(msg)
-    # print()
+    print('Simulation ended: ', end='')
+    print(msg)
     os._exit(0)
 
 
 @socket.on('action_results')
 def action_result(msg):
-    # print('Action results: ', end='')
-    # print(msg)
+    print('Action results: ', end='')
+    print(msg)
     action = random.choice(actions)
-    print(action)
-    # print('Send action: ', end='')
+    print(f'Send action {action}: ', end='')
     requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': action, 'parameters': []}).json()
-    # print()
+    print()
 
 
 def connect_agent():
