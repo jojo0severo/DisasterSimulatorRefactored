@@ -86,7 +86,7 @@ def connect_agent():
     errors, message = helper.do_connection_verifications(request)
 
     if not errors:
-        agent_info = request.get_json(force=True)
+        agent_info = json.loads(request.get_json(force=True))
         token = jwt.encode(agent_info, 'secret', algorithm='HS256').decode('utf-8')
 
         helper.controller.add_agent(token, agent_info)
@@ -123,13 +123,13 @@ def validate_agent():
 
 
 @socket.on('connect_registered_agent')
-def connect_registered_agent(message):
+def connect_registered_agent(msg):
     response = {'status': 0, 'result': False, 'message': 'Error.'}
 
-    errors, message = helper.do_socket_connection_verifications(message)
+    errors, message = helper.do_socket_connection_verifications(msg)
 
     if not errors:
-        token = json.loads(message)['token']
+        token = json.loads(msg)['token']
         helper.controller.add_socket(token, request.sid)
 
         try:
@@ -160,14 +160,15 @@ def connect_registered_agent(message):
 
 
 @socket.on('disconnect_registered_agent')
-def disconnect_registered_agent(message):
+def disconnect_registered_agent(msg):
+
     response = {'status': 0, 'result': False, 'message': 'Error.'}
 
-    errors, message = helper.do_socket_disconnection_verifications(message)
+    errors, message = helper.do_socket_disconnection_verifications(msg)
 
     if not errors:
         try:
-            token = json.loads(message)['token']
+            token = json.loads(msg)['token']
             sim_response = requests.put(f'http://{base_url}:{simulation_port}/delete_agent',
                                         json={'token': token, 'secret': secret}).json()
 
@@ -229,7 +230,7 @@ def finish_step():
         helper.controller.clear_workers()
 
         if sim_response['status'] == 0:
-            print('Error: ' + sim_response['message'])
+            print(sim_response['message'])
             print('An internal error occurred. Shutting down...')
             requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': True})
             os._exit(1)
@@ -301,7 +302,7 @@ def send_action():
 
 
 def notify_agents(event, response):
-    for token in helper.controller.get_sockets():
+    for token in helper.controller.get_tokens():
         if event == 'simulation_started':
             info = json_formatter.simulation_started_format(response, token)
 
