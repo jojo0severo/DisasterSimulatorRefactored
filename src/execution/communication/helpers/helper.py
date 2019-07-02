@@ -84,10 +84,11 @@ class Helper:
         error = True
         try:
             token = json.loads(socket_message)['token']
+
             if not self.controller.check_timer():
                 message = 'Can no longer connect due to time.'
 
-            elif not self.controller.check_agent_token(json.loads(token)):
+            elif not self.controller.check_agent_token(token):
                 message = 'Agent not connected or invalid Token.'
 
             elif not self.controller.check_token_registered(token):
@@ -163,7 +164,7 @@ class Helper:
                 elif not self.controller.check_token_registered(token):
                     message = 'Agent not registered.'
 
-                elif self.controller.check_agent_action(token):
+                elif self.controller.check_agent_worked(token):
                     message = 'The agent has already sent a job'
 
                 else:
