@@ -44,6 +44,8 @@ class Starter:
         self.env_handler.create_environment(globally, python_version)
 
     def get_arguments(self):
+        self.parser.check_arguments()
+
         config_file = self.parser.get_argument('conf')
 
         with open(config_file, 'r') as configuration_file:
