@@ -189,13 +189,16 @@ class Cycle:
             error_message = e.message
 
         except FailedLocation as e:
-            return e.message
+            error_message = e.message
 
         except FailedUnknownFacility as e:
             error_message = e.message
 
         except FailedUnknownItem as e:
             error_message = e.message
+
+        except Exception as e:
+            error_message = str(e)
 
         finally:
             return {'agent': self.agents_manager.get_agent(token), 'message': error_message}

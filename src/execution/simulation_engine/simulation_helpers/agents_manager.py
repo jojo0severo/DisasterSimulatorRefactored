@@ -66,10 +66,10 @@ class AgentsManager:
         self.agents[token].charge()
 
     def add_physical(self, token, item):
-        self.agents[token].add_physical(item)
+        self.agents[token].add_physical_item(item)
 
     def add_virtual(self, token, item):
-        self.agents[token].add_virtual(item)
+        self.agents[token].add_virtual_item(item)
 
     def discharge_agent(self, token):
         self.agents[token].discharge()
