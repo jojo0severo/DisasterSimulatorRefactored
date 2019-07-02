@@ -9,7 +9,7 @@ from flask_cors import CORS
 from execution.simulation_engine.json_formatter import JsonFormatter
 from waitress import serve
 
-config_path, base_url, simulation_port, api_port, secret = sys.argv[1:]
+config_path, base_url, simulation_port, api_port, log, secret = sys.argv[1:]
 
 
 app = Flask(__name__)
@@ -101,7 +101,8 @@ def finish():
         return jsonify(message='This endpoint can not be accessed.')
 
     if 'api' in message and message['api']:
-        formatter.save_logs()
+        if log.lower() == 'true':
+            formatter.save_logs()
         multiprocessing.Process(target=auto_destruction, daemon=True).start()
 
     elif 'api' in message and not message['api']:

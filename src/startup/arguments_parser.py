@@ -16,6 +16,10 @@ class Parser:
         self.parser.add_argument('-step_t', required=False, type=int, default=30)
         self.parser.add_argument('-first_t', required=False, type=int, default=60)
         self.parser.add_argument('-mtd', required=False, type=str, default='time')
+        self.parser.add_argument('-log', required=False, type=str, default='true')
+
+    def check_arguments(self):
+        return None
 
     def get_argument(self, arg):
         args = self.parser.parse_args()
@@ -28,7 +32,7 @@ class Parser:
     def get_simulation_arguments(self):
         args = self.parser.parse_args()
 
-        return [args.conf, args.url, args.sp, args.ap]
+        return [args.conf, args.url, args.sp, args.ap, args.log]
 
     def get_api_arguments(self):
         args = self.parser.parse_args()
