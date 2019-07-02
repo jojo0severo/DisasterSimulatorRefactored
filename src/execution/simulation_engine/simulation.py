@@ -124,7 +124,7 @@ class Simulation:
 
         return {
             'environment': {
-                'current_step': max_steps if current_step >= max_steps else current_step,
+                'current_step': current_step,
                 'max_steps': max_steps,
                 'delivered_items': delivered_items,
                 'floods_amount': floods_amount,

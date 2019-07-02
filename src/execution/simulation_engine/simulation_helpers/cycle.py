@@ -44,7 +44,7 @@ class Cycle:
         return self.agents_manager.disconnect_agent(token)
 
     def check_steps(self):
-        return self.current_step == self.max_steps + 1
+        return self.current_step == self.max_steps
 
     def get_step(self):
         return self.steps[self.current_step]

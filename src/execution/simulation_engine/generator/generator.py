@@ -20,7 +20,7 @@ class Generator:
         random.seed(config['map']['randomSeed'])
 
     def generate_events(self) -> list:
-        steps_number: int = self.map_variables['steps'] + 1
+        steps_number: int = self.map_variables['steps']
         events = [0] * steps_number
 
         flood = self.generate_flood()
