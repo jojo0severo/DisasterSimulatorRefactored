@@ -49,8 +49,9 @@ def action_results_format(response, token):
             info['result'] = True
 
             for agent in response['agents']:
-                if agent['token'] == token:
-                    info['agent'] = agent
+                if agent['agent']['token'] == token:
+                    info['agent'] = agent['agent']
+                    info['message'] = agent['message']
                     break
 
             if not info['agent']:
@@ -58,7 +59,8 @@ def action_results_format(response, token):
 
             info['event'] = response['event']
 
-        info['message'] = response['message']
+        else:
+            info['message'] = response['message']
 
         return info
 
