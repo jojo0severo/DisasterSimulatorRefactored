@@ -249,7 +249,7 @@ def finish_step():
                 multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
 
         else:
-            notify_agents('action_result', sim_response)
+            notify_agents('action_results', sim_response)
 
             helper.controller.processing_actions = False
             multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
@@ -281,10 +281,11 @@ def send_action():
     errors, message = helper.do_action_verifications(request)
 
     if not errors:
-        token = request.get_json(force=True)['token']
-        helper.controller.edit_agent(token, 'action_name', message['action'])
-        helper.controller.edit_agent(token, 'action_params', message['parameters'])
-        helper.controller.edit_agent(token, 'worker', True)
+        msg = request.get_json(force=True)
+
+        helper.controller.edit_agent(msg['token'], 'action_name', msg['action'])
+        helper.controller.edit_agent(msg['token'], 'action_params', msg['parameters'])
+        helper.controller.edit_agent(msg['token'], 'worker', True)
 
         response['status'] = 1
         response['result'] = True
