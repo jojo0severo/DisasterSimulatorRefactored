@@ -41,11 +41,15 @@ class Helper:
                 message = 'Agent already is connected.'
 
             else:
+                json.loads(request_object.get_json(force=True))
                 message = 'Ok.'
                 error = False
 
         except json.JSONDecodeError:
             message = 'Wrong JSON format or information.'
+
+        except TypeError as t:
+            message = f'Wrong format: {str(t)}'
 
         return error, message
 
@@ -100,6 +104,9 @@ class Helper:
         except json.decoder.JSONDecodeError:
             message = 'Wrong JSON format or information.'
 
+        except TypeError as t:
+            message = f'Wrong format: {str(t)}.'
+
         return error, message
 
     def do_socket_disconnection_verifications(self, socket_message):
@@ -119,6 +126,9 @@ class Helper:
 
         except json.decoder.JSONDecodeError:
             message = 'Wrong JSON format or information.'
+
+        except TypeError as t:
+            message = f'Wrong format. {str(t)}'
 
         return error, message
 
