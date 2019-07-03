@@ -44,7 +44,6 @@ class Agent:
         self.virtual_storage = self.virtual_capacity
 
     def add_physical_item(self, item):
-
         size = item.size
         if size > self.physical_storage:
             raise FailedCapacity('The agent does not have enough physical storage.')
@@ -63,14 +62,14 @@ class Agent:
 
     def remove_physical_item(self, item, amount):
         if self.physical_storage == self.physical_capacity:
-            raise FailedItemAmount('The agents has no victims or water samples to deliver.')
+            raise FailedItemAmount('The agents has no victims, water samples or social assets to deliver.')
 
         found_item = False
-        removed = []
+        removed_items = []
         for stored_item in self.physical_storage_vector:
-            if item == stored_item.type and amount:
+            if item == stored_item.identifier and amount:
                 found_item = True
-                removed.append(stored_item)
+                removed_items.append(stored_item)
                 amount -= 1
 
             elif not amount:
@@ -79,23 +78,22 @@ class Agent:
         if not found_item:
             raise FailedUnknownItem('No physical item with this ID is stored.')
 
-        for removed_item in removed:
+        for removed_item in removed_items:
             self.physical_storage_vector.remove(removed_item)
             self.physical_storage += removed_item.size
 
-        return removed
+        return removed_items
 
     def remove_virtual_item(self, item, amount):
         if self.virtual_storage == self.virtual_capacity:
             raise FailedItemAmount('The agents has no photos to deliver.')
 
         found_item = False
-        removed = []
+        removed_items = []
         for stored_item in self.virtual_storage_vector:
-
-            if item == stored_item.type and amount:
+            if item == stored_item.identifier and amount:
                 found_item = True
-                removed.append(stored_item)
+                removed_items.append(stored_item)
                 amount -= 1
 
             elif not amount:
@@ -104,11 +102,11 @@ class Agent:
         if not found_item:
             raise FailedUnknownItem('No virtual item with this ID is stored.')
 
-        for removed_item in removed:
+        for removed_item in removed_items:
             self.virtual_storage_vector.remove(removed_item)
             self.virtual_storage += removed_item.size
 
-        return removed
+        return removed_items
 
     def disconnect(self):
         self.is_active = False
