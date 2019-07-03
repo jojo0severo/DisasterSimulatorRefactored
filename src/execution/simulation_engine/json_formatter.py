@@ -126,6 +126,7 @@ class JsonFormatter:
             return {'flood': '', 'victims': [], 'water_samples': [], 'photos': []}
 
         json_flood = {
+            'identifier': events_list['flood'].identifier,
             'type': 'flood',
             'location': list(events_list['flood'].dimensions['location']),
             'shape': events_list['flood'].dimensions['shape']
@@ -137,6 +138,7 @@ class JsonFormatter:
         json_victims = []
         for victim in events_list['victims']:
             json_victim = {
+                'identifier': victim.identifier,
                 'type': 'victim',
                 'location': list(victim.location),
                 'size': victim.size,
@@ -147,6 +149,7 @@ class JsonFormatter:
         json_water_samples = []
         for water_sample in events_list['water_samples']:
             json_water_sample = {
+                'identifier': water_sample.identifier,
                 'type': 'water_sample',
                 'location': list(water_sample.location),
                 'size': water_sample.size
@@ -159,6 +162,7 @@ class JsonFormatter:
             for victim in photo.victims:
                 if victim.active:
                     json_victim = {
+                        'identifier': victim.identifier,
                         'type': 'victim',
                         'location': list(victim.location),
                         'size': victim.size,
@@ -167,6 +171,7 @@ class JsonFormatter:
                     json_photo_victims.append(json_victim)
 
             json_photo = {
+                'identifier': photo.identifier,
                 'type': 'photo',
                 'location': list(photo.location),
                 'size': photo.size,
@@ -184,6 +189,7 @@ class JsonFormatter:
         for item in items:
             if item.type == 'victim':
                 json_item = {
+                    'identifier': item.identifier,
                     'type': 'victim',
                     'location': list(item.location),
                     'size': item.size,
@@ -195,6 +201,7 @@ class JsonFormatter:
 
                 for victim in item.victims:
                     json_victim = {
+                        'identifier': victim.identifier,
                         'type': 'victim',
                         'location': list(victim.location),
                         'size': victim.size,
@@ -203,6 +210,7 @@ class JsonFormatter:
                     json_photo_victims.append(json_victim)
 
                 json_item = {
+                    'identifier': item.identifier,
                     'type': 'photo',
                     'location': list(item.location),
                     'size': item.size,
@@ -211,6 +219,7 @@ class JsonFormatter:
 
             elif item.type == 'water_sample':
                 json_item = {
+                    'identifier': item.identifier,
                     'type': 'water_sample',
                     'location': list(item.location),
                     'size': item.size
@@ -218,6 +227,7 @@ class JsonFormatter:
 
             else:
                 json_item = {
+                    'identifier': item.identifier,
                     'type': 'Unknown'
                 }
 
