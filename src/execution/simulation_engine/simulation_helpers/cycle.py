@@ -165,6 +165,9 @@ class Cycle:
             elif action_name == 'deliver_virtual':
                 self._deliver_virtual(token, parameters)
 
+            else:
+                error_message = 'Wrong action name given.'
+
             return {'agent': self.agents_manager.get_agent(token), 'message': error_message}
 
         except FailedNoSocialAsset as e:
@@ -361,6 +364,9 @@ class Cycle:
         if agent.role == 'drone':
             raise FailedInvalidKind('Agent role does not support carrying social asset.')
 
+        if not agent.social_assets:
+            raise FailedNoSocialAsset('Agent did not requests any social asset.')
+
         for social_asset in self.social_assets:
             if social_asset in agent.social_assets:
                 if social_asset.active and self.map.check_location(agent.location, social_asset.location):
@@ -369,7 +375,7 @@ class Cycle:
                     social_asset.active = False
                     return
 
-        raise FailedNoSocialAsset('Invalid social asset requested.')
+        raise FailedNoSocialAsset('Invalid social asset location requested.')
 
     def _delivery_physical(self, token, parameters):
         if len(parameters) < 1:
@@ -407,10 +413,10 @@ class Cycle:
         agent = self.agents_manager.get_agent(token)
         if self.map.check_location(agent.location, self.cdm_location):
             if len(parameters) == 1:
-                delivered_items = self.agents_manager.deliver_physical(token, parameters[0])
+                delivered_items = self.agents_manager.deliver_virtual(token, parameters[0])
 
             else:
-                delivered_items = self.agents_manager.deliver_physical(token, parameters[0], parameters[1])
+                delivered_items = self.agents_manager.deliver_virtual(token, parameters[0], parameters[1])
 
             self.delivered_items.append({
                 'token': token,
@@ -431,6 +437,3 @@ class Cycle:
                     photo.analyzed = True
                     for victim in photo.victims:
                         victim.active = True
-
-    def __del__(self):
-        del self.map
