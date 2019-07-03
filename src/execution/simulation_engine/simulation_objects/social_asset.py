@@ -4,6 +4,6 @@ class SocialAsset:
         self.identifier: int = identifier
         self.type: str = 'social_asset'
         self.size: int = size
-        self.active: bool = False
+        self.active: bool = True
         self.location: tuple = location
         self.profession: str = profession
