@@ -3,10 +3,19 @@ import pathlib
 
 
 class Checker:
+    """Class that handles all the verifications on the configuration file.
+
+    Note that no function raises any kind of Error, the treatment of any possible error is responsible by the caller."""
+
     def __init__(self, config_file):
         self.config = pathlib.Path(__file__).parents[3] / config_file
 
     def test_json_load(self):
+        """Test if the file can be loaded.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         try:
             with open(self.config, 'r') as config:
                 json.load(config)
@@ -15,6 +24,11 @@ class Checker:
             return 0, 'Error loading the file.'
 
     def test_main_keys(self):
+        """Test if the main keys of the configuration file are present.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['map', 'agents', 'roles', 'generate']
 
         config = json.load(open(self.config, 'r'))
@@ -32,6 +46,11 @@ class Checker:
         return 1, 'General: Ok.'
 
     def test_map_key(self):
+        """Test the keys and objects inside the map obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['id', 'steps', 'maps', 'minLon', 'maxLon', 'minLat', 'maxLat', 'centerLat', 'centerLon', 'proximity',
                 'randomSeed']
 
@@ -93,6 +112,11 @@ class Checker:
         return 1, 'Map: Ok.'
 
     def test_agents_key(self):
+        """Test the keys and objects inside the agents obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['drone', 'car', 'boat']
 
         agents = json.load(open(self.config, 'r'))['agents']
@@ -107,6 +131,11 @@ class Checker:
         return 1, 'Agents: Ok.'
 
     def test_roles_key(self):
+        """Test the keys and objects inside the roles obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['drone', 'car', 'boat']
         sub_keys = ['speed', 'physicalCapacity', 'virtualCapacity', 'battery', 'kind']
 
@@ -127,6 +156,11 @@ class Checker:
         return 1, 'Roles: Ok.'
 
     def test_generate_key(self):
+        """Test the keys and objects inside the generate obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['floodProbability', 'flood', 'photo', 'victim', 'waterSample', 'socialAsset']
 
         generate = json.load(open(self.config, 'r'))['generate']
@@ -181,6 +215,11 @@ class Checker:
 
     @staticmethod
     def _test_flood_keys(flood):
+        """Test the keys and objects inside the flood obj that is inside the generate obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['minPeriod', 'maxPeriod', 'circle']
         sub_keys = ['minRadius', 'maxRadius']
 
@@ -231,6 +270,11 @@ class Checker:
 
     @staticmethod
     def _test_photo_keys(photo):
+        """Test the keys and objects inside the photo obj that is inside the generate obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['size', 'minAmount', 'maxAmount', 'victimProbability']
 
         for key in keys:
@@ -257,6 +301,11 @@ class Checker:
 
     @staticmethod
     def _test_victim_keys(victim):
+        """Test the keys and objects inside the victim obj that is inside the generate obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['minSize', 'maxSize', 'minAmount', 'maxAmount', 'minLifetime', 'maxLifetime']
 
         for key in keys:
@@ -292,6 +341,11 @@ class Checker:
 
     @staticmethod
     def _test_water_sample_keys(water_sample):
+        """Test the keys and objects inside the water sample obj that is inside the generate obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['size', 'minAmount', 'maxAmount']
 
         for key in keys:
@@ -318,6 +372,11 @@ class Checker:
 
     @staticmethod
     def _test_social_asset_keys(social_asset):
+        """Test the keys and objects inside the social asset obj that is inside the generate obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
         keys = ['minAmount', 'maxAmount', 'minSize', 'maxSize', 'profession']
 
         for key in keys:

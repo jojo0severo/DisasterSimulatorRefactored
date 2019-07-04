@@ -1,3 +1,5 @@
+"""Module responsible for the startup of the system. The only one that can be called by the end-users."""
+
 from src.system.startup.thread_starter import Starter
 
 
