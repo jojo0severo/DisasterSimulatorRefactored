@@ -1,4 +1,4 @@
-from src.startup.thread_starter import Starter
+from src.system.startup.thread_starter import Starter
 
 
 if __name__ == '__main__':
