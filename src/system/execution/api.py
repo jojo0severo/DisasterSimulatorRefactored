@@ -9,10 +9,11 @@ import multiprocessing
 from multiprocessing import Queue
 from flask_socketio import SocketIO
 from flask import Flask, request, jsonify
-from execution.communication.helpers.helper import Helper
-from execution.communication.helpers import json_formatter
+from communication.helpers.helper import Helper
+from communication.helpers import json_formatter
 
-base_url, api_port, simulation_port, step_time, first_step_time, method, agents_amount, secret = sys.argv[1:]
+base_url, api_port, simulation_port, step_time, first_step_time, method, secret, agents_amount = sys.argv[1:]
+
 
 app = Flask(__name__)
 socket = SocketIO(app=app)
@@ -320,13 +321,14 @@ def notify_agents(event, response):
         socket.emit(event, json.dumps(info), room=room)
 
 
-@app.route('/terminate')
+@app.route('/terminate', methods=['GET'])
 def terminate():
     errors, message = helper.do_internal_verification(request)
 
     if errors:
         return jsonify(message='This endpoint can not be accessed.')
 
+    socket.stop()
     os._exit(0)
 
     return jsonify('')

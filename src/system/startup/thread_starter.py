@@ -1,11 +1,10 @@
 import json
-import secrets
 import pathlib
 import subprocess
 from multiprocessing import Process
-from src.startup.environment_handler import Handler
-from src.startup.arguments_parser import Parser
-from src.startup.configuration_checker import Checker
+from src.system.startup.environment_handler import Handler
+from src.system.startup.arguments_parser import Parser
+from src.system.startup.configuration_checker import Checker
 
 
 class Starter:
@@ -13,7 +12,7 @@ class Starter:
         self.parser = Parser()
         self.env_handler = Handler()
         self.checker = Checker(self.parser.get_argument('conf'))
-        self.root = pathlib.Path(__file__).parents[1].absolute()
+        self.root = pathlib.Path(__file__).parents[2].absolute()
 
     def start(self):
         self.check_configuration_file()
@@ -47,26 +46,24 @@ class Starter:
         self.parser.check_arguments()
 
         config_file = self.parser.get_argument('conf')
+        config_file = pathlib.Path(__file__).parents[3] / config_file
 
         with open(config_file, 'r') as configuration_file:
             agents_amount = sum(json.load(configuration_file)['agents'].values())
 
-        secret = secrets.token_urlsafe(15)
-
         simulation_arguments = self.parser.get_simulation_arguments()
-        simulation_arguments.append(secret)
 
         api_arguments = self.parser.get_api_arguments()
-        api_arguments.extend([agents_amount, secret])
+        api_arguments.append(agents_amount)
 
         return api_arguments, simulation_arguments, self.parser.get_argument('pyv')
 
     def start_processes(self, api_arguments, simulation_arguments, python_version):
-        simulation_path = str((self.root / 'execution' / 'simulation.py').absolute())
+        simulation_path = str((self.root / 'system' / 'execution' / 'simulation.py').absolute())
         simulation_process_arguments = (simulation_path, simulation_arguments, self.env_handler.venv_path, python_version)
         simulation_process = Process(target=self.start_simulation, args=simulation_process_arguments, daemon=True)
 
-        api_path = str((self.root / 'execution' / 'api.py').absolute())
+        api_path = str((self.root / 'system' / 'execution' / 'api.py').absolute())
         api_process_arguments = (api_path, api_arguments, self.env_handler.venv_path, python_version)
         api_process = Process(target=self.start_api, args=api_process_arguments, daemon=True)
 

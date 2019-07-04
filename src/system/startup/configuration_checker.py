@@ -1,9 +1,10 @@
 import json
+import pathlib
 
 
 class Checker:
     def __init__(self, config_file):
-        self.config = config_file
+        self.config = pathlib.Path(__file__).parents[3] / config_file
 
     def test_json_load(self):
         try:

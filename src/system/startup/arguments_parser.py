@@ -1,9 +1,11 @@
 import argparse
+import secrets
 
 
 class Parser:
     def __init__(self):
         self.parser = argparse.ArgumentParser(prog='Disaster Simulator')
+        self.secret = secrets.token_urlsafe(15)
         self.add_arguments()
 
     def add_arguments(self):
@@ -17,6 +19,7 @@ class Parser:
         self.parser.add_argument('-first_t', required=False, type=int, default=60)
         self.parser.add_argument('-mtd', required=False, type=str, default='time')
         self.parser.add_argument('-log', required=False, type=str, default='true')
+        self.parser.add_argument('-secret', required=False, type=str, default='')
 
     def check_arguments(self):
         return None
@@ -32,15 +35,24 @@ class Parser:
     def get_simulation_arguments(self):
         args = self.parser.parse_args()
 
-        return [args.conf, args.url, args.sp, args.ap, args.log]
+        if not args.secret:
+            secret = self.secret
+        else:
+            secret = args.secret
+        return [args.conf, args.url, args.sp, args.ap, args.log, secret]
 
     def get_api_arguments(self):
         args = self.parser.parse_args()
 
-        return [args.url, args.ap, args.sp, args.step_t, args.first_t, args.mtd]
+        if not args.secret:
+            secret = self.secret
+        else:
+            secret = args.secret
+
+        return [args.url, args.ap, args.sp, args.step_t, args.first_t, args.mtd, secret]
 
     def get_arguments(self):
         args = self.parser.parse_args()
 
         return [args.conf, args.url, args.sp, args.ap, args.pyv, args.g,
-                args.step_t, args.first_t, args.mtd]
+                args.step_t, args.first_t, args.mtd, args.secret]

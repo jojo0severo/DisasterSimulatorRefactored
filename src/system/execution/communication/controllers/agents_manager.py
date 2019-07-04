@@ -1,5 +1,5 @@
 import time
-from execution.communication.objects.agent import Agent
+from communication.objects.agent import Agent
 
 
 class Manager:

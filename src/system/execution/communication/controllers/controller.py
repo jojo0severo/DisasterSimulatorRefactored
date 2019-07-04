@@ -1,6 +1,6 @@
 import time
-from execution.communication.controllers.socket_manager import SocketManager
-from execution.communication.controllers.agents_manager import Manager
+from communication.controllers.socket_manager import SocketManager
+from communication.controllers.agents_manager import Manager
 
 
 class Controller:

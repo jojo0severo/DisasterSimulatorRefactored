@@ -1,5 +1,5 @@
 import json
-from execution.communication.controllers.controller import Controller
+from communication.controllers.controller import Controller
 
 
 class Helper:

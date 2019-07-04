@@ -4,9 +4,9 @@ import subprocess
 
 
 class Handler:
-    def __init__(self, ):
+    def __init__(self):
         self.venv_path = None
-        self.root = pathlib.Path(__file__).parents[2].absolute()
+        self.root = pathlib.Path(__file__).parents[3].absolute()
 
     def create_environment(self, globally, python_version):
         if globally:
@@ -20,8 +20,10 @@ class Handler:
                 try:
                     subprocess.call(['virtualenv', 'venv'])
                 except FileNotFoundError:
-                    subprocess.call([f'pip{python_version}', 'install', 'virtualenv'])
-                    subprocess.call(['virtualenv', 'venv'])
+                    FNULL = open(os.devnull, 'w')
+                    subprocess.call([f'pip{python_version}', 'install', 'virtualenv'], stdout=FNULL,
+                                    stderr=subprocess.STDOUT)
+                    subprocess.call(['virtualenv', 'venv'], stdout=FNULL, stderr=subprocess.STDOUT)
 
             venv_path += '/' if venv_path.find('/') else '\\'
             self.venv_path = venv_path
@@ -35,7 +37,8 @@ class Handler:
 
         return str(venv_path.absolute())
 
-    @staticmethod
-    def install_requirements(venv_path, python_version):
-        subprocess.call([f"{str(venv_path)}pip{python_version}", "install", "-r", "requirements.txt"])
-
+    def install_requirements(self, venv_path, python_version):
+        requirements_path = self.root / 'requirements.txt'
+        FNULL = open(os.devnull, 'w')
+        subprocess.call([f"{str(venv_path)}pip{python_version}", "install", "-r", str(requirements_path.absolute())],
+                        stdout=FNULL, stderr=subprocess.STDOUT)
