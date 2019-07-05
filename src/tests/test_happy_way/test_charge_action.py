@@ -15,13 +15,13 @@ def connect_agent():
     global token
     response = requests.post('http://127.0.0.1:12345/connect_agent', json=json.dumps(agent)).json()
     token = response['message']
-    requests.post('http://127.0.0.1:12345/validate_agent', json=token).json()
+    requests.post('http://127.0.0.1:12345/validate_agent', json=json.dumps({'token': token}))
     socket.emit('connect_registered_agent', data=json.dumps({'token': token}))
 
 
 @socket.on('simulation_started')
 def simulation_started(*msg):
-    requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'move', 'parameters': ['cdm']}).json()
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))
 
 
 @socket.on('action_results')
@@ -35,10 +35,10 @@ def action_result(msg):
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         else:
-            requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'charge', 'parameters': []}).json()
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'charge', 'parameters': []}))
 
     else:
-        requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'move', 'parameters': []}).json()
+        requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))
 
 
 @socket.on('simulation_ended')

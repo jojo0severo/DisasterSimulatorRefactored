@@ -18,21 +18,21 @@ def connect_agent():
     global token
     response = requests.post('http://127.0.0.1:12345/connect_agent', json=json.dumps(agent)).json()
     token = response['message']
-    requests.post('http://127.0.0.1:12345/validate_agent', json=token).json()
+    requests.post('http://127.0.0.1:12345/validate_agent', json=json.dumps({'token': token}))
     socket.emit('connect_registered_agent', data=json.dumps({'token': token}))
 
 
 @socket.on('simulation_started')
 def simulation_started(msg):
     action = random.choice(actions)
-    requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': action, 'parameters': []}).json()
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': action, 'parameters': []}))
 
 
 @socket.on('action_results')
 def action_result(msg):
     try:
         action = random.choice(actions)
-        requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': action, 'parameters': []}).json()
+        requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': action, 'parameters': []}))
         responses.append(True)
 
     except:

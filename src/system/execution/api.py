@@ -110,7 +110,7 @@ def validate_agent():
     errors, message = helper.do_validation_verifications(request)
 
     if not errors:
-        token = request.get_json(force=True)
+        token = json.loads(request.get_json(force=True))['token']
 
         helper.controller.edit_agent(token, 'registered', True)
 
@@ -284,7 +284,7 @@ def send_action():
     errors, message = helper.do_action_verifications(request)
 
     if not errors:
-        msg = request.get_json(force=True)
+        msg = json.loads(request.get_json(force=True))
 
         helper.controller.edit_agent(msg['token'], 'action_name', msg['action'])
         helper.controller.edit_agent(msg['token'], 'action_params', msg['parameters'])
@@ -315,7 +315,7 @@ def notify_agents(event, response):
             info = json_formatter.action_results_format(response, token)
 
         else:
-            info = json_formatter.event_error_format('Wrong event name. ')
+            exit('Wrong event name. Possible internal errors.')
 
         room = helper.controller.get_socket(token)
         socket.emit(event, json.dumps(info), room=room)

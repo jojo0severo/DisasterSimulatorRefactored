@@ -17,14 +17,14 @@ def connect_agent():
     global token
     response = requests.post('http://127.0.0.1:12345/connect_agent', json=json.dumps(agent)).json()
     token = response['message']
-    requests.post('http://127.0.0.1:12345/validate_agent', json=token).json()
+    requests.post('http://127.0.0.1:12345/validate_agent', json=json.dumps({'token': token}))
     socket.emit('connect_registered_agent', data=json.dumps({'token': token}))
 
 
 @socket.on('simulation_started')
 def simulation_started(msg):
     water_loc = get_water_loc(msg)
-    requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'move', 'parameters': water_loc}).json()
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': water_loc}))
 
 
 def get_water_loc(msg):
@@ -58,18 +58,18 @@ def action_result(msg):
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         elif not got:
-            requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'collect_water', 'parameters': []}).json()
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'collect_water', 'parameters': []}))
             got = True
 
         elif got and msg['agent']['last_action'] == 'move':
             obj_id = msg['agent']['physical_storage_vector'][0]['identifier']
-            requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'deliver_physical', 'parameters': [obj_id]})
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliver_physical', 'parameters': [obj_id]}))
 
         elif got:
-            requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'move', 'parameters': ['cdm']})
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))
 
     else:
-        requests.post('http://127.0.0.1:12345/send_action', json={'token': token, 'action': 'move', 'parameters': []}).json()
+        requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))
 
 
 @socket.on('simulation_ended')

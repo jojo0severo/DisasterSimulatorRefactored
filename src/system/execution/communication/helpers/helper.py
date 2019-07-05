@@ -56,6 +56,8 @@ class Helper:
     def do_validation_verifications(self, request_object):
         error = True
         try:
+            token = json.loads(request_object.get_json(force=True))['token']
+
             if not self.controller.started:
                 message = 'Simulation has not started.'
 
@@ -65,10 +67,10 @@ class Helper:
             elif not self.controller.check_timer():
                 message = 'Connection time ended.'
 
-            elif not self.controller.check_agent_token(request_object.get_json(force=True)):
+            elif not self.controller.check_agent_token(token):
                 message = 'Agent not connected or invalid Token.'
 
-            elif self.controller.check_token_registered(request_object.get_json(force=True)):
+            elif self.controller.check_token_registered(token):
                 message = 'Agent already registered.'
 
             else:
@@ -77,6 +79,9 @@ class Helper:
 
         except json.JSONDecodeError:
             message = 'Wrong JSON format or information.'
+
+        except KeyError:
+            message = 'Token key not find in message.'
 
         return error, message
 
@@ -150,7 +155,7 @@ class Helper:
 
         else:
             try:
-                message = request_object.get_json(force=True)
+                message = json.loads(request_object.get_json(force=True))
                 token = message['token']
                 _ = message['action']
                 _ = message['parameters']
