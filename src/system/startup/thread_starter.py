@@ -30,6 +30,7 @@ class Starter:
         3 - Start the processes that will run the API and Simulation."""
 
         self.check_configuration_file()
+        self.check_arguments()
         self.create_environment()
         arguments = self.get_arguments()
         self.start_processes(*arguments)
@@ -37,8 +38,7 @@ class Starter:
     def check_configuration_file(self):
         """Do all the verifications on the configuration file.
 
-        if any errors are found on the configuration file: exits the program with the appropriate message,
-        else returns."""
+        if any errors are found on the configuration file: exits the program with the appropriate message."""
 
         test = self.checker.test_json_load()
         if test[0]:
@@ -54,6 +54,15 @@ class Starter:
                             if test[0]:
                                 return
         exit(test[1])
+
+    def check_arguments(self):
+        """Do all the verifications on the arguments.
+
+        if any errors are found on the arguments: exits the program with the appropriate message."""
+
+        test = self.parser.check_arguments()
+        if not test[0]:
+            exit(test[1])
 
     def create_environment(self):
         """Prepare the global environment or create one and prepare it.
