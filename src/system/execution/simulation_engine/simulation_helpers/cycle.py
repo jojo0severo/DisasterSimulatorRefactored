@@ -235,21 +235,21 @@ class Cycle:
 
         agent = self.agents_manager.get_agent(token)
 
-        if self.map.check_location(agent.location, destination):
+        if not agent.check_battery():
+            raise FailedInsufficientBattery('Not enough battery to complete this step.')
+
+        elif self.map.check_location(agent.location, destination):
             self.agents_manager.edit_agent(token, 'route', [])
             self.agents_manager.edit_agent(token, 'destination_distance', 0)
             self.agents_manager.edit_agent(token, 'last_action_result', True)
 
-        elif not agent.check_battery():
-            raise FailedInsufficientBattery('Not enough battery to complete this step.')
-
         else:
-            nodes = []
-            for i in range(self.current_step):
-                if self.steps[i]['flood'] and self.steps[i]['flood'].active:
-                    nodes.extend(self.steps[i]['flood'].list_of_nodes)
-
             if not agent.route:
+                nodes = []
+                for i in range(self.current_step):
+                    if self.steps[i]['flood'] and self.steps[i]['flood'].active:
+                        nodes.extend(self.steps[i]['flood'].list_of_nodes)
+
                 result, route, distance = self.map.get_route(agent.location, destination, agent.role, agent.speed, nodes)
 
                 if not result:
@@ -266,7 +266,7 @@ class Cycle:
                 self.agents_manager.update_agent_location(token)
 
     def _rescue_victim(self, token, parameters):
-        if len(parameters) > 0:
+        if parameters:
             raise FailedWrongParam('Parameters were given.')
 
         agent = self.agents_manager.get_agent(token)
@@ -290,7 +290,7 @@ class Cycle:
         raise FailedUnknownItem('No victim by the given location is known.')
 
     def _collect_water(self, token, parameters):
-        if len(parameters) > 0:
+        if parameters:
             raise FailedWrongParam('Parameters were given.')
 
         agent = self.agents_manager.get_agent(token)
@@ -305,7 +305,7 @@ class Cycle:
         raise FailedLocation('The agent is not in a location with a water sample.')
 
     def _take_photo(self, token, parameters):
-        if len(parameters) > 0:
+        if parameters:
             raise FailedWrongParam('Parameters were given.')
 
         agent = self.agents_manager.get_agent(token)
@@ -320,7 +320,7 @@ class Cycle:
         raise FailedLocation('The agent is not in a location with a photograph event.')
 
     def _analyze_photo(self, token, parameters):
-        if len(parameters) > 0:
+        if parameters:
             raise FailedWrongParam('Parameters were given.')
 
         agent = self.agents_manager.get_agent(token)

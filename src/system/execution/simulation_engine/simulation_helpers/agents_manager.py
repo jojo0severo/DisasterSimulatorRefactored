@@ -59,11 +59,11 @@ class AgentsManager:
     def add_social_asset(self, token, social_asset):
         self.agents[token].social_assets.append(social_asset)
 
-    def deliver_physical(self, token, item, amount=1):
-        return self.agents[token].remove_physical_item(item, amount)
+    def deliver_physical(self, token, kind, amount=1):
+        return self.agents[token].remove_physical_item(kind, amount)
 
-    def deliver_virtual(self, token, item, amount=1):
-        return self.agents[token].remove_virtual_item(item, amount)
+    def deliver_virtual(self, token, kind, amount=1):
+        return self.agents[token].remove_virtual_item(kind, amount)
 
     def charge_agent(self, token):
         self.agents[token].charge()
@@ -81,8 +81,9 @@ class AgentsManager:
         self.agents[token].clear_virtual_storage()
 
     def update_agent_location(self, token):
-        location = self.agents[token].route.pop(0)
-        self.agents[token].location = location
+        if self.agents[token].route:
+            location = self.agents[token].route.pop(0)
+            self.agents[token].location = location
 
     def get_tokens(self):
         return list(self.agents.keys())

@@ -60,14 +60,14 @@ class Agent:
         self.virtual_storage -= size
         self.virtual_storage_vector.append(item)
 
-    def remove_physical_item(self, item, amount):
+    def remove_physical_item(self, kind, amount):
         if self.physical_storage == self.physical_capacity:
             raise FailedItemAmount('The agents has no victims, water samples or social assets to deliver.')
 
         found_item = False
         removed_items = []
         for stored_item in self.physical_storage_vector:
-            if item == stored_item.identifier and amount:
+            if kind == stored_item.type and amount:
                 found_item = True
                 removed_items.append(stored_item)
                 amount -= 1
@@ -84,14 +84,14 @@ class Agent:
 
         return removed_items
 
-    def remove_virtual_item(self, item, amount):
+    def remove_virtual_item(self, kind, amount):
         if self.virtual_storage == self.virtual_capacity:
             raise FailedItemAmount('The agents has no photos to deliver.')
 
         found_item = False
         removed_items = []
         for stored_item in self.virtual_storage_vector:
-            if item == stored_item.identifier and amount:
+            if kind == stored_item.type and amount:
                 found_item = True
                 removed_items.append(stored_item)
                 amount -= 1
