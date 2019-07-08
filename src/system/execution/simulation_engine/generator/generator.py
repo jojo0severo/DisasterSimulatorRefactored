@@ -3,7 +3,6 @@ from simulation_engine.simulation_objects.flood import Flood
 from simulation_engine.simulation_objects.photo import Photo
 from simulation_engine.simulation_objects.victim import Victim
 from simulation_engine.simulation_objects.water_sample import WaterSample
-from simulation_engine.simulation_objects.social_asset import SocialAsset
 
 
 class Generator:
@@ -16,7 +15,6 @@ class Generator:
         self.photo_victim_id: int = 0
         self.photo_id: int = 0
         self.water_sample_id: int = 0
-        self.social_asset_id: int = 0
         random.seed(config['map']['randomSeed'])
 
     def generate_events(self) -> list:
@@ -34,7 +32,7 @@ class Generator:
 
         events[0] = event
 
-        flood_probability: int = self.generate_variables['floodProbability']
+        flood_probability: int = self.generate_variables['flood']['probability']
         i: int = 1
         while i < steps_number:
             event: dict = {'flood': None, 'victims': [], 'water_samples': [], 'photos': []}
@@ -170,30 +168,3 @@ class Generator:
             i += 1
 
         return water_samples
-
-    def generate_social_assets(self) -> list:
-        min_lat: float = self.map_variables['minLat']
-        max_lat: float = self.map_variables['maxLat']
-
-        min_lon: float = self.map_variables['minLon']
-        max_lon: float = self.map_variables['maxLon']
-
-        asset_min_size: int = self.generate_variables['socialAsset']['minSize']
-        asset_max_size: int = self.generate_variables['socialAsset']['maxSize']
-        professions: list = self.generate_variables['socialAsset']['profession']
-
-        amount: int = random.randint(self.generate_variables['socialAsset']['minAmount'],
-                                     self.generate_variables['socialAsset']['maxAmount'])
-        social_assets: list = [0] * amount
-        i: int = 0
-        while i < amount:
-            asset_location: tuple = (random.uniform(min_lat, max_lat), random.uniform(min_lon, max_lon))
-
-            social_asset_size: int = random.randint(asset_min_size, asset_max_size)
-            occupation: str = random.choice(professions)
-
-            social_assets[i] = SocialAsset(self.social_asset_id, social_asset_size, asset_location, occupation)
-            self.social_asset_id = self.social_asset_id + 1
-            i += 1
-
-        return social_assets

@@ -137,8 +137,7 @@ class Simulation:
                 'photos_ignored': photos_ignored,
                 'total_water_samples': self.cycler.max_water_samples,
                 'water_samples_collected': water_samples_collected,
-                'water_samples_ignored': water_samples_ignored,
-                'total_social_assets': self.cycler.max_social_assets
+                'water_samples_ignored': water_samples_ignored
             },
             'agents': {
                 'active_agents_amount': active_agents_amount,

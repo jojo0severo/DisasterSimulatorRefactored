@@ -79,6 +79,36 @@ class JsonFormatter:
         except Exception as e:
             return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during step: "{str(e)}"'}
 
+    def save_logs(self):
+        year, month, day, hour, minute, config_file, logs = self.copycat.get_logs()
+        path = pathlib.Path(__file__).parents[4] / str(year) / str(month) / str(day) / str(config_file)
+
+        os.makedirs(str(path.absolute()), exist_ok=True)
+
+        hour = '{:0>2d}'.format(hour)
+        minute = '{:0>2d}'.format(minute)
+
+        for log in logs:
+            json_items = self.jsonify_delivered_items(logs[log]['environment']['delivered_items'])
+            json_agents = self.jsonify_agents(logs[log]['agents']['agents'])
+            json_active_agents = self.jsonify_agents(logs[log]['agents']['active_agents'])
+            json_action_token_by_step = self.jsonify_action_token_by_step(logs[log]['actions']['action_token_by_step'])
+            json_acts_by_step = self.jsonify_amount_of_actions_by_step(logs[log]['actions']['amount_of_actions_by_step'])
+            json_actions_by_step = self.jsonify_actions_by_step(logs[log]['actions']['actions_by_step'])
+
+            logs[log]['environment']['delivered_items'] = json_items
+            logs[log]['agents']['agents'] = json_agents
+            logs[log]['agents']['active_agents'] = json_active_agents
+            logs[log]['actions']['action_token_by_step'] = json_action_token_by_step
+            logs[log]['actions']['amount_of_actions_by_step'] = json_acts_by_step
+            logs[log]['actions']['actions_by_step'] = json_actions_by_step
+
+            map_log = re.sub('([\w\s\d]+?\\\\)|([\w\s\d]+?/)|(\.\w+)', '', log)
+
+            with open(str((path / f'LOG FILE {map_log} at {hour}h {minute}min.txt').absolute()), 'w') as file:
+                file.write(json.dumps(logs[log], sort_keys=False, indent=4))
+                file.write('\n\n' + '=' * 120 + '\n\n')
+
     def jsonify_agents(self, agents_list):
         json_agents = []
         for agent in agents_list:
@@ -91,35 +121,27 @@ class JsonFormatter:
 
         json_virtual_items = self.jsonify_delivered_items(agent.virtual_storage_vector)
 
-        json_social_assets = []
-        for social_asset in agent.social_assets:
-            json_social_asset = {
-                'type': social_asset.type,
-                'location': social_asset.location,
-                'profession': social_asset.profession
-            }
-            json_social_assets.append(json_social_asset)
-
         json_route = [list(location) for location in agent.route]
 
-        return {'token': agent.token,
-                'active': agent.is_active,
-                'last_action': agent.last_action,
-                'last_action_result': agent.last_action_result,
-                'role': agent.role,
-                'location': list(agent.location),
-                'route': json_route,
-                'destination_distance': agent.destination_distance,
-                'battery': agent.actual_battery,
-                'max_charge': agent.max_charge,
-                'speed': agent.speed,
-                'physical_storage': agent.physical_storage,
-                'physical_capacity': agent.physical_capacity,
-                'physical_storage_vector': json_physical_items,
-                'virtual_storage': agent.virtual_storage,
-                'virtual_capacity': agent.virtual_capacity,
-                'virtual_storage_vector': json_virtual_items,
-                'social_assets': json_social_assets}
+        return {
+            'token': agent.token,
+            'active': agent.is_active,
+            'last_action': agent.last_action,
+            'last_action_result': agent.last_action_result,
+            'role': agent.role,
+            'location': list(agent.location),
+            'route': json_route,
+            'destination_distance': agent.destination_distance,
+            'battery': agent.actual_battery,
+            'max_charge': agent.max_charge,
+            'speed': agent.speed,
+            'physical_storage': agent.physical_storage,
+            'physical_capacity': agent.physical_capacity,
+            'physical_storage_vector': json_physical_items,
+            'virtual_storage': agent.virtual_storage,
+            'virtual_capacity': agent.virtual_capacity,
+            'virtual_storage_vector': json_virtual_items
+        }
 
     @staticmethod
     def jsonify_events(events_list):
@@ -255,33 +277,3 @@ class JsonFormatter:
     @staticmethod
     def jsonify_actions_by_step(actions_by_step):
         return [{'step': step, 'actions': actions} for step, actions in actions_by_step]
-
-    def save_logs(self):
-        year, month, day, hour, minute, config_file, logs = self.copycat.get_logs()
-        path = pathlib.Path(__file__).parents[4] / str(year) / str(month) / str(day) / str(config_file)
-
-        os.makedirs(str(path.absolute()), exist_ok=True)
-
-        hour = '{:0>2d}'.format(hour)
-        minute = '{:0>2d}'.format(minute)
-
-        for log in logs:
-            json_items = self.jsonify_delivered_items(logs[log]['environment']['delivered_items'])
-            json_agents = self.jsonify_agents(logs[log]['agents']['agents'])
-            json_active_agents = self.jsonify_agents(logs[log]['agents']['active_agents'])
-            json_action_token_by_step = self.jsonify_action_token_by_step(logs[log]['actions']['action_token_by_step'])
-            json_acts_by_step = self.jsonify_amount_of_actions_by_step(logs[log]['actions']['amount_of_actions_by_step'])
-            json_actions_by_step = self.jsonify_actions_by_step(logs[log]['actions']['actions_by_step'])
-
-            logs[log]['environment']['delivered_items'] = json_items
-            logs[log]['agents']['agents'] = json_agents
-            logs[log]['agents']['active_agents'] = json_active_agents
-            logs[log]['actions']['action_token_by_step'] = json_action_token_by_step
-            logs[log]['actions']['amount_of_actions_by_step'] = json_acts_by_step
-            logs[log]['actions']['actions_by_step'] = json_actions_by_step
-
-            map_log = re.sub('([\w\s\d]+?\\\\)|([\w\s\d]+?/)|(\.\w+)', '', log)
-
-            with open(str((path / f'LOG FILE {map_log} at {hour}h {minute}min.txt').absolute()), 'w') as file:
-                file.write(json.dumps(logs[log], sort_keys=False, indent=4))
-                file.write('\n\n' + '=' * 120 + '\n\n')

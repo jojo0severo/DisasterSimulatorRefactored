@@ -9,12 +9,10 @@ class Cycle:
         self.map = Map(config['map']['maps'][0], config['map']['proximity'])
         generator = Generator(config, self.map)
         self.steps = generator.generate_events()
-        self.social_assets = generator.generate_social_assets()
         self.max_floods = generator.flood_id
         self.max_victims = generator.victim_id
         self.max_photos = generator.photo_id
         self.max_water_samples = generator.water_sample_id
-        self.max_social_assets = generator.social_asset_id
         self.delivered_items = []
         self.current_step = 0
         self.max_steps = config['map']['steps']
@@ -25,12 +23,10 @@ class Cycle:
         self.map.restart(config_file['map']['maps'][0], config_file['map']['proximity'])
         generator = Generator(config_file, self.map)
         self.steps = generator.generate_events()
-        self.social_assets = generator.generate_social_assets()
         self.max_floods = generator.flood_id
         self.max_victims = generator.victim_id
         self.max_photos = generator.photo_id
         self.max_water_samples = generator.water_sample_id
-        self.max_social_assets = generator.social_asset_id
         self.delivered_items = []
         self.current_step = 0
         self.max_steps = config_file['map']['steps']
@@ -343,15 +339,7 @@ class Cycle:
         if len(parameters) != 1:
             raise FailedWrongParam('Wrong amount of parameters given.')
 
-        agent = self.agents_manager.get_agent(token)
-        for social_asset in self.social_assets:
-            if social_asset in agent.social_assets:
-                continue
-
-            if social_asset.active and social_asset.profession == parameters[0]:
-                self.agents_manager.add_social_asset(token, social_asset)
-                self.agents_manager.edit_agent(token, 'last_action_result', True)
-                return
+        return 'Not implemented.'
 
         raise FailedNoSocialAsset('No social asset found for the needed purposes.')
 
@@ -364,16 +352,7 @@ class Cycle:
         if agent.role == 'drone':
             raise FailedInvalidKind('Agent role does not support carrying social asset.')
 
-        if not agent.social_assets:
-            raise FailedNoSocialAsset('Agent did not requests any social asset.')
-
-        for social_asset in self.social_assets:
-            if social_asset in agent.social_assets:
-                if social_asset.active and self.map.check_location(agent.location, social_asset.location):
-                    self.agents_manager.add_physical(token, social_asset)
-                    self.agents_manager.edit_agent(token, 'last_action_result', True)
-                    social_asset.active = False
-                    return
+        return 'Not implemented.'
 
         raise FailedNoSocialAsset('Invalid social asset location requested.')
 
