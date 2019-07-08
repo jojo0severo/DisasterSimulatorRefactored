@@ -40,20 +40,9 @@ class Starter:
 
         if any errors are found on the configuration file: exits the program with the appropriate message."""
 
-        test = self.checker.test_json_load()
-        if test[0]:
-            test = self.checker.test_main_keys()
-            if test[0]:
-                test = self.checker.test_map_key()
-                if test[0]:
-                    test = self.checker.test_agents_key()
-                    if test[0]:
-                        test = self.checker.test_roles_key()
-                        if test[0]:
-                            test = self.checker.test_generate_key()
-                            if test[0]:
-                                return
-        exit(test[1])
+        result = self.checker.run_all_tests()
+        if not result[0]:
+            exit(result[1])
 
     def check_arguments(self):
         """Do all the verifications on the arguments.

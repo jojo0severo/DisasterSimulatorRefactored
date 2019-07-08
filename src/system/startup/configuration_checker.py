@@ -10,6 +10,37 @@ class Checker:
     def __init__(self, config_file):
         self.config = pathlib.Path(__file__).parents[3] / config_file
 
+    def run_all_tests(self):
+        test = self.test_json_load()
+        if not test[0]:
+            return test
+
+        test = self.test_main_keys()
+        if not test[0]:
+            return test
+
+        test = self.test_map_key()
+        if not test[0]:
+            return test
+
+        test = self.test_agents_key()
+        if not test[0]:
+            return test
+
+        test = self.test_social_assets_key()
+        if not test[0]:
+            return test
+
+        test = self.test_roles_key()
+        if not test[0]:
+            return test
+
+        test = self.test_generate_key()
+        if not test[0]:
+            return test
+
+        return 1, 'Ok.'
+
     def test_json_load(self):
         """Test if the file can be loaded.
 
@@ -29,7 +60,7 @@ class Checker:
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
-        keys = ['map', 'agents', 'roles', 'generate']
+        keys = ['map', 'agents', 'socialAssets', 'roles', 'generate']
 
         config = json.load(open(self.config, 'r'))
         for key in keys:
@@ -130,6 +161,9 @@ class Checker:
 
         return 1, 'Agents: Ok.'
 
+    def test_social_assets_key(self):
+        return 1, 'SocialAssets: Ok.'
+
     def test_roles_key(self):
         """Test the keys and objects inside the roles obj.
 
@@ -161,7 +195,7 @@ class Checker:
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
-        keys = ['floodProbability', 'flood', 'photo', 'victim', 'waterSample', 'socialAsset']
+        keys = ['flood', 'photo', 'victim', 'waterSample']
 
         generate = json.load(open(self.config, 'r'))['generate']
 
@@ -172,9 +206,6 @@ class Checker:
         for key in generate:
             if key not in keys:
                 return 0, f'Generate: Key {key} is not in the list of allowed keys.'
-
-        if not isinstance(generate['floodProbability'], int) and not isinstance(generate[key], float):
-            return 0, 'Generate: FloodProbability is not a valid type.'
 
         if not isinstance(generate['flood'], dict):
             return 0, 'Generate: Flood is not a valid type.'
@@ -204,13 +235,6 @@ class Checker:
         if not test[0]:
             return test
 
-        if not isinstance(generate['socialAsset'], dict):
-            return 0, 'Generate: SocialAsset is not a valid type.'
-
-        test = self._test_social_asset_keys(generate['socialAsset'])
-        if not test[0]:
-            return test
-
         return 1, 'Generate: Ok.'
 
     @staticmethod
@@ -220,7 +244,7 @@ class Checker:
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
-        keys = ['minPeriod', 'maxPeriod', 'circle']
+        keys = ['probability', 'minPeriod', 'maxPeriod', 'circle']
         sub_keys = ['minRadius', 'maxRadius']
 
         for key in keys:
@@ -230,6 +254,9 @@ class Checker:
         for key in flood:
             if key not in keys:
                 return 0, f'Generate: Key {key} from Flood is not in the list of allowed keys.'
+
+        if not isinstance(flood['probability'], int) and not isinstance(flood['probability'], float):
+            return 0, 'Generate: Probability from Flood is not a valid type.'
 
         if not isinstance(flood['minPeriod'], int):
             return 0, 'Generate: MinPeriod from Flood is not a valid type.'
@@ -369,44 +396,3 @@ class Checker:
             return 0, 'Generate: MinAmount from WaterSample can not be negative.'
 
         return 1, 'Generate: Ok from WaterSample.'
-
-    @staticmethod
-    def _test_social_asset_keys(social_asset):
-        """Test the keys and objects inside the social asset obj that is inside the generate obj.
-
-        :returns int: Status where 1 is Ok and 0 is Not ok.
-        :returns str: Appropriate message for the user understand his error."""
-
-        keys = ['minAmount', 'maxAmount', 'minSize', 'maxSize', 'profession']
-
-        for key in keys:
-            if key not in social_asset:
-                return 0, f'Generate: Key {key} from SocialAsset is missing.'
-
-        for key in social_asset:
-            if key != 'profession':
-                if not isinstance(social_asset[key], int):
-                    return 0, f'Generate: Key {key} from SocialAsset is not a valid type.'
-
-            if key not in keys:
-                return 0, f'Generate: Key {key} from SocialAsset not in the list of allowed keys.'
-
-        if social_asset['minAmount'] > social_asset['maxAmount']:
-            return 0, f'Generate: MinAmount from SocialAsset can not be bigger than MaxAmount from SocialAsset.'
-
-        if social_asset['minAmount'] < 0:
-            return 0, f'Generate: MinAmount from SocialAsset can not be negative.'
-
-        if social_asset['minSize'] > social_asset['maxSize']:
-            return 0, 'Generate: MinSize from SocialAsset can not be bigger than MaxSize from Victim.'
-
-        if social_asset['minSize'] <= 0:
-            return 0, 'Generate: MinSize from SocialAsset can not be zero or negative.'
-
-        if not isinstance(social_asset['profession'], list):
-            return 0, 'Generate: Profession from SocialAsset is not a valid type.'
-
-        if not social_asset['profession']:
-            return 0, 'Generate: Profession from SocialAsset can not be empty.'
-
-        return 1, 'Generate: Ok from SocialAsset.'
