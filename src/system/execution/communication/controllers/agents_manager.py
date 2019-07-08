@@ -1,28 +1,19 @@
 import time
-from communication.objects.agent import Agent
+from src.system.execution.communication.objects.agent import Agent
 
 
-class Manager:
+class AgentsManager:
     def __init__(self):
         self.agents = {}
-
-    def get_agents(self):
-        return list(self.agents.values())
 
     def add_agent(self, token, agent_info):
         self.agents[token] = Agent(token, agent_info)
 
-    def remove_agent(self, token):
-        del self.agents[token]
-
-    def edit_agent(self, token, attribute, new_value):
-        exec(f'self.agents[token].{attribute} = new_value')
-
-    def get_agents_amount(self):
-        return len(self.agents)
-
     def get_agent(self, token):
         return self.agents.get(token)
+
+    def get_agents(self):
+        return list(self.agents.values())
 
     def get_actions(self):
         actions = []
@@ -46,13 +37,15 @@ class Manager:
 
         return actions
 
-    def get_workers_amount(self):
-        return sum([1 if self.agents[token].worker else 0 for token in self.agents])
+    def get_workers(self):
+        return [self.agents[token] for token in self.agents if self.agents[token].worker]
+
+    def edit_agent(self, token, attribute, new_value):
+        exec(f'self.agents[token].{attribute} = new_value')
 
     def clear_workers(self):
         for token in self.agents:
             self.agents[token].worker = False
 
-    def clear(self):
-        self.agents.clear()
-        del self.agents
+    def remove_agent(self, token):
+        del self.agents[token]
