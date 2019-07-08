@@ -1,6 +1,5 @@
 import os
 import sys
-import jwt
 import json
 import time
 import queue
@@ -9,43 +8,44 @@ import multiprocessing
 from multiprocessing import Queue
 from flask_socketio import SocketIO
 from flask import Flask, request, jsonify
-from communication.helpers.helper import Helper
-from communication.helpers import json_formatter
+from src.system.execution.communication.helpers.controller import Controller
+from src.system.execution.communication.helpers import json_formatter
 
-base_url, api_port, simulation_port, step_time, first_step_time, method, secret, agents_amount = sys.argv[1:]
+base_url, api_port, simulation_port, step_time, first_step_time, method, secret, agents_amount, assets_amount = sys.argv[1:]
 
 
 app = Flask(__name__)
 socket = SocketIO(app=app)
 
-helper = Helper(agents_amount, first_step_time, secret)
-every_agent_registered_queue = Queue()
+controller = Controller(agents_amount, assets_amount, first_step_time, secret)
+everyone_registered_queue = Queue()
 one_agent_registered_queue = Queue()
 actions_queue = Queue()
 
 
+# ===================================================== CONNECTION LOOP =====================================================
+
 @app.route('/start_connections', methods=['POST'])
 def start_connections():
     try:
-        errors, message = helper.do_internal_verification(request)
+        valid, message = controller.do_internal_verification(request)
 
-        if errors:
+        if not valid:
             return jsonify(message=f'This endpoint can not be accessed. {message}')
 
         if message['back'] != 1:
-            helper.controller.started = True
+            controller.set_started()
 
             if method == 'time':
-                multiprocessing.Process(target=first_step_time_controller, args=(every_agent_registered_queue,), daemon=True).start()
+                multiprocessing.Process(target=first_step_time_controller, args=(everyone_registered_queue,), daemon=True).start()
 
             else:
                 multiprocessing.Process(target=first_step_button_controller, daemon=True).start()
 
         else:
-            multiprocessing.Process(target=first_step_time_controller, args=(one_agent_registered_queue,),
-                                    daemon=True).start()
+            multiprocessing.Process(target=first_step_time_controller, args=(one_agent_registered_queue,), daemon=True).start()
 
-        helper.controller.start_timer()
+        controller.start_timer()
 
         return jsonify('')
 
@@ -80,46 +80,37 @@ def first_step_button_controller():
 
     requests.get(f'http://{base_url}:{api_port}/start_step_cycle', json=secret)
 
+# ===========================================================================================================================
+
+
+# ================================================== CONNECTION ENDPOINTS ===================================================
 
 @app.route('/connect_agent', methods=['POST'])
 def connect_agent():
-    response = {'status': 0, 'result': False, 'message': 'Error.'}
+    response = {'status': 1, 'result': True, 'message': 'Error.'}
 
-    errors, message = helper.do_connection_verifications(request)
+    status, message = controller.do_agent_connection(request)
 
-    if not errors:
-        agent_info = json.loads(request.get_json(force=True))
-        token = jwt.encode(agent_info, 'secret', algorithm='HS256').decode('utf-8')
+    if status != 1:
+        response['status'] = status
+        response['result'] = False
 
-        helper.controller.add_agent(token, agent_info)
-
-        response['status'] = 1
-        response['result'] = True
-        response['message'] = token
-
-    else:
-        response['message'] = message
+    response['message'] = message
 
     return jsonify(response)
 
 
 @app.route('/validate_agent', methods=['POST'])
 def validate_agent():
-    response = {'status': 0, 'result': False, 'message': 'Error.'}
+    response = {'status': 1, 'result': True, 'message': 'Error.'}
 
-    errors, message = helper.do_validation_verifications(request)
+    status, message = controller.do_agent_registration(request)
 
-    if not errors:
-        token = json.loads(request.get_json(force=True))['token']
+    if status != 1:
+        response['status'] = status
+        response['result'] = False
 
-        helper.controller.edit_agent(token, 'registered', True)
-
-        response['status'] = 1
-        response['result'] = True
-        response['message'] = 'Agent registered.'
-
-    else:
-        response['message'] = message
+    response['message'] = message
 
     return jsonify(response)
 
@@ -128,58 +119,61 @@ def validate_agent():
 def connect_registered_agent(msg):
     response = {'status': 0, 'result': False, 'message': 'Error.'}
 
-    errors, message = helper.do_socket_connection_verifications(msg)
+    status, message = controller.do_agent_socket_connection(msg, request)
 
-    if not errors:
-        token = json.loads(msg)['token']
-        helper.controller.add_socket(token, request.sid)
-
+    if status == 1:
         try:
             sim_response = requests.post(f'http://{base_url}:{simulation_port}/register_agent',
-                                         json={'token': token, 'secret': secret}).json()
+                                         json={'token': message, 'secret': secret}).json()
 
             if sim_response['status'] == 1:
                 response['status'] = 1
                 response['result'] = True
                 response['message'] = 'Agent successfully connected.'
 
-                if helper.controller.check_socket_agents():
-                    if not helper.controller.check_population():
-                        every_agent_registered_queue.put(True)
+                agents_list_size = len(controller.manager.get_all('agent'))
+                assets_list_size = len(controller.manager.get_all('social_asset'))
+
+                if len(controller.manager.get_all('socket')) == agents_list_size + assets_list_size:
+                    if controller.agents_amount == agents_list_size and controller.social_assets_amount == assets_list_size:
+                        everyone_registered_queue.put(True)
 
                     one_agent_registered_queue.put(True)
 
             else:
+                response['status'] = sim_response['status']
                 response['message'] = sim_response['message']
 
         except requests.exceptions.ConnectionError:
+            response['status'] = 6
             response['message'] = 'Simulation is not online.'
 
     else:
+        response['status'] = status
         response['message'] = message
 
     return json.dumps(response, sort_keys=False)
 
+# ===========================================================================================================================
+
+
+# ====================================================== DISCONNECTION ======================================================
 
 @socket.on('disconnect_registered_agent')
 def disconnect_registered_agent(msg):
-
     response = {'status': 0, 'result': False, 'message': 'Error.'}
 
-    errors, message = helper.do_socket_disconnection_verifications(msg)
+    status, message = controller.do_agent_socket_disconnection(msg)
 
-    if not errors:
+    if status == 1:
         try:
-            token = json.loads(msg)['token']
             sim_response = requests.put(f'http://{base_url}:{simulation_port}/delete_agent',
-                                        json={'token': token, 'secret': secret}).json()
+                                        json={'token': message, 'secret': secret}).json()
 
             if sim_response['status'] == 1:
                 response['status'] = 1
                 response['result'] = True
                 response['message'] = 'Agent successfully disconnected.'
-
-                helper.controller.disconnect_agent(token)
 
             else:
                 response['message'] = sim_response['message']
@@ -192,16 +186,20 @@ def disconnect_registered_agent(msg):
 
     return json.dumps(response, sort_keys=False)
 
+# ===========================================================================================================================
+
+
+# ======================================================== STEP LOOP ========================================================
 
 @app.route('/start_step_cycle', methods=['GET'])
 def start_step_cycle():
     try:
-        errors, message = helper.do_internal_verification(request)
+        valid, message = controller.do_internal_verification(request)
 
-        if errors:
+        if not valid:
             return jsonify(message=f'This endpoint can not be accessed. {message}')
 
-        helper.controller.finish_connection_timer()
+        controller.finish_connection_timer()
 
         sim_response = requests.post(f'http://{base_url}:{simulation_port}/start', json={'secret': secret}).json()
 
@@ -217,19 +215,18 @@ def start_step_cycle():
 
 @app.route('/finish_step', methods=['GET'])
 def finish_step():
-    errors, message = helper.do_internal_verification(request)
+    valid, message = controller.do_internal_verification(request)
 
-    if errors:
+    if not valid:
         return jsonify(message=f'This endpoint can not be accessed. {message}')
 
     try:
-        helper.controller.processing_actions = True
-
-        tokens_actions_list = helper.controller.get_actions()
+        controller.set_processing_actions()
+        tokens_actions_list = [*controller.manager.get_actions('agent'), *controller.manager.get_actions('social_asset')]
         sim_response = requests.post(f'http://{base_url}:{simulation_port}/do_actions',
                                      json={'actions': tokens_actions_list, 'secret': secret}).json()
 
-        helper.controller.clear_workers()
+        controller.manager.clear_workers()
 
         if sim_response['status'] == 0:
             print(sim_response['message'])
@@ -248,13 +245,13 @@ def finish_step():
             else:
                 notify_agents('simulation_started', sim_response)
 
-                helper.controller.processing_actions = False
+                controller.set_processing_actions()
                 multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
 
         else:
             notify_agents('action_results', sim_response)
 
-            helper.controller.processing_actions = False
+            controller.set_processing_actions()
             multiprocessing.Process(target=step_controller, args=(actions_queue,), daemon=True).start()
 
     except requests.exceptions.ConnectionError:
@@ -276,35 +273,40 @@ def step_controller(ready_queue):
     except requests.exceptions.ConnectionError:
         pass
 
+# ===========================================================================================================================
+
+
+# ==================================================== ACTIONS ENDPOINTS ====================================================
 
 @app.route('/send_action', methods=['POST'])
 def send_action():
-    response = {'status': 0, 'result': False, 'message': 'Error.'}
+    response = {'status': 1, 'result': True, 'message': 'Error.'}
 
-    errors, message = helper.do_action_verifications(request)
+    status, message = controller.do_action(request)
 
-    if not errors:
-        msg = json.loads(request.get_json(force=True))
-
-        helper.controller.edit_agent(msg['token'], 'action_name', msg['action'])
-        helper.controller.edit_agent(msg['token'], 'action_params', msg['parameters'])
-        helper.controller.edit_agent(msg['token'], 'worker', True)
-
-        response['status'] = 1
-        response['result'] = True
-        response['message'] = 'Action successfully sent.'
-
-        if helper.controller.check_working_agents():
-            actions_queue.put(True)
+    if status != 1:
+        response['status'] = status
+        response['result'] = False
 
     else:
-        response['message'] = message
+        tokens_connected_size = len(controller.manager.get_all('socket'))
+        agent_workers_size = len(controller.manager.get_workers('agent'))
+        social_asset_workers_size = len(controller.manager.get_workers('social_asset'))
+
+        if tokens_connected_size == agent_workers_size + social_asset_workers_size:
+            actions_queue.put(True)
+
+    response['message'] = message
 
     return jsonify(response)
 
+# ===========================================================================================================================
+
+
+# ==================================================== AUXILIARY METHODS ====================================================
 
 def notify_agents(event, response):
-    for token in helper.controller.get_tokens():
+    for token in controller.manager.get_all('socket'):
         if event == 'simulation_started':
             info = json_formatter.simulation_started_format(response, token)
 
@@ -317,15 +319,15 @@ def notify_agents(event, response):
         else:
             exit('Wrong event name. Possible internal errors.')
 
-        room = helper.controller.get_socket(token)
+        room = controller.manager.get(token, 'socket')
         socket.emit(event, json.dumps(info), room=room)
 
 
 @app.route('/terminate', methods=['GET'])
 def terminate():
-    errors, message = helper.do_internal_verification(request)
+    valid, message = controller.do_internal_verification(request)
 
-    if errors:
+    if not valid:
         return jsonify(message='This endpoint can not be accessed.')
 
     socket.stop()
@@ -340,6 +342,8 @@ def auto_destruction():
         requests.get(f'http://{base_url}:{api_port}/terminate', json={'secret': secret})
     except requests.exceptions.ConnectionError:
         pass
+
+# ===========================================================================================================================
 
 
 if __name__ == '__main__':
