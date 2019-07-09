@@ -7,7 +7,7 @@ from flask import request, jsonify
 from flask import Flask
 from flask_cors import CORS
 from waitress import serve
-from simulation_engine.json_formatter import JsonFormatter
+from src.system.execution.simulation_engine.json_formatter import JsonFormatter
 
 config_path, base_url, simulation_port, api_port, log, secret = sys.argv[1:]
 
@@ -42,6 +42,19 @@ def register_agent():
     return jsonify(formatter.connect_agent(message['token']))
 
 
+@app.route('/register_asset', methods=['POST'])
+def register_asset():
+    message = request.get_json(force=True)
+
+    if 'secret' not in message:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    if secret != message['secret']:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    return jsonify(formatter.connect_social_asset(message['token']))
+
+
 @app.route('/delete_agent', methods=['PUT'])
 def delete_agent():
     message = request.get_json(force=True)
@@ -53,6 +66,19 @@ def delete_agent():
         return jsonify(message='This endpoint can not be accessed.')
 
     return jsonify(formatter.disconnect_agent(message['token']))
+
+
+@app.route('/delete_asset', methods=['PUT'])
+def delete_asset():
+    message = request.get_json(force=True)
+
+    if 'secret' not in message:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    if secret != message['secret']:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    return jsonify(formatter.disconnect_social_asset(message['token']))
 
 
 @app.route('/do_actions', methods=['POST'])
@@ -135,6 +161,3 @@ if __name__ == '__main__':
             print('Errors occurred during startup.')
     except requests.exceptions.ConnectionError:
         print('API is not online.')
-
-
-

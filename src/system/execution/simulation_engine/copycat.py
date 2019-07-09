@@ -1,6 +1,6 @@
 import copy
 import datetime
-from simulation_engine.simulation import Simulation
+from src.system.execution.simulation_engine.simulation import Simulation
 
 
 class CopyCat:
@@ -18,22 +18,31 @@ class CopyCat:
         return 1
 
     def regenerate(self):
-        return self.simulation.restart(self.config)
+        response = self.simulation.restart(self.config)
+        return copy.deepcopy(response)
 
     def connect_agent(self, token):
         response = self.simulation.connect_agent(token)
+        return copy.deepcopy(response)
+
+    def connect_social_asset(self, token):
+        response = self.simulation.connect_social_asset(token)
         return copy.deepcopy(response)
 
     def disconnect_agent(self, token):
         response = self.simulation.disconnect_agent(token)
         return copy.deepcopy(response)
 
+    def disconnect_social_asset(self, token):
+        response = self.simulation.disconnect_social_asset(token)
+        return copy.deepcopy(response)
+
     def start(self):
         response = self.simulation.start()
         return copy.deepcopy(response)
 
-    def do_step(self, agent_action_list):
-        response = self.simulation.do_step(agent_action_list)
+    def do_step(self, token_action_list):
+        response = self.simulation.do_step(token_action_list)
         return copy.deepcopy(response)
 
     def get_logs(self):

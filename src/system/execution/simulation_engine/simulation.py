@@ -1,4 +1,4 @@
-from simulation_engine.simulation_helpers.cycle import Cycle
+from src.system.execution.simulation_engine.simulation_helpers.cycle import Cycle
 
 
 class Simulation:
@@ -13,23 +13,30 @@ class Simulation:
     def connect_agent(self, token):
         return self.cycler.connect_agent(token)
 
+    def connect_social_asset(self, token):
+        return self.cycler.connect_social_asset(token)
+
     def disconnect_agent(self, token):
         return self.cycler.disconnect_agent(token)
+
+    def disconnect_social_asset(self, token):
+        return self.cycler.disconnect_social_asset(token)
 
     def start(self):
         self.cycler.activate_step()
         agents = self.cycler.get_agents_info()
+        social_assets = self.cycler.get_assets_info()
         step = self.cycler.get_step()
 
         self.cycler.current_step += 1
 
         if self.cycler.check_steps():
             self.terminated = True
-            return agents, step
+            return agents, social_assets, step
 
         self.cycler.activate_step()
 
-        return agents, step
+        return agents, social_assets, step
 
     def restart(self, config_file):
         self.cycler.restart(config_file)

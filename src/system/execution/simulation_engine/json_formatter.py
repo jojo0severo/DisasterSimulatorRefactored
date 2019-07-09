@@ -2,7 +2,7 @@ import os
 import re
 import json
 import pathlib
-from simulation_engine.copycat import CopyCat
+from src.system.execution.simulation_engine.copycat import CopyCat
 
 
 class JsonFormatter:
@@ -20,9 +20,12 @@ class JsonFormatter:
         try:
             response = self.copycat.regenerate()
             json_agents = self.jsonify_agents(response[0])
-            json_events = self.jsonify_events(response[1])
+            json_assets = self.jsonify_assets(response[1])
 
-            return {'status': 1, 'agents': json_agents, 'event': json_events, 'message': 'Simulation restarted.'}
+            json_actors = [*json_agents, *json_assets]
+            json_events = self.jsonify_events(response[2])
+
+            return {'status': 1, 'actors': json_actors, 'event': json_events, 'message': 'Simulation restarted.'}
 
         except Exception as e:
             return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}
@@ -39,6 +42,19 @@ class JsonFormatter:
         except Exception as e:
             return {'status': 0, 'message': f'An error occurred during connection: {str(e)}.'}
 
+    def connect_social_asset(self, token):
+        try:
+            response = self.copycat.connect_social_asset(token)
+            if response is not None:
+                return {'status': 1, 'social_asset': self.jsonify_asset(response), 'message': 'Social asset connected.'}
+
+            else:
+                return {'status': 0, 'social_asset': {},
+                        'message': 'Social asset could not connect. No more professions available.'}
+
+        except Exception as e:
+            return {'status': 0, 'social_asset': {}, 'message': f'An error occurred during connection: {str(e)}.'}
+
     def disconnect_agent(self, token):
         try:
             response = self.copycat.disconnect_agent(token)
@@ -52,32 +68,52 @@ class JsonFormatter:
         except Exception as e:
             return {'status': 0, 'message': f'An error occurred during connection: {str(e)}.'}
 
+    def disconnect_social_asset(self, token):
+        try:
+            response = self.copycat.disconnect_social_asset(token)
+
+            if response:
+                return {'status': 1, 'message': 'Social asset disconnected.'}
+
+            else:
+                return {'status': 0, 'message': 'Social asset already disconnected.'}
+
+        except Exception as e:
+            return {'status': 0, 'message': f'An error occurred during connection: {str(e)}.'}
+
     def start(self):
         try:
             response = self.copycat.start()
             json_agents = self.jsonify_agents(response[0])
-            json_events = self.jsonify_events(response[1])
+            json_assets = self.jsonify_assets(response[1])
 
-            return {'status': 1, 'agents': json_agents, 'event': json_events, 'message': 'Simulation started.'}
+            json_actors = [*json_agents, *json_assets]
+            json_events = self.jsonify_events(response[2])
+
+            return {'status': 1, 'actors': json_actors, 'event': json_events, 'message': 'Simulation restarted.'}
 
         except Exception as e:
-            return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during startup: "{str(e)}"'}
+            return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}
 
-    def do_step(self, agent_action_list):
+    def do_step(self, token_action_list):
         try:
-            response = self.copycat.do_step(agent_action_list)
+            response = self.copycat.do_step(token_action_list)
             if response is None:
-                return {'status': 1, 'agents': [], 'event': {}, 'message': 'Simulation finished.'}
+                return {'status': 1, 'actors': [], 'event': {}, 'message': 'Simulation finished.'}
 
-            json_agents = self.jsonify_agents([obj['agent'] for obj in response[0]])
-            messages = [obj['message'] for obj in response[0]]
-            json_agents = [{'agent': ag, 'message': ms} for ag, ms in zip(json_agents, messages)]
+            json_actors = []
+            for obj in response[0]:
+                if 'agent' in obj:
+                    json_actors.append({'agent': self.jsonify_agent(obj['agent']), 'message': obj['message']})
+                else:
+                    json_actors.append({'social_asset': self.jsonify_asset(obj['social_asset']), 'message': obj['message']})
+
             json_events = self.jsonify_events(response[1])
 
-            return {'status': 1, 'agents': json_agents, 'event': json_events, 'message': 'Step completed.'}
+            return {'status': 1, 'actors': json_actors, 'event': json_events, 'message': 'Step completed.'}
 
         except Exception as e:
-            return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during step: "{str(e)}"'}
+            return {'status': 0, 'actors': [], 'event': {}, 'message': f'An error occurred during step: "{str(e)}"'}
 
     def save_logs(self):
         year, month, day, hour, minute, config_file, logs = self.copycat.get_logs()
@@ -116,6 +152,13 @@ class JsonFormatter:
 
         return json_agents
 
+    def jsonify_assets(self, assets_list):
+        json_assets = []
+        for asset in assets_list:
+            json_assets.append(self.jsonify_asset(asset))
+
+        return json_assets
+
     def jsonify_agent(self, agent):
         json_physical_items = self.jsonify_delivered_items(agent.physical_storage_vector)
 
@@ -135,11 +178,38 @@ class JsonFormatter:
             'battery': agent.actual_battery,
             'max_charge': agent.max_charge,
             'speed': agent.speed,
+            'size': agent.size,
             'physical_storage': agent.physical_storage,
             'physical_capacity': agent.physical_capacity,
             'physical_storage_vector': json_physical_items,
             'virtual_storage': agent.virtual_storage,
             'virtual_capacity': agent.virtual_capacity,
+            'virtual_storage_vector': json_virtual_items
+        }
+
+    def jsonify_asset(self, asset):
+        json_physical_items = self.jsonify_delivered_items(asset.physical_storage_vector)
+
+        json_virtual_items = self.jsonify_delivered_items(asset.virtual_storage_vector)
+
+        json_route = [list(location) for location in asset.route]
+
+        return {
+            'token': asset.token,
+            'active': asset.is_active,
+            'last_action': asset.last_action,
+            'last_action_result': asset.last_action_result,
+            'profession': asset.profession,
+            'location': list(asset.location),
+            'route': json_route,
+            'destination_distance': asset.destination_distance,
+            'speed': asset.speed,
+            'size': asset.size,
+            'physical_storage': asset.physical_storage,
+            'physical_capacity': asset.physical_capacity,
+            'physical_storage_vector': json_physical_items,
+            'virtual_storage': asset.virtual_storage,
+            'virtual_capacity': asset.virtual_capacity,
             'virtual_storage_vector': json_virtual_items
         }
 
