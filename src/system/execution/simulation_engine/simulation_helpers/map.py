@@ -21,6 +21,9 @@ class Map:
     def get_node_coord(self, node):
         return self.router.nodeLatLon(node)
 
+    def get_distance(self, a, b):
+        return self.router.distance(a, b)
+
     def check_location(self, a, b):
         ax, ay = a
         bx, by = b
@@ -173,3 +176,7 @@ class Map:
                 points.append(start)
 
         return points
+
+    @staticmethod
+    def euclidean_distance(a, b):
+        return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
