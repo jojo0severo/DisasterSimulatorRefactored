@@ -79,6 +79,13 @@ class Manager:
         else:
             return None
 
+    def get_kind(self, token):
+        if self.get(token, 'agent') is None:
+            if self.get(token, 'social_asset') is None:
+                return None
+            return 'social_asset'
+        return 'agent'
+
     def edit(self, token, attribute, new_value, kind):
         if kind == 'agent':
             self.agents_manager.edit_agent(token, attribute, new_value)
