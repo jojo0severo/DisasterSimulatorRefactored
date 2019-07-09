@@ -64,7 +64,7 @@ class Map:
                     if node in list_of_nodes:
                         return False, [], 0
 
-                    checked_nodes.append(node)
+                    checked_nodes.append(self.get_node_coord(node))
 
                 return True, checked_nodes, self.node_distance(start, end)
 

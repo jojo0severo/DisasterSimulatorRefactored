@@ -40,7 +40,7 @@ class Controller:
 
             if 'secret' in message:
                 if self.check_secret(self.secret, message['secret']):
-                    return 1, 'Ok.'
+                    return 1, message
 
                 return 3, 'Different secret provided.'
 
@@ -59,7 +59,7 @@ class Controller:
             if self.terminated:
                 return 5, 'Simulation already terminated.'
 
-            if self.start_time + self.time_limit >= time.time():
+            if self.start_time + self.time_limit <= time.time():
                 return 5, 'Connection time ended.'
 
             if len(self.manager.get_all('agent')) == self.agents_amount:
@@ -126,7 +126,7 @@ class Controller:
             if self.terminated:
                 return 5, 'Simulation already terminated.'
 
-            if self.start_time + self.time_limit >= time.time():
+            if self.start_time + self.time_limit <= time.time():
                 return 5, 'Connection time ended.'
 
             if not isinstance(obj, dict):
@@ -197,7 +197,7 @@ class Controller:
             if self.terminated:
                 return 5, 'Simulation already terminated.'
 
-            if self.start_time + self.time_limit >= time.time():
+            if self.start_time + self.time_limit <= time.time():
                 return 5, 'Connection time ended.'
 
             if not isinstance(obj, dict):
@@ -243,7 +243,7 @@ class Controller:
             if 'token' not in obj:
                 return 3, 'Object does not contain "token" as key.'
 
-            social_asset = self.manager.get(obj['token'], 'agent')
+            social_asset = self.manager.get(obj['token'], 'social_asset')
             if social_asset is None:
                 return 5, 'Social asset was not connected.'
 
@@ -337,14 +337,11 @@ class Controller:
             if self.processing_actions:
                 return 5, 'Simulation is processing previous actions.'
 
-            if self.start_time + self.time_limit < time.time():
+            if self.start_time + self.time_limit > time.time():
                 return 5, 'Simulation still receiving agent connections.'
 
             if not isinstance(obj, dict):
                 return 4, 'Object is not a dictionary.'
-
-            if 'agent' not in obj:
-                return 3, 'Object does not contain "agent" as key.'
 
             if 'token' not in obj:
                 return 3, 'Object does not contain "token" as key.'
@@ -355,8 +352,13 @@ class Controller:
             if 'parameters' not in obj:
                 return 3, 'Object does not contain "parameters" as key.'
 
-            kind = 'social_asset' if not obj['agent'] else 'agent'
+            kind = self.manager.get_kind(obj['token'])
+
+            if kind is None:
+                return 5, 'Token not found.'
+
             object_found = self.manager.get(obj['token'], kind)
+
             if object_found is None:
                 return 5, 'Object was not connected.'
 

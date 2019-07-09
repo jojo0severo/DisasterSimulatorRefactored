@@ -54,7 +54,7 @@ class Manager:
             return self.social_assets_manager.get_social_assets()
 
         elif kind == 'socket':
-            return [*self.agents_sockets_manager.get_sockets(), *self.assets_sockets_manager.get_sockets()]
+            return self.agents_sockets_manager.get_sockets(), self.assets_sockets_manager.get_sockets()
 
         else:
             return None

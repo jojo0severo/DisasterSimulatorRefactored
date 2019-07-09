@@ -36,7 +36,7 @@ class Generator:
         i: int = 1
         while i < steps_number:
             event: dict = {'flood': None, 'victims': [], 'water_samples': [], 'photos': []}
-            if random.randint(0, 100) <= flood_probability:
+            if random.randint(1, 100) <= flood_probability:
                 event['flood'] = self.generate_flood()
                 nodes: list = event['flood'].list_of_nodes
                 event['victims']: list = self.generate_victims(nodes)
