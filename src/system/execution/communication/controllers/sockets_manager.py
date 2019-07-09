@@ -13,5 +13,8 @@ class SocketsManager:
     def get_sockets(self):
         return list(self.socket_clients.values())
 
+    def get_tokens(self):
+        return list(self.socket_clients.keys())
+
     def remove_socket(self, token):
         del self.socket_clients[token]

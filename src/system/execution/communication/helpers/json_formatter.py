@@ -1,18 +1,21 @@
 def simulation_started_format(response, token):
-    info = {'status': 0, 'result': False, 'agent': {}, 'event': {}, 'message': 'Possible internal error'}
+    info = {'status': 0, 'result': False, 'event': {}, 'message': 'Possible internal error'}
 
     if response:
         if response['status']:
             info['status'] = response['status']
             info['result'] = True
 
-            for agent in response['agents']:
-                if agent['token'] == token:
-                    info['agent'] = agent
+            for actor in response['actors']:
+                if actor['token'] == token:
+                    if 'role' in actor:
+                        info['agent'] = actor
+                    else:
+                        info['social_asset'] = actor
                     break
 
-            if not info['agent']:
-                return event_error_format('Agent not found in response. ')
+            if 'agent' not in info and 'social_asset' not in info:
+                return event_error_format('Actor not found in response. ')
 
             info['event'] = response['event']
 
@@ -41,21 +44,27 @@ def simulation_ended_format(response):
 
 
 def action_results_format(response, token):
-    info = {'status': 0, 'result': False, 'agent': {}, 'event': {}, 'message': 'Possible internal error'}
+    info = {'status': 0, 'result': False, 'event': {}, 'message': 'Possible internal error'}
 
     if response:
         if response['status']:
             info['status'] = response['status']
             info['result'] = True
 
-            for agent in response['agents']:
-                if agent['agent']['token'] == token:
-                    info['agent'] = agent['agent']
-                    info['message'] = agent['message']
-                    break
+            for actor in response['actors']:
+                if 'agent' in actor:
+                    if actor['agent']['token'] == token:
+                        info['agent'] = actor['agent']
+                        info['message'] = actor['message']
+                        break
+                else:
+                    if actor['social_asset']['token'] == token:
+                        info['social_asset'] = actor['social_asset']
+                        info['message'] = actor['message']
+                        break
 
-            if not info['agent']:
-                return event_error_format('Agent not found in response. ')
+            if 'agent' not in info and 'social_asset' not in info:
+                return event_error_format('Actor not found in response. ')
 
             info['event'] = response['event']
 
@@ -69,4 +78,4 @@ def action_results_format(response, token):
 
 
 def event_error_format(message):
-    return {'status': 0, 'result': False, 'agent': {}, 'event': {}, 'message': f'{message}Possible internal error'}
+    return {'status': 0, 'result': False, 'actor': {}, 'event': {}, 'message': f'{message}Possible internal error'}
