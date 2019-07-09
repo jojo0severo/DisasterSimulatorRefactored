@@ -1,11 +1,12 @@
-from simulation_engine.exceptions.exceptions import *
+from src.system.execution.simulation_engine.exceptions.exceptions import *
 
 
 class Agent:
 
-    def __init__(self, token, cdm_location, role_name, battery, speed, physical_capacity, virtual_capacity):
+    def __init__(self, token, cdm_location, size, role_name, battery, speed, physical_capacity, virtual_capacity):
         self.is_active = True
         self.token = token
+        self.min_size = size
         self.location = cdm_location
         self.role = role_name
         self.max_charge = battery
@@ -23,6 +24,10 @@ class Agent:
         self.social_assets = []
         self.destination_distance = 0
 
+    @property
+    def size(self):
+        return self.min_size + (self.physical_capacity - self.physical_storage)
+
     def discharge(self):
         if self.destination_distance:
             self.actual_battery = self.actual_battery - int(self.speed / 5) \
@@ -34,14 +39,6 @@ class Agent:
 
     def charge(self):
         self.actual_battery = self.max_charge
-
-    def clear_physical_storage(self):
-        self.physical_storage_vector.clear()
-        self.physical_storage = self.physical_capacity
-
-    def clear_virtual_storage(self):
-        self.virtual_storage_vector.clear()
-        self.virtual_storage = self.virtual_capacity
 
     def add_physical_item(self, item):
         size = item.size
@@ -107,6 +104,14 @@ class Agent:
             self.virtual_storage += removed_item.size
 
         return removed_items
+
+    def clear_physical_storage(self):
+        self.physical_storage_vector.clear()
+        self.physical_storage = self.physical_capacity
+
+    def clear_virtual_storage(self):
+        self.virtual_storage_vector.clear()
+        self.virtual_storage = self.virtual_capacity
 
     def disconnect(self):
         self.is_active = False
