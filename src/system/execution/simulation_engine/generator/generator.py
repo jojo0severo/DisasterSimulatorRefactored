@@ -1,8 +1,8 @@
 import random
-from simulation_engine.simulation_objects.flood import Flood
-from simulation_engine.simulation_objects.photo import Photo
-from simulation_engine.simulation_objects.victim import Victim
-from simulation_engine.simulation_objects.water_sample import WaterSample
+from src.system.execution.simulation_engine.simulation_objects.flood import Flood
+from src.system.execution.simulation_engine.simulation_objects.photo import Photo
+from src.system.execution.simulation_engine.simulation_objects.victim import Victim
+from src.system.execution.simulation_engine.simulation_objects.water_sample import WaterSample
 
 
 class Generator:
@@ -91,7 +91,8 @@ class Generator:
 
     def generate_photos(self, nodes: list) -> list:
         victim_probability: int = self.generate_variables['photo']['victimProbability']
-        photo_size: int = self.generate_variables['photo']['size']
+        photo_min_size: int = self.generate_variables['photo']['minSize']
+        photo_max_size: int = self.generate_variables['photo']['maxSize']
 
         amount: int = random.randint(self.generate_variables['photo']['minAmount'],
                                      self.generate_variables['photo']['maxAmount'])
@@ -99,7 +100,7 @@ class Generator:
         i: int = 0
         while i < amount:
             photo_location: tuple = self.map.get_node_coord(random.choice(nodes))
-
+            photo_size: int = random.randint(photo_min_size, photo_max_size)
             photo_victims: list = []
             if random.randint(0, 100) <= victim_probability:
                 photo_victims = self.generate_photo_victims(nodes)
@@ -155,7 +156,8 @@ class Generator:
         return victims
 
     def generate_water_samples(self, nodes: list) -> list:
-        water_sample_size: int = self.generate_variables['waterSample']['size']
+        water_sample_min_size: int = self.generate_variables['waterSample']['minSize']
+        water_sample_max_size: int = self.generate_variables['waterSample']['maxSize']
 
         amount: int = random.randint(self.generate_variables['waterSample']['minAmount'],
                                      self.generate_variables['waterSample']['maxAmount'])
@@ -163,6 +165,7 @@ class Generator:
         i: int = 0
         while i < amount:
             water_sample_location: tuple = self.map.get_node_coord(random.choice(nodes))
+            water_sample_size: int = random.randint(water_sample_min_size, water_sample_max_size)
             water_samples[i] = WaterSample(self.water_sample_id, water_sample_size, water_sample_location)
             self.water_sample_id = self.water_sample_id + 1
             i += 1
