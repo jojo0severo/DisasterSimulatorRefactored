@@ -8,6 +8,7 @@ from src.system.execution.simulation_engine.simulation_helpers.social_assets_man
 class Cycle:
     def __init__(self, config):
         self.map = Map(config['map']['maps'][0], config['map']['proximity'])
+        self.actions = config['actions']
         self.max_steps = config['map']['steps']
         generator = Generator(config, self.map)
         self.steps = generator.generate_events()
@@ -737,7 +738,7 @@ class Cycle:
                     self.agents_manager.edit_agent(token, 'last_action_result', True)
                     return
 
-        raise FailedLocation('The agent is not in a location with a water sample.')
+        raise FailedLocation('The agent is not in a location with a water sample event.')
 
     def _collect_water_asset(self, token, parameters):
         if parameters:
@@ -796,7 +797,7 @@ class Cycle:
         victim_identifiers = []
         for photo in agent.virtual_storage_vector:
             for victim in photo.victims:
-                victim_identifiers .append(victim.identifier)
+                victim_identifiers.append(victim.identifier)
 
             photo_identifiers.append(photo.identifier)
 
