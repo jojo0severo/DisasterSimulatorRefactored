@@ -124,9 +124,16 @@ class Cycle:
         agents_tokens = self.agents_manager.get_tokens()
         assets_tokens = self.social_assets_manager.get_tokens()
 
+        special_action_tokens = []
+
         action_results = []
         for token_action_param in token_action_dict:
             token, action, parameters = token_action_param.values()
+
+            if action == 'carry' or action == 'getCarried':
+                special_action_tokens.append([token, action, parameters])
+                continue
+
             if token in agents_tokens:
                 result = self._execute_agent_action(token, action, parameters)
                 agents_tokens.remove(token)
@@ -137,6 +144,15 @@ class Cycle:
 
             action_results.append(result)
 
+        results, tokens = self._execute_special_actions(special_action_tokens)
+        action_results.extend(results)
+
+        for token in tokens:
+            if self.agents_manager.get_agent(token) is None:
+                assets_tokens.remove(token)
+            else:
+                agents_tokens.remove(token)
+
         for token in agents_tokens:
             action_results.append(self._execute_agent_action(token, 'inactive', []))
 
@@ -144,6 +160,146 @@ class Cycle:
             action_results.append(self._execute_asset_action(token, 'inactive', []))
 
         return action_results
+
+    def _execute_special_actions(self, special_action_tokens):
+        action_results = []
+        computed_tokens = []
+        for i in range(len(special_action_tokens)):
+            token, action, parameters = special_action_tokens[i]
+            if token in computed_tokens:
+                continue
+
+            if not self._check_abilities_and_resources(token, action):
+                if self.agents_manager.get_agent(token) is None:
+                    self.social_assets_manager.edit_social_asset(token, 'last_action', action)
+                    self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+                    action_results.append({
+                        'social_asset': self.social_assets_manager.get_social_asset(token),
+                        'message': 'Social asset does not have the abilities or resources to do the action'
+                    })
+                else:
+                    self.agents_manager.edit_agent(token, 'last_action', action)
+                    self.agents_manager.edit_agent(token, 'last_action_result', False)
+                    action_results.append({
+                        'agent': self.social_assets_manager.get_social_asset(token),
+                        'message': 'Agent does not have the abilities or resources to do the action'
+                    })
+
+            elif action == 'carry':
+                if len(parameters) != 1:
+                    if self.agents_manager.get_agent(token) is None:
+                        self.social_assets_manager.edit_social_asset(token, 'last_action', 'carry')
+                        self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+                        action_results.append({
+                            'social_asset': self.social_assets_manager.get_social_asset(token),
+                            'message': 'Wrong amount of parameters given.'
+                        })
+
+                    else:
+                        self.agents_manager.edit_agent(token, 'last_action', 'carry')
+                        self.agents_manager.edit_agent(token, 'last_action_result', False)
+                        action_results.append({
+                            'agent': self.agents_manager.get_agent(token),
+                            'message': 'Wrong amount o parameters given.'
+                        })
+                else:
+                    result = self._carry(i, special_action_tokens)
+                    if result[1] is None:
+                        if self.agents_manager.get_agent(token) is None:
+                            action_results.append({
+                                'social_asset': self.social_assets_manager.get_social_asset(token),
+                                'message': 'No other actor wanted to be carried.'
+                            })
+                        else:
+                            action_results.append({
+                                'agent': self.agents_manager.get_agent(token),
+                                'message': 'No other actor wanted to be carried.'
+                            })
+
+                    else:
+                        if self.agents_manager.get_agent(token) is None:
+                            action_results.append({
+                                'social_asset': self.social_assets_manager.get_social_asset(token),
+                                'message': ''
+                            })
+                        else:
+                            action_results.append({
+                                'agent': self.agents_manager.get_agent(token),
+                                'message': ''
+                            })
+
+                        if self.agents_manager.get_agent(result[1]) is None:
+                            action_results.append({
+                                'social_asset': self.social_assets_manager.get_social_asset(result[1]),
+                                'message': ''
+                            })
+                        else:
+                            action_results.append({
+                                'agent': self.agents_manager.get_agent(result[1]),
+                                'message': ''
+                            })
+
+                        computed_tokens.append(result[1])
+
+            else:
+                if len(parameters) != 1:
+                    if self.agents_manager.get_agent(token) is None:
+                        self.social_assets_manager.edit_social_asset(token, 'last_action', 'get_carried')
+                        self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+                        action_results.append({
+                            'social_asset': self.social_assets_manager.get_social_asset(token),
+                            'message': 'Wrong amount of parameters given.'
+                        })
+
+                    else:
+                        self.agents_manager.edit_agent(token, 'last_action', 'get_carried')
+                        self.agents_manager.edit_agent(token, 'last_action_result', False)
+                        action_results.append({
+                            'agent': self.agents_manager.get_agent(token),
+                            'message': 'Wrong amount o parameters given.'
+                        })
+                else:
+                    result = self._get_carried(i, special_action_tokens)
+                    if result[1] is None:
+                        if self.agents_manager.get_agent(token) is None:
+                            action_results.append({
+                                'social_asset': self.social_assets_manager.get_social_asset(token),
+                                'message': 'No other actor wanted to be carried or accomplishes the requirements to be.'
+                            })
+                        else:
+                            action_results.append({
+                                'agent': self.agents_manager.get_agent(token),
+                                'message': 'No other actor wanted to be carried or accomplishes the requirements to be..'
+                            })
+
+                    else:
+                        if self.agents_manager.get_agent(token) is None:
+                            action_results.append({
+                                'social_asset': self.social_assets_manager.get_social_asset(token),
+                                'message': ''
+                            })
+                        else:
+                            action_results.append({
+                                'agent': self.agents_manager.get_agent(token),
+                                'message': ''
+                            })
+
+                        if self.agents_manager.get_agent(result[1]) is None:
+                            action_results.append({
+                                'social_asset': self.social_assets_manager.get_social_asset(result[1]),
+                                'message': ''
+                            })
+                        else:
+                            action_results.append({
+                                'agent': self.agents_manager.get_agent(result[1]),
+                                'message': ''
+                            })
+
+                        computed_tokens.append(result[1])
+
+            computed_tokens.append(token)
+
+        return action_results, computed_tokens
 
     def _execute_agent_action(self, token, action_name, parameters):
         self.agents_manager.edit_agent(token, 'last_action', action_name)
@@ -337,6 +493,74 @@ class Cycle:
                 return False
 
         return True
+
+    def _carry(self, current_position, special_action_tokens):
+        token, action, parameters = special_action_tokens[current_position]
+
+        for j in range(current_position + 1, len(special_action_tokens)):
+            sub_token, sub_action, sub_parameters = special_action_tokens[j]
+            if sub_action == 'getCarried' and sub_token == parameters[0] and not sub_parameters:
+                if self.agents_manager.get_agent(token) is None:
+                    self.social_assets_manager.edit_social_asset(token, 'last_action', 'carry')
+                    self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+
+                else:
+                    self.agents_manager.edit_agent(token, 'last_action', 'carry')
+                    self.agents_manager.edit_agent(token, 'last_action_result', True)
+
+                if self.agents_manager.get_agent(sub_token) is None:
+                    self.social_assets_manager.edit_social_asset(sub_token, 'last_action', 'getCarried')
+                    self.social_assets_manager.edit_social_asset(sub_token, 'last_action_result', True)
+
+                else:
+                    self.agents_manager.edit_agent(sub_token, 'last_action', 'getCarried')
+                    self.agents_manager.edit_agent(sub_token, 'last_action_result', True)
+
+                return token, sub_token
+
+        if self.agents_manager.get_agent(token) is None:
+            self.social_assets_manager.edit_social_asset(token, 'last_action', 'carry')
+            self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+
+        else:
+            self.agents_manager.edit_agent(token, 'last_action', 'carry')
+            self.agents_manager.edit_agent(token, 'last_action_result', False)
+
+        return token, None
+
+    def _get_carried(self, current_position, special_action_tokens):
+        token, action, parameters = special_action_tokens[current_position]
+
+        for j in range(current_position + 1, len(special_action_tokens)):
+            sub_token, sub_action, sub_parameters = special_action_tokens[j]
+            if sub_action == 'carry' and sub_token == parameters[0]:
+                if self.agents_manager.get_agent(token) is None:
+                    self.social_assets_manager.edit_social_asset(token, 'last_action', 'get_carried')
+                    self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+
+                else:
+                    self.agents_manager.edit_agent(token, 'last_action', 'get_carried')
+                    self.agents_manager.edit_agent(token, 'last_action_result', True)
+
+                if self.agents_manager.get_agent(sub_token) is None:
+                    self.social_assets_manager.edit_social_asset(sub_token, 'last_action', 'carry')
+                    self.social_assets_manager.edit_social_asset(sub_token, 'last_action_result', True)
+
+                else:
+                    self.agents_manager.edit_agent(sub_token, 'last_action', 'carry')
+                    self.agents_manager.edit_agent(sub_token, 'last_action_result', True)
+
+                return token, sub_token
+
+        if self.agents_manager.get_agent(token) is None:
+            self.social_assets_manager.edit_social_asset(token, 'last_action', 'get_carried')
+            self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+
+        else:
+            self.agents_manager.edit_agent(token, 'last_action', 'get_carried')
+            self.agents_manager.edit_agent(token, 'last_action_result', False)
+
+        return token, None
 
     def _charge_agent(self, token, parameters):
         if parameters:
