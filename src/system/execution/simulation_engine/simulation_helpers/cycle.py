@@ -8,6 +8,7 @@ from src.system.execution.simulation_engine.simulation_helpers.social_assets_man
 class Cycle:
     def __init__(self, config):
         self.map = Map(config['map']['maps'][0], config['map']['proximity'])
+        self.max_steps = config['map']['steps']
         generator = Generator(config, self.map)
         self.steps = generator.generate_events()
         self.max_floods = generator.flood_id
@@ -16,7 +17,6 @@ class Cycle:
         self.max_water_samples = generator.water_sample_id
         self.delivered_items = []
         self.current_step = 0
-        self.max_steps = config['map']['steps']
         self.cdm_location = (config['map']['centerLat'], config['map']['centerLon'])
         self.agents_manager = AgentsManager(config['agents'], self.cdm_location)
         self.social_assets_manager = SocialAssetsManager(config['map'], config['socialAssets'])
@@ -48,17 +48,22 @@ class Cycle:
     def disconnect_social_asset(self, token):
         return self.social_assets_manager.disconnect_social_asset(token)
 
-    def check_steps(self):
-        return self.current_step == self.max_steps
-
-    def get_step(self):
-        return self.steps[self.current_step]
-
     def get_agents_info(self):
         return self.agents_manager.get_agents_info()
 
     def get_assets_info(self):
         return self.social_assets_manager.get_social_assets_info()
+
+    def get_step(self):
+        return self.steps[self.current_step]
+
+    def get_previous_steps(self):
+        previous_steps = []
+        for i in range(self.current_step):
+            if self.steps[i]['flood'].active:
+                previous_steps.append(self.steps[i])
+
+        return previous_steps
 
     def activate_step(self):
         if self.steps[self.current_step]['flood'] is None:
@@ -74,6 +79,9 @@ class Cycle:
 
         for photo in self.steps[self.current_step]['photos']:
             photo.active = True
+
+    def check_steps(self):
+        return self.current_step == self.max_steps
 
     def update_steps(self):
         for i in range(self.current_step):
