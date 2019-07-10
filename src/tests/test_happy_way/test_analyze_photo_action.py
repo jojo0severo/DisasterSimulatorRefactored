@@ -51,14 +51,14 @@ def action_result(msg):
     responses.append(msg['agent']['last_action_result'])
 
     if not msg['agent']['route']:
-        if msg['agent']['last_action'] == 'take_photo':
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'analyze_photo', 'parameters': []}))
+        if msg['agent']['last_action'] == 'takePhoto':
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'analyzePhoto', 'parameters': []}))
 
-        elif msg['agent']['last_action'] == 'analyze_photo':
+        elif msg['agent']['last_action'] == 'analyzePhoto':
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         else:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'take_photo', 'parameters': []}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'takePhoto', 'parameters': []}))
 
     else:
         requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))

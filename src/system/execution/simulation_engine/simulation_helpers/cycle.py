@@ -328,29 +328,25 @@ class Cycle:
             elif action_name == 'move':
                 self._move_agent(token, parameters)
 
-            elif action_name == 'rescue_victim':
+            elif action_name == 'rescueVictim':
                 self._rescue_victim_agent(token, parameters)
 
-            elif action_name == 'collect_water':
+            elif action_name == 'collectWater':
                 self._collect_water_agent(token, parameters)
 
-            elif action_name == 'take_photo':
+            elif action_name == 'takePhoto':
                 self._take_photo_agent(token, parameters)
 
-            elif action_name == 'analyze_photo':
+            elif action_name == 'analyzePhoto':
                 self._analyze_photo_agent(token, parameters)
 
-            elif action_name == 'search_social_asset':
+            elif action_name == 'searchSocialAsset':
                 self._search_social_asset_agent(token, parameters)
 
-            elif action_name == 'get_social_asset':
-                exit('Not implemented.')
-                self._get_social_asset_agent(token, None, parameters)
-
-            elif action_name == 'deliver_physical':
+            elif action_name == 'deliverPhysical':
                 self._delivery_physical_agent(token, parameters)
 
-            elif action_name == 'deliver_virtual':
+            elif action_name == 'deliverVirtual':
                 self._deliver_virtual_agent(token, parameters)
 
             else:
@@ -418,22 +414,25 @@ class Cycle:
             if action_name == 'move':
                 self._move_asset(token, parameters)
 
-            elif action_name == 'rescue_victim':
+            elif action_name == 'rescueVictim':
                 self._rescue_victim_asset(token, parameters)
 
-            elif action_name == 'collect_water':
+            elif action_name == 'collectWater':
                 self._collect_water_asset(token, parameters)
 
-            elif action_name == 'take_photo':
+            elif action_name == 'takePhoto':
                 self._take_photo_asset(token, parameters)
 
-            elif action_name == 'analyze_photo':
+            elif action_name == 'analyzePhoto':
                 self._analyze_photo_asset(token, parameters)
 
-            elif action_name == 'deliver_physical':
+            elif action_name == 'searchSocialAsset':
+                self._search_social_asset_asset(token, parameters)
+
+            elif action_name == 'deliverPhysical':
                 self._delivery_physical_asset(token, parameters)
 
-            elif action_name == 'deliver_virtual':
+            elif action_name == 'deliverVirtual':
                 self._deliver_virtual_asset(token, parameters)
 
             else:

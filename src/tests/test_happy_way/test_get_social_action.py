@@ -3,7 +3,7 @@ import json
 import socketio
 
 
-agent = {'name': 'social_action_test'}
+agent = {'name': 'carry_action_test'}
 wait = True
 responses = []
 
@@ -21,7 +21,7 @@ def connect_agent():
 
 @socket.on('simulation_started')
 def simulation_started(msg):
-    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'search_social_asset', 'parameters': ['doctor']}))
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'searchSocialAsset', 'parameters': ['doctor']}))
 
 
 @socket.on('action_results')
@@ -31,15 +31,15 @@ def action_result(msg):
     responses.append(msg['agent']['last_action_result'])
 
     if not msg['agent']['route']:
-        if msg['agent']['last_action'] == 'search_social_asset':
+        if msg['agent']['last_action'] == 'searchSocialAsset':
             asset_location = msg['agent']['social_assets'][0]['location']
             requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': asset_location}))
 
-        elif msg['agent']['last_action'] == 'get_social_asset':
+        elif msg['agent']['last_action'] == 'carry':
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         else:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'get_social_asset', 'parameters': []}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'carry', 'parameters': [msg['agent']['social_assets'][0]['token']]}))
 
     else:
         requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))

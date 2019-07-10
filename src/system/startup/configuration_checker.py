@@ -31,7 +31,7 @@ class Checker:
         if not test[0]:
             return test
 
-        test = self.test_roles_key()
+        test = self.test_actions_key()
         if not test[0]:
             return test
 
@@ -60,7 +60,7 @@ class Checker:
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
-        keys = ['map', 'agents', 'socialAssets', 'roles', 'generate']
+        keys = ['map', 'agents', 'socialAssets', 'actions', 'generate']
 
         config = json.load(open(self.config, 'r'))
         for key in keys:
@@ -254,35 +254,32 @@ class Checker:
 
         return 1, 'Agents: Ok.'
 
-    def test_social_assets_key(self):
-        return 1, 'SocialAssets: Ok.'
+    def test_actions_key(self):
+        keys = ['pass', 'move', 'charge', 'rescueVictim', 'collectWater', 'takePhoto', 'analyzePhoto', 'searchSocialAsset',
+                'deliverPhysical', 'deliverVirtual', 'carry', 'getCarried']
 
-    def test_roles_key(self):
-        """Test the keys and objects inside the roles obj.
+        sub_keys = ['abilities', 'resources']
 
-        :returns int: Status where 1 is Ok and 0 is Not ok.
-        :returns str: Appropriate message for the user understand his error."""
+        actions = json.load(open(self.config, 'r'))['actions']
+        for key in keys:
+            if key not in actions:
+                return 0, f'Actions: {key} is missing.'
 
-
-
-            if not isinstance(agents[key]['battery'], int):
-                return 0, f'Agents: Sub key Battery from {str(key).title()} is not a valid type.'
-
-        return 1, 'Agents: Ok.'
-
-        for key in roles:
+        for key in actions:
             if key not in keys:
-                return 0, f'Roles: Key {key} not in the list of allowed keys.'
+                return 0, f'Actions: Key {key} is not in the list of allowed keys.'
+
+            if not isinstance(actions[key], dict):
+                return 0, f'Actions: Key {key} is not a valid type.'
 
             for sub_key in sub_keys:
-                if sub_key not in roles[key]:
-                    return 0, f'Roles: Sub key {sub_key} of {key} is missing.'
+                if sub_key not in actions[key]:
+                    return 0, f'Actions: Sub key {sub_key} from {str(key).title()} is missing.'
 
-            for sub_key in roles[key]:
-                if sub_key not in sub_keys:
-                    return 0, f'Roles: Sub key {sub_key} of {key} is not in the list of allowed keys.'
+                if not isinstance(actions[key][sub_key], list):
+                    return 0, f'Actions: Sub key {sub_key} from {str(key).title()} is not a valid type.'
 
-        return 1, 'Roles: Ok.'
+        return 1, 'Actions: Ok.'
 
     def test_generate_key(self):
         """Test the keys and objects inside the generate obj.

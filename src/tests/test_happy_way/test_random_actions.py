@@ -5,8 +5,8 @@ import random
 
 
 agent = {'name': 'random_action_test'}
-actions = ['move', 'pass', 'rescue_victim', 'take_photo', 'analyze_photo', 'collect_water_sample',
-           'deliver_physical', 'deliver_virtual', 'search_social_asset', 'get_social_asset', 'charge']
+actions = ['move', 'pass', 'rescueVictim', 'takePhoto', 'analyzePhoto', 'collectWaterSample',
+           'deliverPhysical', 'deliverVirtual', 'searchSocialAsset', 'carry', 'getCarried', 'charge']
 wait = True
 responses = []
 

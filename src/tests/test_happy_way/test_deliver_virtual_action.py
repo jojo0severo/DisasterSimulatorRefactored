@@ -54,16 +54,16 @@ def action_result(msg):
     responses.append(msg['agent']['last_action_result'])
 
     if not msg['agent']['route']:
-        if msg['agent']['last_action'] == 'deliver_virtual':
+        if msg['agent']['last_action'] == 'deliverVirtual':
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         elif not got:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'take_photo', 'parameters': []}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'takePhoto', 'parameters': []}))
             got = True
 
         elif got and msg['agent']['last_action'] == 'move':
             obj_id = msg['agent']['virtual_storage_vector'][0]['identifier']
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliver_virtual', 'parameters': [obj_id]}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverVirtual', 'parameters': [obj_id]}))
 
         elif got:
             requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))

@@ -58,12 +58,12 @@ def action_result(msg):
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         elif not got:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'collect_water', 'parameters': []}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'collectWater', 'parameters': []}))
             got = True
 
         elif got and msg['agent']['last_action'] == 'move':
             obj_id = msg['agent']['physical_storage_vector'][0]['identifier']
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliver_physical', 'parameters': [obj_id]}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverPhysical', 'parameters': [obj_id]}))
 
         elif got:
             requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))

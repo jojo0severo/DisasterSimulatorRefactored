@@ -24,7 +24,7 @@ def connect_agent():
 
 @socket.on('simulation_started')
 def simulation_started(msg):
-    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'search_social_asset', 'parameters': ['doctor']}))
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'searchSocialAsset', 'parameters': ['doctor']}))
 
 
 @socket.on('action_results')
@@ -34,7 +34,7 @@ def action_result(msg):
     if counter == max_iter:
         socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
     else:
-        requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'search_social_asset', 'parameters': ['doctor']}))
+        requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'searchSocialAsset', 'parameters': ['doctor']}))
         counter += 1
 
 

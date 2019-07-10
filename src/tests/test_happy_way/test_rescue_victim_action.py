@@ -51,11 +51,11 @@ def action_result(msg):
     responses.append(msg['agent']['last_action_result'])
 
     if not msg['agent']['route']:
-        if msg['agent']['last_action'] == 'rescue_victim':
+        if msg['agent']['last_action'] == 'rescueVictim':
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         else:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'rescue_victim', 'parameters': []}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'rescueVictim', 'parameters': []}))
 
     else:
         requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))
