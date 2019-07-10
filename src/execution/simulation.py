@@ -7,7 +7,7 @@ from flask import request, jsonify
 from flask import Flask
 from flask_cors import CORS
 from waitress import serve
-from src.system.execution.simulation_engine.json_formatter import JsonFormatter
+from simulation_engine.json_formatter import JsonFormatter
 
 config_path, base_url, simulation_port, api_port, log, secret = sys.argv[1:]
 

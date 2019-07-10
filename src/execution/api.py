@@ -8,8 +8,8 @@ import multiprocessing
 from multiprocessing import Queue
 from flask_socketio import SocketIO
 from flask import Flask, request, jsonify
-from src.system.execution.communication.helpers.controller import Controller
-from src.system.execution.communication.helpers import json_formatter
+from communication.helpers.controller import Controller
+from communication.helpers import json_formatter
 
 base_url, api_port, simulation_port, step_time, first_step_time, method, secret, agents_amount, assets_amount = sys.argv[1:]
 

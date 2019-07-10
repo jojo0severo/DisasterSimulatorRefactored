@@ -1,6 +1,6 @@
 import copy
 import datetime
-from src.system.execution.simulation_engine.simulation import Simulation
+from simulation_engine.simulation import Simulation
 
 
 class CopyCat:

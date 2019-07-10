@@ -1,8 +1,8 @@
-from src.system.execution.simulation_engine.exceptions.exceptions import *
-from src.system.execution.simulation_engine.simulation_helpers.map import Map
-from src.system.execution.simulation_engine.generator.generator import Generator
-from src.system.execution.simulation_engine.simulation_helpers.agents_manager import AgentsManager
-from src.system.execution.simulation_engine.simulation_helpers.social_assets_manager import SocialAssetsManager
+from simulation_engine.exceptions.exceptions import *
+from simulation_engine.simulation_helpers.map import Map
+from simulation_engine.generator.generator import Generator
+from simulation_engine.simulation_helpers.agents_manager import AgentsManager
+from simulation_engine.simulation_helpers.social_assets_manager import SocialAssetsManager
 
 
 class Cycle:

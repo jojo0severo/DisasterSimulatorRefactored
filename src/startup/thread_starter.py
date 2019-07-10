@@ -2,9 +2,9 @@ import json
 import pathlib
 import subprocess
 from multiprocessing import Process
-from src.system.startup.environment_handler import Handler
-from src.system.startup.arguments_parser import Parser
-from src.system.startup.configuration_checker import Checker
+from environment_handler import Handler
+from arguments_parser import Parser
+from configuration_checker import Checker
 
 
 class Starter:
@@ -96,11 +96,11 @@ class Starter:
 
         Note that this method only returns when the processes end."""
 
-        simulation_path = str((self.root / 'system' / 'execution' / 'simulation.py').absolute())
+        simulation_path = str((self.root / 'execution' / 'simulation.py').absolute())
         simulation_process_arguments = (simulation_path, simulation_arguments, self.env_handler.venv_path, python_version)
         simulation_process = Process(target=self.start_simulation, args=simulation_process_arguments, daemon=True)
 
-        api_path = str((self.root / 'system' / 'execution' / 'api.py').absolute())
+        api_path = str((self.root / 'execution' / 'api.py').absolute())
         api_process_arguments = (api_path, api_arguments, self.env_handler.venv_path, python_version)
         api_process = Process(target=self.start_api, args=api_process_arguments, daemon=True)
 

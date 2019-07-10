@@ -1,21 +1,18 @@
-from src.system.execution.simulation_engine.exceptions.exceptions import *
+from simulation_engine.exceptions.exceptions import *
 
 
-class Agent:
-    def __init__(self, token, cdm_location, abilities, resources, size,
-                 role_name, battery, speed, physical_capacity, virtual_capacity):
+class SocialAsset:
+    def __init__(self, token, abilities, resources, location, profession, size, speed, physical_capacity, virtual_capacity):
         self.token = token
-        self.type = 'agent'
+        self.type = 'social_asset'
         self.is_active = True
         self.min_size = size
-        self.location = cdm_location
+        self.location = location
         self.last_action = None
         self.last_action_result = False
-        self.role = role_name
+        self.profession = profession
         self.abilities = abilities
         self.resources = resources
-        self.max_charge = battery
-        self.actual_battery = battery
         self.speed = speed
         self.route = []
         self.destination_distance = 0
@@ -30,18 +27,6 @@ class Agent:
     @property
     def size(self):
         return self.min_size + (self.physical_capacity - self.physical_storage)
-
-    def discharge(self):
-        if self.destination_distance:
-            self.actual_battery = self.actual_battery - int(self.speed / 5) \
-                if self.actual_battery - self.speed / 5 \
-                else 0
-
-    def check_battery(self):
-        return self.actual_battery - int(self.speed / 5) if self.actual_battery - self.speed / 5 else 0
-
-    def charge(self):
-        self.actual_battery = self.max_charge
 
     def add_physical_item(self, item):
         size = item.size
@@ -119,11 +104,9 @@ class Agent:
     def disconnect(self):
         self.is_active = False
         self.last_action_result = False
-        self.actual_battery = 0
         self.physical_storage = 0
         self.virtual_storage = 0
         self.destination_distance = 0
         self.route.clear()
         self.physical_storage_vector.clear()
         self.virtual_storage_vector.clear()
-        self.social_assets.clear()

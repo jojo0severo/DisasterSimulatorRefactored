@@ -2,7 +2,7 @@ import os
 import re
 import json
 import pathlib
-from src.system.execution.simulation_engine.copycat import CopyCat
+from simulation_engine.copycat import CopyCat
 
 
 class JsonFormatter:

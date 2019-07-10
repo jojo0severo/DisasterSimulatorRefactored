@@ -1,7 +1,7 @@
 import jwt
 import json
 import time
-from src.system.execution.communication.controllers.manager import Manager
+from communication.controllers.manager import Manager
 
 
 class Controller:

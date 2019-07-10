@@ -25,7 +25,7 @@ class Handler:
                                     stderr=subprocess.STDOUT)
                     subprocess.call(['virtualenv', 'venv'], stdout=FNULL, stderr=subprocess.STDOUT)
 
-            venv_path += '/' if venv_path.find('/') else '\\'
+            venv_path += '/' if not venv_path.find('/') else '\\'
             self.venv_path = venv_path
 
             self.install_requirements(venv_path, python_version)

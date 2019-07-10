@@ -1,4 +1,4 @@
-from src.system.execution.simulation_engine.simulation_helpers.cycle import Cycle
+from simulation_engine.simulation_helpers.cycle import Cycle
 
 
 class Simulation:
