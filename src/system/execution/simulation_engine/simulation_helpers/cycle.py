@@ -567,36 +567,55 @@ class Cycle:
         self.social_assets_manager.clear_social_asset_virtual_storage(token)
 
     def _search_social_asset_agent(self, token, parameters):
+        if not self.social_assets_manager.get_tokens():
+            raise FailedNoSocialAsset('No social asset connected.')
+
         if len(parameters) != 1:
             raise FailedWrongParam('Wrong amount of parameters given.')
 
+        closer_asset = None
+        distance = 999999
         for asset_token in self.social_assets_manager.get_tokens():
             asset = self.social_assets_manager.get_social_asset(asset_token)
             if asset.is_active:
                 if parameters[0] == asset.profession:
-                    self.agents_manager.add_social_asset(token, asset)
-                    return
+                    current_dist = self.map.euclidean_distance(self.agents_manager.get_agent(token).location, asset.location)
+                    if current_dist <= distance:
+                        distance = current_dist
+                        closer_asset = asset
 
-        raise FailedNoSocialAsset('No social asset found for the needed purposes.')
-
-    def _get_social_asset_agent(self, agent_token, asset_token, parameters):
-        if parameters:
-            raise FailedWrongParam('Wrong amount of parameters given.')
-
-        agent = self.agents_manager.get_agent(agent_token)
-
-        if agent.role == 'drone':
-            raise FailedInvalidKind('Agent role does not support carrying social asset.')
-
-        asset = self.social_assets_manager.get_social_asset(asset_token)
-        if self.map.check_location(asset.location, agent.location):
-            self.agents_manager.add_physical(agent_token, asset)
-            self.agents_manager.edit_agent(agent_token, 'last_action_result', True)
-            self.social_assets_manager.edit_social_asset(asset_token, 'is_active', False)
-            self.social_assets_manager.edit_social_asset(asset_token, 'last_action_result', True)
+        if closer_asset is None:
+            raise FailedNoSocialAsset('No social asset found for the needed purposes.')
 
         else:
-            raise FailedNoSocialAsset('Invalid social asset location requested.')
+            self.agents_manager.add_social_asset(token, closer_asset)
+            self.agents_manager.edit_agent(token, 'last_action_result', True)
+
+    def _search_social_asset_asset(self, token, parameters):
+        if not self.social_assets_manager.get_tokens():
+            raise FailedNoSocialAsset('No social asset connected.')
+
+        if len(parameters) != 1:
+            raise FailedWrongParam('Wrong amount of parameters given.')
+
+        closer_asset = None
+        distance = 999999
+        for asset_token in self.social_assets_manager.get_tokens():
+            asset = self.social_assets_manager.get_social_asset(asset_token)
+            if asset.is_active:
+                if parameters[0] == asset.profession:
+                    current_dist = self.map.euclidean_distance(
+                        self.social_assets_manager.get_social_asset(token).location, asset.location)
+                    if current_dist <= distance:
+                        distance = current_dist
+                        closer_asset = asset
+
+        if closer_asset is None:
+            raise FailedNoSocialAsset('No social asset found for the needed purposes.')
+
+        else:
+            self.social_assets_manager.add_social_asset(token, closer_asset)
+            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
 
     def _delivery_physical_agent(self, token, parameters):
         if len(parameters) < 1:

@@ -177,7 +177,7 @@ def connect_registered_agent(msg):
                 response['result'] = True
                 response['message'] = 'Agent successfully connected.'
 
-                if controller.agents_amount == len(controller.manager.get_all('agent')):
+                if controller.agents_amount == len(controller.manager.agents_sockets_manager.get_tokens()):
                     every_agent_registered.put(True)
 
                 one_agent_registered_queue.put(True)

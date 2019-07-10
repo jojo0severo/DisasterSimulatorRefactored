@@ -23,11 +23,11 @@ class Checker:
         if not test[0]:
             return test
 
-        test = self.test_agents_key()
+        test = self.test_social_assets_key()
         if not test[0]:
             return test
 
-        test = self.test_social_assets_key()
+        test = self.test_agents_key()
         if not test[0]:
             return test
 
@@ -142,22 +142,115 @@ class Checker:
 
         return 1, 'Map: Ok.'
 
+    def test_social_assets_key(self):
+        """Test the keys and sub keys inside the socialAssets obj.
+
+        :returns int: Status where 1 is Ok and 0 is Not ok.
+        :returns str: Appropriate message for the user understand his error."""
+
+        sub_keys = ['abilities', 'resources', 'minSize', 'maxSize', 'amount', 'speed', 'physicalCapacity', 'virtualCapacity']
+
+        social_assets = json.load(open(self.config, 'r'))['socialAssets']
+
+        for key in social_assets:
+            if not isinstance(social_assets[key], dict):
+                return 0, f'SocialAssets: {str(key).title()} is not a valid type.'
+
+            for sub_key in sub_keys:
+                if sub_key not in social_assets[key]:
+                    return 0, f'SocialAssets: Sub key {sub_key} from {str(key).title()} is missing.'
+
+            for sub_key in social_assets[key]:
+                if sub_key not in sub_keys:
+                    return 0, f'SocialAssets: Sub key {sub_key} ' \
+                        f'from {str(key).title()} is not int the list of allowed sub keys.'
+
+            if not isinstance(social_assets[key]['abilities'], list):
+                return 0, f'SocialAssets: Sub key Abilities from {str(key).title()} is not a valid type.'
+
+            if not isinstance(social_assets[key]['resources'], list):
+                return 0, f'SocialAssets: Sub key Resources from {str(key).title()} is not a valid type.'
+
+            if not isinstance(social_assets[key]['minSize'], int):
+                return 0, f'SocialAssets: Sub key MinSize from {str(key).title()} is not a valid type.'
+
+            if not isinstance(social_assets[key]['maxSize'], int):
+                return 0, f'SocialAssets: Sub key MaxSize from {str(key).title()} is not a valid type.'
+
+            if social_assets[key]['minSize'] > social_assets[key]['maxSize']:
+                return 0, f'SocialAssets: Sub key MinSize from {str(key).title()} ' \
+                    f'can not be bigger than sub key MaxSize from {str(key).title()}.'
+
+            if social_assets[key]['minSize'] <= 0:
+                return 0, f'SocialAssets: Sub key MinSize from {str(key).title()} can not be zero or negative.'
+
+            if not isinstance(social_assets[key]['amount'], int):
+                return 0, f'SocialAssets: Sub key Amount from {str(key).title()} is not a valid type.'
+
+            if not isinstance(social_assets[key]['speed'], int):
+                return 0, f'SocialAssets: Sub key Speed from {str(key).title()} is not a valid type.'
+
+            if not isinstance(social_assets[key]['physicalCapacity'], int):
+                return 0, f'SocialAssets: Sub key PhysicalCapacity from {str(key).title()} is not a valid type.'
+
+            if not isinstance(social_assets[key]['virtualCapacity'], int):
+                return 0, f'SocialAssets: Sub key VirtualCapacity from {str(key).title()} is not a valid type.'
+
+        return 1, 'SocialAssets: Ok.'
+
     def test_agents_key(self):
-        """Test the keys and objects inside the agents obj.
+        """Test the keys and sub keys inside the agents obj.
 
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
         keys = ['drone', 'car', 'boat']
+        sub_keys = ['abilities', 'resources', 'size', 'amount', 'speed', 'physicalCapacity', 'virtualCapacity', 'battery']
 
         agents = json.load(open(self.config, 'r'))['agents']
+
+        for key in keys:
+            if key not in agents:
+                return 0, f'Agents: {key} is missing.'
 
         for key in agents:
             if key not in keys:
                 return 0, f'Agents: Key {key} not in the list of allowed keys.'
 
-            if not isinstance(agents[key], int):
-                return 0, f'Agents: {key.title()} is not a valid type.'
+            if not isinstance(agents[key], dict):
+                return 0, f'Agents: {str(key).title()} is not a valid type.'
+
+            for sub_key in sub_keys:
+                if sub_key not in agents[key]:
+                    return 0, f'Agents: Sub key {sub_key} from {str(key).title()} is missing.'
+
+            for sub_key in agents[key]:
+                if sub_key not in sub_keys:
+                    return 0, f'Agents: Sub key {sub_key} from {str(key).title()} is not int the list of allowed sub keys.'
+
+            if not isinstance(agents[key]['abilities'], list):
+                return 0, f'Agents: Sub key Abilities from {str(key).title()} is not a valid type.'
+
+            if not isinstance(agents[key]['resources'], list):
+                return 0, f'Agents: Sub key Resources from {str(key).title()} is not a valid type.'
+
+            if not isinstance(agents[key]['size'], int):
+                return 0, f'Agents: Sub key Size from {str(key).title()} is not a valid type.'
+
+            if not isinstance(agents[key]['amount'], int):
+                return 0, f'Agents: Sub key Amount from {str(key).title()} is not a valid type.'
+
+            if not isinstance(agents[key]['speed'], int):
+                return 0, f'Agents: Sub key Speed from {str(key).title()} is not a valid type.'
+
+            if not isinstance(agents[key]['physicalCapacity'], int):
+                return 0, f'Agents: Sub key PhysicalCapacity from {str(key).title()} is not a valid type.'
+
+            if not isinstance(agents[key]['virtualCapacity'], int):
+                return 0, f'Agents: Sub key VirtualCapacity from {str(key).title()} is not a valid type.'
+
+            if not isinstance(agents[key]['battery'], int):
+                return 0, f'Agents: Sub key Battery from {str(key).title()} is not a valid type.'
 
         return 1, 'Agents: Ok.'
 
@@ -170,10 +263,12 @@ class Checker:
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
-        keys = ['drone', 'car', 'boat']
-        sub_keys = ['speed', 'physicalCapacity', 'virtualCapacity', 'battery', 'kind']
 
-        roles = json.load(open(self.config, 'r'))['roles']
+
+            if not isinstance(agents[key]['battery'], int):
+                return 0, f'Agents: Sub key Battery from {str(key).title()} is not a valid type.'
+
+        return 1, 'Agents: Ok.'
 
         for key in roles:
             if key not in keys:

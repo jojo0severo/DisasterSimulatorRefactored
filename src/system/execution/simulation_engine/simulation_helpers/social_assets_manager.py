@@ -62,6 +62,9 @@ class SocialAssetsManager:
     def add_virtual(self, token, item):
         self.social_assets[token].add_virtual_item(item)
 
+    def add_social_asset(self, token, social_asset):
+        self.social_assets[token].social_assets.append(social_asset)
+
     def get_social_asset(self, token):
         return self.social_assets.get(token)
 

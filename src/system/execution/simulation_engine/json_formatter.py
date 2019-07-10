@@ -179,6 +179,7 @@ class JsonFormatter:
             'max_charge': agent.max_charge,
             'speed': agent.speed,
             'size': agent.size,
+            'social_assets_vector': self.jsonify_assets(agent.social_assets),
             'physical_storage': agent.physical_storage,
             'physical_capacity': agent.physical_capacity,
             'physical_storage_vector': json_physical_items,
@@ -205,6 +206,7 @@ class JsonFormatter:
             'destination_distance': asset.destination_distance,
             'speed': asset.speed,
             'size': asset.size,
+            'social_assets_vector': self.jsonify_assets(asset.social_assets),
             'physical_storage': asset.physical_storage,
             'physical_capacity': asset.physical_capacity,
             'physical_storage_vector': json_physical_items,
@@ -276,8 +278,7 @@ class JsonFormatter:
 
         return {'flood': json_flood, 'victims': json_victims, 'water_samples': json_water_samples, 'photos': json_photos}
 
-    @staticmethod
-    def jsonify_delivered_items(items):
+    def jsonify_delivered_items(self, items):
         json_items = []
         for item in items:
             if item.type == 'victim':
@@ -317,6 +318,12 @@ class JsonFormatter:
                     'location': list(item.location),
                     'size': item.size
                 }
+
+            elif item.type == 'social_asset':
+                json_item = self.jsonify_asset(item)
+
+            elif item.type == 'agent':
+                json_item = self.jsonify_agent(item)
 
             else:
                 json_item = {
