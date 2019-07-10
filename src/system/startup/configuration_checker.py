@@ -394,7 +394,7 @@ class Checker:
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
-        keys = ['size', 'minAmount', 'maxAmount', 'victimProbability']
+        keys = ['minSize', 'maxSize', 'minAmount', 'maxAmount', 'victimProbability']
 
         for key in keys:
             if key not in photo:
@@ -413,8 +413,11 @@ class Checker:
         if photo['minAmount'] < 0:
             return 0, 'Generate: MinAmount can not be negative.'
 
-        if photo['size'] <= 0:
-            return 0, f'Generate: Size from Photo can not be zero or negative.'
+        if photo['minSize'] > photo['maxSize']:
+            return 0, f'Generate: MinSize from Photo can not be bigger than MaxSize from Photo.'
+
+        if photo['minSize'] <= 0:
+            return 0, 'Generate: MinSize can not be zero or negative.'
 
         return 1, 'Generate: Ok from Photo.'
 
@@ -465,7 +468,7 @@ class Checker:
         :returns int: Status where 1 is Ok and 0 is Not ok.
         :returns str: Appropriate message for the user understand his error."""
 
-        keys = ['size', 'minAmount', 'maxAmount']
+        keys = ['minSize', 'maxSize', 'minAmount', 'maxAmount']
 
         for key in keys:
             if key not in water_sample:
@@ -478,13 +481,16 @@ class Checker:
             if key not in keys:
                 return 0, f'Generate: Key {key} from WaterSample not in the list of allowed keys.'
 
-        if water_sample['size'] <= 0:
-            return 0, 'Generate: Size from WaterSample can not be zero or negative.'
-
         if water_sample['minAmount'] > water_sample['maxAmount']:
             return 0, 'Generate: MinAmount from WaterSample can not be bigger than MaxAmount from WaterSample.'
 
         if water_sample['minAmount'] < 0:
             return 0, 'Generate: MinAmount from WaterSample can not be negative.'
+
+        if water_sample['minSize'] > water_sample['maxSize']:
+            return 0, 'Generate: MinSize from WaterSample can not be bigger than MaxSize from WaterSample.'
+
+        if water_sample['minSize'] <= 0:
+            return 0, 'Generate: MinSize from WaterSample can not be zero or negative.'
 
         return 1, 'Generate: Ok from WaterSample.'
