@@ -2,23 +2,27 @@ from src.system.execution.simulation_engine.exceptions.exceptions import *
 
 
 class SocialAsset:
-    def __init__(self, token, location, profession, size, speed, physical_capacity, virtual_capacity):
+    def __init__(self, token, abilities, resources, location, profession, size, speed, physical_capacity, virtual_capacity):
         self.token = token
+        self.type = 'social_asset'
         self.is_active = True
         self.min_size = size
+        self.location = location
         self.last_action = None
         self.last_action_result = False
+        self.profession = profession
+        self.abilities = abilities
+        self.resources = resources
+        self.speed = speed
         self.route = []
         self.destination_distance = 0
-        self.speed = speed
-        self.location = location
-        self.profession = profession
         self.physical_capacity = physical_capacity
         self.physical_storage = physical_capacity
         self.physical_storage_vector = []
         self.virtual_capacity = virtual_capacity
         self.virtual_storage = virtual_capacity
         self.virtual_storage_vector = []
+        self.social_assets = []
 
     @property
     def size(self):

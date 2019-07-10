@@ -2,27 +2,30 @@ from src.system.execution.simulation_engine.exceptions.exceptions import *
 
 
 class Agent:
-
-    def __init__(self, token, cdm_location, size, role_name, battery, speed, physical_capacity, virtual_capacity):
-        self.is_active = True
+    def __init__(self, token, cdm_location, abilities, resources, size,
+                 role_name, battery, speed, physical_capacity, virtual_capacity):
         self.token = token
+        self.type = 'agent'
+        self.is_active = True
         self.min_size = size
         self.location = cdm_location
+        self.last_action = None
+        self.last_action_result = False
         self.role = role_name
+        self.abilities = abilities
+        self.resources = resources
         self.max_charge = battery
         self.actual_battery = battery
         self.speed = speed
-        self.virtual_storage = virtual_capacity
-        self.virtual_capacity = virtual_capacity
-        self.physical_storage = physical_capacity
-        self.physical_capacity = physical_capacity
-        self.physical_storage_vector = []
-        self.virtual_storage_vector = []
-        self.last_action = None
-        self.last_action_result = False
         self.route = []
-        self.social_assets = []
         self.destination_distance = 0
+        self.physical_capacity = physical_capacity
+        self.physical_storage = physical_capacity
+        self.physical_storage_vector = []
+        self.virtual_capacity = virtual_capacity
+        self.virtual_storage = virtual_capacity
+        self.virtual_storage_vector = []
+        self.social_assets = []
 
     @property
     def size(self):

@@ -152,6 +152,10 @@ class Cycle:
             self.agents_manager.edit_agent(token, 'last_action', 'pass')
             return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent did not send any action.'}
 
+        if not self._check_abilities_and_resources(token, action_name):
+            return {'agent': self.agents_manager.get_agent(token),
+                    'message': 'Agent does not have the abilities or resources to complete the action.'}
+
         error_message = ''
         try:
             if action_name == 'charge':
@@ -241,6 +245,10 @@ class Cycle:
             return {'social_asset': self.social_assets_manager.get_social_asset(token),
                     'message': 'Social Asset did not send any action.'}
 
+        if not self._check_abilities_and_resources(token, action_name):
+            return {'social_asset': self.social_assets_manager.get_social_asset(token),
+                    'message': 'Social asset does not have the abilities or resources to complete the action.'}
+
         error_message = ''
         try:
             if action_name == 'move':
@@ -302,6 +310,25 @@ class Cycle:
 
         finally:
             return {'social_asset': self.social_assets_manager.get_social_asset(token), 'message': error_message}
+
+    def _check_abilities_and_resources(self, token, action):
+        if self.agents_manager.get_agent(token) is None:
+            actor = self.social_assets_manager.get_social_asset(token)
+        else:
+            actor = self.agents_manager.get_agent(token)
+
+        if actor is None:
+            exit('Internal error. Non registered token requested.')
+
+        for ability in self.actions[action]['abilities']:
+            if ability not in actor.abilities:
+                return False
+
+        for resource in self.actions[action]['resources']:
+            if resource not in actor.resources:
+                return False
+
+        return True
 
     def _charge_agent(self, token, parameters):
         if parameters:

@@ -3,7 +3,7 @@ from collections import namedtuple
 from src.system.execution.simulation_engine.simulation_objects.social_asset import SocialAsset
 
 
-Capacities = namedtuple('Capacities', 'location profession size speed physical_capacity virtual_capacity')
+Capacities = namedtuple('Capacities', 'abilities resources location profession size speed physical_capacity virtual_capacity')
 
 
 class SocialAssetsManager:
@@ -33,7 +33,11 @@ class SocialAssetsManager:
             speed = social_assets_info[profession]['speed']
             physical_capacity = social_assets_info[profession]['physicalCapacity']
             virtual_capacity = social_assets_info[profession]['virtualCapacity']
-            temp_capacities = Capacities(location, profession, size, speed, physical_capacity, virtual_capacity)
+            abilities = social_assets_info[profession]['abilities']
+            resources = social_assets_info[profession]['resources']
+
+            temp_capacities = Capacities(abilities, resources, location,
+                                         profession, size, speed, physical_capacity, virtual_capacity)
 
             for i in range(social_assets_info[profession]['amount']):
                 capacities.append(temp_capacities)

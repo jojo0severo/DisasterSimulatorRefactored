@@ -1,7 +1,7 @@
 from collections import namedtuple
 from src.system.execution.simulation_engine.simulation_objects.agent import Agent
 
-Role = namedtuple('Role', 'size name battery speed physical_capacity virtual_capacity')
+Role = namedtuple('Role', 'abilities resources size name battery speed physical_capacity virtual_capacity')
 
 
 class AgentsManager:
@@ -23,8 +23,15 @@ class AgentsManager:
     def generate_roles(roles_info):
         roles = []
         for role in roles_info:
-            temp_role = Role(roles_info[role]['size'], role, roles_info[role]['battery'], roles_info[role]['speed'],
-                             roles_info[role]['physicalCapacity'], roles_info[role]['virtualCapacity'])
+            temp_role = Role(
+                roles_info[role]['abilities'],
+                roles_info[role]['resources'],
+                roles_info[role]['size'],
+                role,
+                roles_info[role]['battery'],
+                roles_info[role]['speed'],
+                roles_info[role]['physicalCapacity'],
+                roles_info[role]['virtualCapacity'])
             for i in range(roles_info[role]['amount']):
                 roles.append(temp_role)
 
