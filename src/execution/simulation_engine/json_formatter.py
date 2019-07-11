@@ -7,7 +7,7 @@ from simulation_engine.copycat import CopyCat
 
 class JsonFormatter:
     def __init__(self, config):
-        config_location = pathlib.Path(__file__).parents[4] / config
+        config_location = pathlib.Path(__file__).parents[3] / config
         self.copycat = CopyCat(json.load(open(config_location, 'r')))
 
     def log(self):

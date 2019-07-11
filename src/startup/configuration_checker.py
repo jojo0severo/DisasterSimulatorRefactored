@@ -8,7 +8,7 @@ class Checker:
     Note that no function raises any kind of Error, the treatment of any possible error is responsible by the caller."""
 
     def __init__(self, config_file):
-        self.config = pathlib.Path(__file__).parents[3] / config_file
+        self.config = pathlib.Path(__file__).parents[2] / config_file
 
     def run_all_tests(self):
         test = self.test_json_load()

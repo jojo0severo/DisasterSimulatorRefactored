@@ -10,7 +10,7 @@ class Handler:
 
     def __init__(self):
         self.venv_path = None
-        self.root = pathlib.Path(__file__).parents[3].absolute()
+        self.root = pathlib.Path(__file__).parents[2].absolute()
 
     def create_environment(self, globally, python_version):
         """Install all dependencies on the chosen environment.

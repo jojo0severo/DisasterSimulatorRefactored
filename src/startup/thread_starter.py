@@ -2,9 +2,9 @@ import json
 import pathlib
 import subprocess
 from multiprocessing import Process
-from environment_handler import Handler
-from arguments_parser import Parser
-from configuration_checker import Checker
+from src.startup.environment_handler import Handler
+from src.startup.arguments_parser import Parser
+from src.startup.configuration_checker import Checker
 
 
 class Starter:
@@ -19,7 +19,7 @@ class Starter:
         self.parser = Parser()
         self.env_handler = Handler()
         self.checker = Checker(self.parser.get_argument('conf'))
-        self.root = pathlib.Path(__file__).parents[2].absolute()
+        self.root = pathlib.Path(__file__).parents[1].absolute()
 
     def start(self):
         """Main function to start the hole system.
@@ -76,7 +76,7 @@ class Starter:
         self.parser.check_arguments()
 
         config_file = self.parser.get_argument('conf')
-        config_file = pathlib.Path(__file__).parents[3] / config_file
+        config_file = pathlib.Path(__file__).parents[2] / config_file
 
         with open(config_file, 'r') as configuration_file:
             json_file = json.load(configuration_file)

@@ -1,6 +1,6 @@
 """Module responsible for the startup of the system. The only one that can be called by the end-users."""
 
-from thread_starter import Starter
+from src.startup.thread_starter import Starter
 
 
 if __name__ == '__main__':

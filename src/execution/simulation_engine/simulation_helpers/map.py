@@ -6,7 +6,7 @@ from itertools import zip_longest
 
 class Map:
     def __init__(self, map_location, proximity):
-        map_location = str((pathlib.Path(__file__).parents[5] / map_location).absolute())
+        map_location = str((pathlib.Path(__file__).parents[4] / map_location).absolute())
         self.router = pyroutelib3.Router("car", map_location)
         self.proximity = proximity/1000
 

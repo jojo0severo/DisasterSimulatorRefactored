@@ -1,6 +1,6 @@
-from system.execution.communication.controllers.agents_manager import AgentsManager
-from system.execution.communication.controllers.social_assets_manager import SocialAssetsManager
-from system.execution.communication.controllers.sockets_manager import SocketsManager
+from communication.controllers.agents_manager import AgentsManager
+from communication.controllers.social_assets_manager import SocialAssetsManager
+from communication.controllers.sockets_manager import SocketsManager
 
 
 class Manager:
