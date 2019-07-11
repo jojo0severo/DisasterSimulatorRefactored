@@ -61,7 +61,7 @@ class SocialAsset:
                 break
 
         if not found_item:
-            raise FailedUnknownItem('No physical item with this ID is stored.')
+            raise FailedUnknownItem('No physical item of this type is stored.')
 
         for removed_item in removed_items:
             self.physical_storage_vector.remove(removed_item)

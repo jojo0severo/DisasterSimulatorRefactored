@@ -1,7 +1,3 @@
-"""
-[All the exceptions constructors, which are initiated by a desired error message.]
-"""
-
 
 class FailedWrongParam(Exception):
 
