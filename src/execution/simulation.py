@@ -132,7 +132,8 @@ def finish():
         multiprocessing.Process(target=auto_destruction, daemon=True).start()
 
     elif 'api' in message and not message['api']:
-        os._exit(0)
+        # os._exit(0)
+        raise SystemExit
 
     return jsonify('')
 

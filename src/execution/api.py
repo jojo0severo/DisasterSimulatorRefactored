@@ -403,7 +403,13 @@ def terminate():
     if not valid:
         return jsonify(message='This endpoint can not be accessed.')
 
-    os._exit(0)
+    if 'back' not in message:
+        return jsonify(message='This endpoint can not be accessed.')
+
+    if message['back'] == 0:
+        auto_destruction()
+    else:
+        raise SystemExit
 
     return jsonify('')
 
@@ -411,7 +417,7 @@ def terminate():
 def auto_destruction():
     time.sleep(1)
     try:
-        requests.get(f'http://{base_url}:{api_port}/terminate', json={'secret': secret})
+        requests.get(f'http://{base_url}:{api_port}/terminate', json={'secret': secret, 'back': 1})
     except requests.exceptions.ConnectionError:
         pass
 
