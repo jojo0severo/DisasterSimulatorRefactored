@@ -29,38 +29,47 @@ def collect_modules():
 def execute_modules():
     start_system_path = str((pathlib.Path(__file__).parents[2] / 'start_system.py').absolute())
     venv_path = get_venv_path()
-    command = f'{venv_path} {start_system_path} -conf files/test_config.json -first_t 20 -secret batata -log false'
+    command = [venv_path, start_system_path, *'-conf files/config.json -first_t 40 -secret batata -log false'.split(' ')]
 
     tests_passed = []
     modules = collect_modules()
     for module in modules:
         FNULL = open(os.devnull, 'w')
-        system_proc = subprocess.Popen(command, stdout=FNULL, stderr=subprocess.STDOUT)
+        system_proc = subprocess.Popen(command, stderr=subprocess.STDOUT)
         time.sleep(10)
 
-        test_proc = subprocess.Popen([venv_path, '-m', 'pytest', module], stdout=subprocess.PIPE)
+        test_proc = subprocess.Popen([venv_path, module], stdout=subprocess.PIPE)
         out, err = test_proc.communicate()
+        print('output:', out.decode('utf-8'), end='')
 
-        passed = True if re.findall('passed', out.decode('utf-8')) else False
+        passed = True if re.findall('True', out.decode('utf-8')) else False
         if not passed:
             print(f'Module {module} failed')
 
         tests_passed.append(passed)
-
+        print('added')
         test_proc.kill()
+        print('test_proc killed')
 
-        try:
-            requests.get('http://127.0.0.1:12345/terminate', json={'secret': 'batata'})
-        except requests.exceptions.ConnectionError:
-            pass
+        requests.get('http://127.0.0.1:12345/terminate', json={'secret': 'batata', 'back': 0})
+        print('api terminated')
 
         requests.get('http://127.0.0.1:8910/terminate', json={'secret': 'batata', 'api': True})
+        print('simulation terminated.')
 
-        time.sleep(10)
+        try:
+            time.sleep(10)
+        except PermissionError:
+            pass
         system_proc.kill()
+        print('system_proc killed')
 
     return tests_passed
 
 
 def test_system():
     assert all(execute_modules())
+
+
+if __name__ == '__main__':
+    execute_modules()
