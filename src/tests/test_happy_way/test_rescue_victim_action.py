@@ -46,8 +46,6 @@ def calculate_distance(x, y):
 def action_result(msg):
     msg = json.loads(msg)
 
-    print(msg)
-
     responses.append(msg['agent']['last_action_result'])
 
     if not msg['agent']['route']:
@@ -80,4 +78,14 @@ def test_cycle():
 
     assert all(responses)
 
+    socket.disconnect()
+
+
+if __name__ == '__main__':
+    socket.connect('http://127.0.0.1:12345')
+    connect_agent()
+    while wait:
+        pass
+
+    print(all(responses))
     socket.disconnect()

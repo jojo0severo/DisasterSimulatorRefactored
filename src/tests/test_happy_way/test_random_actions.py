@@ -5,7 +5,7 @@ import random
 
 
 agent = {'name': 'random_action_test'}
-actions = ['move', 'pass', 'rescueVictim', 'takePhoto', 'analyzePhoto', 'collectWaterSample',
+actions = ['move', 'pass', 'rescueVictim', 'takePhoto', 'analyzePhoto', 'collectWater',
            'deliverPhysical', 'deliverVirtual', 'searchSocialAsset', 'carry', 'getCarried', 'charge']
 wait = True
 responses = []
@@ -58,4 +58,14 @@ def test_cycle():
 
     assert all(responses)
 
+    socket.disconnect()
+
+
+if __name__ == '__main__':
+    socket.connect('http://127.0.0.1:12345')
+    connect_agent()
+    while wait:
+        pass
+
+    print(all(responses))
     socket.disconnect()

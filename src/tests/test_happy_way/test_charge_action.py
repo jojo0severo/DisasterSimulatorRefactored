@@ -61,3 +61,14 @@ def test_cycle():
     assert all(responses)
 
     socket.disconnect()
+
+
+if __name__ == '__main__':
+    socket.connect('http://127.0.0.1:12345')
+    connect_agent()
+    while wait:
+        pass
+
+    print(all(responses))
+    socket.disconnect()
+

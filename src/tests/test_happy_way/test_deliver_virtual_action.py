@@ -58,12 +58,11 @@ def action_result(msg):
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         elif not got:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'takePhoto', 'parameters': []}))
             got = True
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'takePhoto', 'parameters': []}))
 
         elif got and msg['agent']['last_action'] == 'move':
-            obj_id = msg['agent']['virtual_storage_vector'][0]['identifier']
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverVirtual', 'parameters': [obj_id]}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverVirtual', 'parameters': ['photo']}))
 
         elif got:
             requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))
@@ -91,4 +90,14 @@ def test_cycle():
 
     assert all(responses)
 
+    socket.disconnect()
+
+
+if __name__ == '__main__':
+    socket.connect('http://127.0.0.1:12345')
+    connect_agent()
+    while wait:
+        pass
+
+    print(all(responses))
     socket.disconnect()

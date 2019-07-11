@@ -30,7 +30,7 @@ def simulation_started(msg):
 @socket.on('action_results')
 def action_result(msg):
     global counter
-    print(msg)
+
     if counter == max_iter:
         socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
     else:
@@ -66,6 +66,5 @@ if __name__ == '__main__':
     while wait:
         pass
 
-    assert all(responses)
-
+    print(all(responses))
     socket.disconnect()

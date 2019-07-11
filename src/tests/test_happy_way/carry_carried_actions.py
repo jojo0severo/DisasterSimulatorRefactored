@@ -77,3 +77,8 @@ def test_cycle():
     assert all(responses)
 
     socket.disconnect()
+
+
+if __name__ == '__main__':
+    test_cycle()
+    print(responses)
