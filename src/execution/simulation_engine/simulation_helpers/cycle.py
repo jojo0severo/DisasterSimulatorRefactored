@@ -306,6 +306,10 @@ class Cycle:
         self.agents_manager.edit_agent(token, 'last_action', action_name)
         self.agents_manager.edit_agent(token, 'last_action_result', False)
 
+        if action_name not in self.actions:
+            return {'agent': self.agents_manager.get_agent(token),
+                    'message': 'Wrong action name given.'}
+
         if not self.agents_manager.get_agent(token).is_active:
             return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent is not active.'}
 
@@ -350,9 +354,6 @@ class Cycle:
             elif action_name == 'deliverVirtual':
                 self._deliver_virtual_agent(token, parameters)
 
-            else:
-                error_message = 'Wrong action name given.'
-
         except FailedNoSocialAsset as e:
             error_message = e.message
 
@@ -392,6 +393,10 @@ class Cycle:
     def _execute_asset_action(self, token, action_name, parameters):
         self.social_assets_manager.edit_social_asset(token, 'last_action', action_name)
         self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+
+        if action_name not in self.actions:
+            return {'social_asset': self.social_assets_manager.get_social_asset(token),
+                    'message': 'Wrong action name given.'}
 
         if not self.social_assets_manager.get_social_asset(token).is_active:
             return {'social_asset': self.social_assets_manager.get_social_asset(token),
@@ -435,9 +440,6 @@ class Cycle:
 
             elif action_name == 'deliverVirtual':
                 self._deliver_virtual_asset(token, parameters)
-
-            else:
-                error_message = 'Wrong action name given.'
 
         except FailedNoSocialAsset as e:
             error_message = e.message
