@@ -37,7 +37,7 @@ def execute_modules():
     for module in modules:
         FNULL = open(os.devnull, 'w')
         system_proc = subprocess.Popen(command, stdout=FNULL, stderr=subprocess.STDOUT)
-        time.sleep(10)
+        time.sleep(20)
 
         test_proc = subprocess.Popen([venv_path, module], stdout=subprocess.PIPE)
         out, err = test_proc.communicate()
@@ -52,7 +52,7 @@ def execute_modules():
         requests.get('http://127.0.0.1:12345/terminate', json={'secret': 'batata', 'back': 0})
         requests.get('http://127.0.0.1:8910/terminate', json={'secret': 'batata', 'api': True})
 
-        time.sleep(10)
+        time.sleep(20)
 
         system_proc.kill()
 
