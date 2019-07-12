@@ -1,4 +1,5 @@
 import os
+import signal
 import sys
 import time
 import requests
@@ -132,8 +133,7 @@ def finish():
         multiprocessing.Process(target=auto_destruction, daemon=True).start()
 
     elif 'api' in message and not message['api']:
-        # os._exit(0)
-        raise SystemExit
+        os.kill(os.getpid(), signal.SIGTERM)
 
     return jsonify('')
 

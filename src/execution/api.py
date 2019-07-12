@@ -3,6 +3,7 @@ import sys
 import json
 import time
 import queue
+import signal
 import requests
 import multiprocessing
 from multiprocessing import Queue
@@ -248,7 +249,7 @@ def finish_step():
             print(sim_response['message'])
             print('An internal error occurred. Shutting down...')
             requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': True})
-            os._exit(1)
+            multiprocessing.Process(target=auto_destruction, daemon=True).start()
 
         if sim_response['message'] == 'Simulation finished.':
             sim_response = requests.put(f'http://{base_url}:{simulation_port}/restart', json={'secret': secret}).json()
@@ -407,9 +408,9 @@ def terminate():
         return jsonify(message='This endpoint can not be accessed.')
 
     if message['back'] == 0:
-        auto_destruction()
+        multiprocessing.Process(target=auto_destruction, daemon=True).start()
     else:
-        raise SystemExit
+        os.kill(os.getpid(), signal.SIGTERM)
 
     return jsonify('')
 
@@ -426,5 +427,4 @@ if __name__ == '__main__':
     app.config['SECRET_KEY'] = secret
     app.config['JSON_SORT_KEYS'] = False
     print(f'API: Serving on http://{base_url}:{api_port}')
-
     socket.run(app=app, host=base_url, port=api_port)
