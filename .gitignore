@@ -227,9 +227,6 @@ files/*/
 config.json
 misc.xml
 .idea
-files/
-files
-files/config.json
 .idea/
 .idea/misc.xml
 
