@@ -471,6 +471,9 @@ class Cycle:
         except FailedUnknownItem as e:
             error_message = e.message
 
+        except UnableToReach as e:
+            error_message = e.message
+
         except Exception as e:
             error_message = str(e)
 
@@ -614,6 +617,8 @@ class Cycle:
                     self.agents_manager.edit_agent(token, 'route', [])
                     self.agents_manager.edit_agent(token, 'destination_distance', 0)
 
+                    raise UnableToReach('Agent is not capable of entering flood locations.')
+
                 else:
                     self.agents_manager.edit_agent(token, 'route', route)
                     self.agents_manager.edit_agent(token, 'destination_distance', distance)
@@ -664,6 +669,8 @@ class Cycle:
                 if not result:
                     self.social_assets_manager.edit_social_asset(token, 'route', [])
                     self.social_assets_manager.edit_social_asset(token, 'destination_distance', 0)
+
+                    raise UnableToReach('Asset is not capable of entering flood locations.')
 
                 else:
                     self.social_assets_manager.edit_social_asset(token, 'route', route)

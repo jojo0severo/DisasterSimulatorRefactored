@@ -215,6 +215,7 @@ def connect_registered_asset(msg):
                 response['status'] = 1
                 response['result'] = True
                 response['message'] = sim_response['social_asset']
+                one_agent_registered_queue.put(True)
 
             else:
                 response['status'] = sim_response['status']
@@ -384,6 +385,7 @@ def disconnect_registered_asset(msg):
 
 def notify_actors(event, response):
     tokens = [*controller.manager.agents_sockets_manager.get_tokens(), *controller.manager.assets_sockets_manager.get_tokens()]
+
     for token in tokens:
         if event == 'simulation_started':
             info = json_formatter.simulation_started_format(response, token)

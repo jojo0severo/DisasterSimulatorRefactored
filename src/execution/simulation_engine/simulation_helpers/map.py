@@ -56,8 +56,10 @@ class Map:
             return self.generate_coordinates_for_boats(start, end, speed, list_of_nodes)
 
         else:
-            if start not in list_of_nodes:
-                result, nodes = self.router.doRoute(start, end)
+            start_node = self.get_closest_node(*start)
+            end_node = self.get_closest_node(*end)
+            if start_node not in list_of_nodes:
+                result, nodes = self.router.doRoute(start_node, end_node)
 
                 if result == 'no_route':
                     return False, [], 0
@@ -69,7 +71,7 @@ class Map:
 
                     checked_nodes.append(self.get_node_coord(node))
 
-                return True, checked_nodes, self.node_distance(start, end)
+                return True, checked_nodes, self.node_distance(start_node, end_node)
 
             return False, [], 0
 

@@ -16,7 +16,7 @@ def get_venv_path():
 
 
 def collect_modules():
-    tests_dir = pathlib.Path(__file__).parent / 'test_happy_way'
+    tests_dir = pathlib.Path(__file__).parent / 'test_agents'
 
     modules = []
     for (dirpath, dirnames, filenames) in os.walk(str(tests_dir.absolute())):
@@ -30,7 +30,8 @@ def collect_modules():
 def execute_modules():
     start_system_path = str((pathlib.Path(__file__).parents[2] / 'start_system.py').absolute())
     venv_path = get_venv_path()
-    command = [venv_path, start_system_path, *'-conf files/config.json -first_t 40 -secret batata -log false'.split(' ')]
+    command = [venv_path, start_system_path,
+               *'-conf src/tests/test_agents/agents_test_config.json -first_t 40 -secret batata -log false'.split(' ')]
 
     tests_passed = []
     modules = collect_modules()
@@ -39,12 +40,9 @@ def execute_modules():
         null = open(os.devnull, 'w')
         system_proc = subprocess.Popen(command, stdout=null, stderr=subprocess.STDOUT)
         time.sleep(10)
-        print('System up')
 
         test_proc = subprocess.Popen([venv_path, module], stdout=subprocess.PIPE)
         out, err = test_proc.communicate()
-
-        print('Test output:', out.decode('utf-8'), end='')
 
         passed = True if re.findall('True', out.decode('utf-8')) else False
         if not passed:
@@ -52,19 +50,15 @@ def execute_modules():
 
         tests_passed.append(passed)
         test_proc.kill()
-        print('Test process killed')
 
         requests.get('http://127.0.0.1:12345/terminate', json={'secret': 'batata', 'back': 0})
-        print('API terminated')
 
         requests.get('http://127.0.0.1:8910/terminate', json={'secret': 'batata', 'api': True})
-        print('Simulation terminated')
 
         time.sleep(5)
 
         os.kill(system_proc.pid, signal.SIGKILL)
         del system_proc
-        print('System process killed')
 
         time.sleep(10)
 
@@ -73,7 +67,3 @@ def execute_modules():
 
 def test_system():
     assert all(execute_modules())
-
-
-if __name__ == '__main__':
-    print(execute_modules())
