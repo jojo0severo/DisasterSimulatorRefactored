@@ -1,13 +1,14 @@
 import os
-import signal
 import sys
 import time
+import signal
+import logging
 import requests
 import multiprocessing
 from flask import request, jsonify
 from flask import Flask
 from flask_cors import CORS
-from waitress import serve
+from werkzeug.serving import run_simple
 from simulation_engine.json_formatter import JsonFormatter
 
 config_path, base_url, simulation_port, api_port, log, secret = sys.argv[1:]
@@ -119,6 +120,7 @@ def restart():
 
 @app.route('/terminate', methods=['GET'])
 def finish():
+    global app
     message = request.get_json(force=True)
 
     if 'secret' not in message:
@@ -133,7 +135,7 @@ def finish():
         multiprocessing.Process(target=auto_destruction, daemon=True).start()
 
     elif 'api' in message and not message['api']:
-        os.kill(os.getpid(), signal.SIGTERM)
+        request.environ.get('werkzeug.server.shutdown')()
 
     return jsonify('')
 
@@ -145,19 +147,23 @@ def auto_destruction():
     except requests.exceptions.ConnectionError:
         pass
 
+    os.kill(os.getpid(), signal.SIGTERM)
+
 
 if __name__ == '__main__':
+    stacktrace = logging.getLogger('werkzeug')
+    stacktrace.disabled = True
+
     app.debug = False
     app.config['SECRET_KEY'] = secret
     app.config['JSON_SORT_KEYS'] = False
 
     CORS(app)
-
     print('Simulation', end=': ')
-
     try:
         if requests.post(f'http://{base_url}:{api_port}/start_connections', json={'secret': secret, 'back': 0}):
-            serve(app, host=base_url, port=simulation_port)
+            print(f'Serving on http://{base_url}:{simulation_port}')
+            run_simple(application=app, hostname=base_url, port=int(simulation_port), use_reloader=False, use_debugger=False)
         else:
             print('Errors occurred during startup.')
     except requests.exceptions.ConnectionError:

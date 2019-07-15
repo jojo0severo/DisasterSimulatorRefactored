@@ -35,9 +35,9 @@ def execute_modules():
     tests_passed = []
     modules = collect_modules()
     for module in modules:
-        print('Current test:', module)
-        FNULL = open(os.devnull, 'w')
-        system_proc = subprocess.Popen(command, stdout=FNULL, stderr=subprocess.STDOUT)
+        print('\nCurrent test:', module)
+        null = open(os.devnull, 'w')
+        system_proc = subprocess.Popen(command, stdout=null, stderr=subprocess.STDOUT)
         time.sleep(10)
         print('System up')
 
@@ -58,7 +58,7 @@ def execute_modules():
         print('API terminated')
 
         requests.get('http://127.0.0.1:8910/terminate', json={'secret': 'batata', 'api': True})
-        print('SImulation terminated')
+        print('Simulation terminated')
 
         time.sleep(5)
 
@@ -66,7 +66,7 @@ def execute_modules():
         del system_proc
         print('System process killed')
 
-        time.sleep(5)
+        time.sleep(10)
 
     return tests_passed
 

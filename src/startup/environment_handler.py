@@ -28,10 +28,10 @@ class Handler:
             venv_path = self.get_venv_path()
 
             if not os.path.exists(venv_path):
+                FNULL = open(os.devnull, 'w')
                 try:
-                    subprocess.call(['virtualenv', 'venv'])
+                    subprocess.call(['virtualenv', 'venv'], stdout=FNULL)
                 except FileNotFoundError:
-                    FNULL = open(os.devnull, 'w')
                     subprocess.call([f'pip{python_version}', 'install', 'virtualenv'], stdout=FNULL,
                                     stderr=subprocess.STDOUT)
                     subprocess.call(['virtualenv', 'venv'], stdout=FNULL, stderr=subprocess.STDOUT)

@@ -11,7 +11,7 @@ responses = []
 socket = socketio.Client()
 token = None
 counter = 0
-max_iter = 2
+max_iter = 16
 
 
 def connect_agent():

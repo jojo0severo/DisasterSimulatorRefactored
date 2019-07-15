@@ -73,6 +73,8 @@ def first_step_time_controller(ready_queue):
     else:
         requests.get(f'http://{base_url}:{api_port}/start_step_cycle', json={'secret': secret})
 
+    os.kill(os.getpid(), signal.SIGKILL)
+
 
 def first_step_button_controller():
     sys.stdin = open(0)
@@ -291,6 +293,8 @@ def step_controller(ready_queue):
     except requests.exceptions.ConnectionError:
         pass
 
+    os.kill(os.getpid(), signal.SIGKILL)
+
 
 # ==================================================== ACTIONS ENDPOINTS ====================================================
 
@@ -410,7 +414,8 @@ def terminate():
     if message['back'] == 0:
         multiprocessing.Process(target=auto_destruction, daemon=True).start()
     else:
-        os.kill(os.getpid(), signal.SIGTERM)
+        socket.stop()
+        os.kill(os.getpid(), signal.SIGKILL)
 
     return jsonify('')
 
@@ -421,6 +426,8 @@ def auto_destruction():
         requests.get(f'http://{base_url}:{api_port}/terminate', json={'secret': secret, 'back': 1})
     except requests.exceptions.ConnectionError:
         pass
+
+    os.kill(os.getpid(), signal.SIGKILL)
 
 
 if __name__ == '__main__':
