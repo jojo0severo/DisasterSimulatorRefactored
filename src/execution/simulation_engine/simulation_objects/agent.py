@@ -7,6 +7,7 @@ class Agent:
         self.token = token
         self.type = 'agent'
         self.is_active = True
+        self.carried = False
         self.min_size = size
         self.location = cdm_location
         self.last_action = None
@@ -33,9 +34,7 @@ class Agent:
 
     def discharge(self):
         if self.destination_distance:
-            self.actual_battery = self.actual_battery - int(self.speed / 5) \
-                if self.actual_battery - self.speed / 5 \
-                else 0
+            self.actual_battery = self.check_battery()
 
     def check_battery(self):
         return self.actual_battery - int(self.speed / 5) if self.actual_battery - self.speed / 5 else 0
@@ -62,7 +61,10 @@ class Agent:
 
     def remove_physical_item(self, kind, amount):
         if self.physical_storage == self.physical_capacity:
-            raise FailedItemAmount('The agents has no victims, water samples or social assets to deliver.')
+            raise FailedItemAmount('The agents has no physical items to deliver.')
+
+        if not amount:
+            return []
 
         found_item = False
         removed_items = []
@@ -86,7 +88,10 @@ class Agent:
 
     def remove_virtual_item(self, kind, amount):
         if self.virtual_storage == self.virtual_capacity:
-            raise FailedItemAmount('The agents has no photos to deliver.')
+            raise FailedItemAmount('The agents has no virtual items to deliver.')
+
+        if not amount:
+            return []
 
         found_item = False
         removed_items = []
@@ -100,7 +105,7 @@ class Agent:
                 break
 
         if not found_item:
-            raise FailedUnknownItem('No virtual item with this ID is stored.')
+            raise FailedUnknownItem('No virtual item of this type is stored.')
 
         for removed_item in removed_items:
             self.virtual_storage_vector.remove(removed_item)

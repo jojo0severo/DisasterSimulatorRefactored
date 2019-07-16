@@ -15,7 +15,7 @@ class Handler:
 
         else:
             venv_path = self.get_venv_path()
-
+            
             if not os.path.exists(venv_path):
                 try:
                     subprocess.call(['virtualenv', 'venv'])

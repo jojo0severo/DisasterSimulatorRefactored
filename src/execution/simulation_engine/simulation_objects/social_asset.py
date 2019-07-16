@@ -6,6 +6,7 @@ class SocialAsset:
         self.token = token
         self.type = 'social_asset'
         self.is_active = True
+        self.carried = False
         self.min_size = size
         self.location = location
         self.last_action = None
