@@ -3,7 +3,7 @@ import json
 import socketio
 
 
-asset = {'name': 'victim_action_test'}
+asset = {'name': 'physical_action_test'}
 wait = True
 responses = []
 
@@ -22,22 +22,22 @@ def connect_asset():
 
 @socket.on('simulation_started')
 def simulation_started(msg):
-    victim_loc = get_victim_loc(msg)
-    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': victim_loc}))
+    water_loc = get_water_loc(msg)
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': water_loc}))
 
 
-def get_victim_loc(msg):
+def get_water_loc(msg):
     msg = json.loads(msg)
     my_location = msg['social_asset']['location']
     min_distance = 999999999
-    victim_loc = None
-    for victim in msg['event']['victims']:
-        actual_distance = calculate_distance(my_location, victim['location'])
+    water_loc = None
+    for water_sample in msg['event']['water_samples']:
+        actual_distance = calculate_distance(my_location, water_sample['location'])
         if actual_distance < min_distance:
             min_distance = actual_distance
-            victim_loc = victim['location']
+            water_loc = water_sample['location']
 
-    return victim_loc
+    return water_loc
 
 
 def calculate_distance(x, y):
@@ -46,16 +46,30 @@ def calculate_distance(x, y):
 
 @socket.on('action_results')
 def action_result(msg):
+    global got
+
     msg = json.loads(msg)
+
+    if msg['message'] == 'Asset is not capable of entering flood locations.':
+        responses.append(True)
+        socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
+        return
 
     responses.append(msg['social_asset']['last_action_result'])
 
     if not msg['social_asset']['route']:
-        if msg['social_asset']['last_action'] == 'rescueVictim':
+        if msg['social_asset']['last_action'] == 'deliverPhysical':
             socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
 
-        else:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'rescueVictim', 'parameters': []}))
+        elif not got:
+            got = True
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'collectWater', 'parameters': []}))
+
+        elif got and msg['social_asset']['last_action'] == 'move':
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverPhysical', 'parameters': ['water_sample']}))
+
+        elif got:
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))
 
     else:
         requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))
@@ -91,3 +105,4 @@ if __name__ == '__main__':
 
     print(all(responses))
     socket.disconnect()
+

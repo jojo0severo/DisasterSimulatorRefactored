@@ -3,7 +3,7 @@ import json
 import socketio
 
 
-asset = {'name': 'virtual_action_test'}
+asset = {'name': 'victim_action_test'}
 wait = True
 responses = []
 
@@ -22,22 +22,22 @@ def connect_asset():
 
 @socket.on('simulation_started')
 def simulation_started(msg):
-    photo_loc = get_photo_loc(msg)
-    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': photo_loc}))
+    victim_loc = get_victim_loc(msg)
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': victim_loc}))
 
 
-def get_photo_loc(msg):
+def get_victim_loc(msg):
     msg = json.loads(msg)
     my_location = msg['social_asset']['location']
     min_distance = 999999999
-    photo_loc = None
-    for photo in msg['event']['photos']:
-        actual_distance = calculate_distance(my_location, photo['location'])
+    victim_loc = None
+    for victim in msg['event']['victims']:
+        actual_distance = calculate_distance(my_location, victim['location'])
         if actual_distance < min_distance:
             min_distance = actual_distance
-            photo_loc = photo['location']
+            victim_loc = victim['location']
 
-    return photo_loc
+    return victim_loc
 
 
 def calculate_distance(x, y):
@@ -46,25 +46,21 @@ def calculate_distance(x, y):
 
 @socket.on('action_results')
 def action_result(msg):
-    global got
-
     msg = json.loads(msg)
+
+    if msg['message'] == 'Asset is not capable of entering flood locations.':
+        responses.append(True)
+        socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
+        return
 
     responses.append(msg['social_asset']['last_action_result'])
 
     if not msg['social_asset']['route']:
-        if msg['social_asset']['last_action'] == 'deliverVirtual':
+        if msg['social_asset']['last_action'] == 'rescueVictim':
             socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
 
-        elif not got:
-            got = True
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'takePhoto', 'parameters': []}))
-
-        elif got and msg['social_asset']['last_action'] == 'move':
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverVirtual', 'parameters': ['photo']}))
-
-        elif got:
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))
+        else:
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'rescueVictim', 'parameters': []}))
 
     else:
         requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))

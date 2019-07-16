@@ -3,7 +3,7 @@ import json
 import socketio
 
 
-asset = {'name': 'photo_action_test'}
+asset = {'name': 'virtual_action_test'}
 wait = True
 responses = []
 
@@ -46,16 +46,30 @@ def calculate_distance(x, y):
 
 @socket.on('action_results')
 def action_result(msg):
+    global got
+
     msg = json.loads(msg)
+
+    if msg['message'] == 'Asset is not capable of entering flood locations.':
+        responses.append(True)
+        socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
+        return
 
     responses.append(msg['social_asset']['last_action_result'])
 
     if not msg['social_asset']['route']:
-        if msg['social_asset']['last_action'] == 'takePhoto':
+        if msg['social_asset']['last_action'] == 'deliverVirtual':
             socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
 
-        else:
+        elif not got:
+            got = True
             requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'takePhoto', 'parameters': []}))
+
+        elif got and msg['social_asset']['last_action'] == 'move':
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverVirtual', 'parameters': ['photo']}))
+
+        elif got:
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))
 
     else:
         requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': []}))

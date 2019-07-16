@@ -12,7 +12,7 @@
     "centerLat": -30.110815,
     "centerLon": -51.21199,
     "proximity": 5,
-    "randomSeed": 2018
+    "randomSeed": 128
   },
   "socialAssets": {
     "doctor": {
@@ -155,15 +155,15 @@
       "maxPeriod": 80,
       "circle": {
         "minRadius": 0.05,
-        "maxRadius": 0.07
+        "maxRadius": 0.06
       }
     },
     "photo": {
       "minSize": 16,
       "maxSize": 64,
-      "minAmount": 20,
-      "maxAmount": 40,
-      "victimProbability": 30
+      "minAmount": 10,
+      "maxAmount": 100,
+      "victimProbability": 0
     },
     "victim": {
       "minSize": 55,

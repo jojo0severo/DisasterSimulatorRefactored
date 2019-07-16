@@ -36,15 +36,12 @@ def execute_modules():
     tests_passed = []
     modules = collect_modules()
     for module in modules:
-        print('\nCurrent test:', module)
         null = open(os.devnull, 'w')
         system_proc = subprocess.Popen(command, stdout=null, stderr=subprocess.STDOUT)
         time.sleep(10)
-        print('System up')
 
         test_proc = subprocess.Popen([venv_path, module], stdout=subprocess.PIPE)
         out, err = test_proc.communicate()
-        print('Output:', out.decode('utf-8')[-1])
 
         passed = True if re.findall('True', out.decode('utf-8')) else False
         if not passed:
@@ -52,19 +49,15 @@ def execute_modules():
 
         tests_passed.append(passed)
         test_proc.kill()
-        print('Test process killed')
 
         requests.get('http://127.0.0.1:12345/terminate', json={'secret': 'batata', 'back': 0})
-        print('API terminated.')
 
         requests.get('http://127.0.0.1:8910/terminate', json={'secret': 'batata', 'api': True})
-        print('Simulation terminated')
 
         time.sleep(5)
 
         os.kill(system_proc.pid, signal.SIGKILL)
         del system_proc
-        print('System process killed')
         time.sleep(10)
 
     return tests_passed
