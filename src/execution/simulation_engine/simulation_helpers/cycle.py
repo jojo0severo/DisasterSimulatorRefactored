@@ -762,7 +762,7 @@ class Cycle:
                     self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
                     return
 
-        raise FailedLocation('The agent is not in a location with a water sample.')
+        raise FailedLocation('The asset is not in a location with a water sample.')
 
     def _take_photo_agent(self, token, parameters):
         if parameters:
@@ -792,7 +792,7 @@ class Cycle:
                     self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
                     return
 
-        raise FailedLocation('The agent is not in a location with a photograph event.')
+        raise FailedLocation('The asset is not in a location with a photograph event.')
 
     def _analyze_photo_agent(self, token, parameters):
         if parameters:
@@ -820,7 +820,7 @@ class Cycle:
 
         asset = self.social_assets_manager.get_social_asset(token)
         if len(asset.virtual_storage_vector) == 0:
-            raise FailedItemAmount('The agent has no photos to analyze.')
+            raise FailedItemAmount('The asset has no photos to analyze.')
 
         photo_identifiers = []
         victim_identifiers = []
