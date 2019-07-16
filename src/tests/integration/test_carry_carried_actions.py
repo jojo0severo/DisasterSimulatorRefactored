@@ -11,7 +11,6 @@ from environment_handler import Handler
 
 def get_venv_path():
     h = Handler()
-    h.root = pathlib.Path(__file__).parents[2].absolute()
     h.create_environment(False, '')
     return h.venv_path + 'python'
 
@@ -93,33 +92,10 @@ def do_cycle():
 
 
 def test_carry_carried():
-    start_system_path = str((pathlib.Path(__file__).parents[2] / 'start_system.py').absolute())
+    start_system_path = str((pathlib.Path(__file__).parents[3] / 'start_system.py').absolute())
     venv_path = get_venv_path()
     command = [venv_path, start_system_path,
-               *'-conf src/tests/carry_test_config.json -first_t 10 -secret batata -log false'.split(' ')]
-
-    null = open(os.devnull, 'w')
-    system_proc = subprocess.Popen(command, stdout=null, stderr=subprocess.STDOUT)
-
-    time.sleep(10)
-    assert do_cycle()
-
-    requests.get('http://127.0.0.1:12345/terminate', json={'secret': 'batata', 'back': 0})
-    requests.get('http://127.0.0.1:8910/terminate', json={'secret': 'batata', 'api': True})
-
-    time.sleep(5)
-
-    os.kill(system_proc.pid, signal.SIGKILL)
-    del system_proc
-
-    time.sleep(10)
-
-
-if __name__ == '__main__':
-    start_system_path = str((pathlib.Path(__file__).parents[2] / 'start_system.py').absolute())
-    venv_path = get_venv_path()
-    command = [venv_path, start_system_path,
-               *'-conf src/tests/carry_test_config.json -first_t 10 -secret batata -log false'.split(' ')]
+               *'-conf src/tests/integration/carry_test_config.json -first_t 10 -secret batata -log false'.split(' ')]
 
     null = open(os.devnull, 'w')
     system_proc = subprocess.Popen(command, stdout=null, stderr=subprocess.STDOUT)

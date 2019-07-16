@@ -10,7 +10,6 @@ from environment_handler import Handler
 
 def get_venv_path():
     h = Handler()
-    h.root = pathlib.Path(__file__).parents[2].absolute()
     h.create_environment(False, '')
     return h.venv_path + 'python'
 
@@ -28,15 +27,14 @@ def collect_modules():
 
 
 def execute_modules():
-    start_system_path = str((pathlib.Path(__file__).parents[2] / 'start_system.py').absolute())
+    start_system_path = str((pathlib.Path(__file__).parents[3] / 'start_system.py').absolute())
     venv_path = get_venv_path()
     command = [venv_path, start_system_path,
-               *'-conf src/tests/test_agents/agents_test_config.json -first_t 40 -secret batata -log false'.split(' ')]
+               *'-conf src/tests/integration/test_agents/agents_test_config.json -first_t 40 -secret batata -log false'.split(' ')]
 
     tests_passed = []
     modules = collect_modules()
     for module in modules:
-        print('\nCurrent test:', module)
         null = open(os.devnull, 'w')
         system_proc = subprocess.Popen(command, stdout=null, stderr=subprocess.STDOUT)
         time.sleep(10)

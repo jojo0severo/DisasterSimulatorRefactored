@@ -10,7 +10,6 @@ from environment_handler import Handler
 
 def get_venv_path():
     h = Handler()
-    h.root = pathlib.Path(__file__).parents[2].absolute()
     h.create_environment(False, '')
     return h.venv_path + 'python'
 
@@ -28,10 +27,10 @@ def collect_modules():
 
 
 def execute_modules():
-    start_system_path = str((pathlib.Path(__file__).parents[2] / 'start_system.py').absolute())
+    start_system_path = str((pathlib.Path(__file__).parents[3] / 'start_system.py').absolute())
     venv_path = get_venv_path()
     command = [venv_path, start_system_path,
-               *'-conf src/tests/test_social_assets/assets_test_config.json -first_t 10 -secret batata -log false'.split(' ')]
+               *'-conf src/tests/integration/test_social_assets/assets_test_config.json -first_t 10 -secret batata -log false'.split(' ')]
 
     tests_passed = []
     modules = collect_modules()
@@ -65,7 +64,3 @@ def execute_modules():
 
 def test_system():
     assert all(execute_modules())
-
-
-if __name__ == '__main__':
-    print(execute_modules())
