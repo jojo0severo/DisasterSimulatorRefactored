@@ -48,16 +48,16 @@ class Map:
     def align_coords(self, lat, lon):
         return self.get_node_coord(self.get_closest_node(lat, lon))
 
-    def get_route(self, start, end, role, speed, list_of_nodes):
+    def get_route(self, start_coord, end_coord, role, speed, list_of_nodes):
         if role == 'drone':
-            return self.generate_coordinates_for_drones(start, end, speed)
+            return self.generate_coordinates_for_drones(start_coord, end_coord, speed)
 
         elif role == 'boat':
-            return self.generate_coordinates_for_boats(start, end, speed, list_of_nodes)
+            return self.generate_coordinates_for_boats(start_coord, end_coord, speed, list_of_nodes)
 
         else:
-            start_node = self.get_closest_node(*start)
-            end_node = self.get_closest_node(*end)
+            start_node = self.get_closest_node(*start_coord)
+            end_node = self.get_closest_node(*end_coord)
             if start_node not in list_of_nodes:
                 result, nodes = self.router.doRoute(start_node, end_node)
 
