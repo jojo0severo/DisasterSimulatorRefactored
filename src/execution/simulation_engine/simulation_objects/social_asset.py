@@ -32,7 +32,7 @@ class SocialAsset:
     def add_physical_item(self, item):
         size = item.size
         if size > self.physical_storage:
-            raise FailedCapacity('The agent does not have enough physical storage.')
+            raise FailedCapacity('The asset does not have enough physical storage.')
 
         self.physical_storage -= size
         self.physical_storage_vector.append(item)
@@ -41,14 +41,14 @@ class SocialAsset:
 
         size = item.size
         if size > self.virtual_storage:
-            raise FailedCapacity('The agent does not have enough physical storage.')
+            raise FailedCapacity('The asset does not have enough physical storage.')
 
         self.virtual_storage -= size
         self.virtual_storage_vector.append(item)
 
     def remove_physical_item(self, kind, amount):
         if self.physical_storage == self.physical_capacity:
-            raise FailedItemAmount('The agents has no victims, water samples or social assets to deliver.')
+            raise FailedItemAmount('The asset has no physical items to deliver.')
 
         found_item = False
         removed_items = []
@@ -72,7 +72,7 @@ class SocialAsset:
 
     def remove_virtual_item(self, kind, amount):
         if self.virtual_storage == self.virtual_capacity:
-            raise FailedItemAmount('The agents has no photos to deliver.')
+            raise FailedItemAmount('The asset has no virtual items to deliver.')
 
         found_item = False
         removed_items = []
@@ -86,7 +86,7 @@ class SocialAsset:
                 break
 
         if not found_item:
-            raise FailedUnknownItem('No virtual item with this ID is stored.')
+            raise FailedUnknownItem('No virtual item of this type is stored.')
 
         for removed_item in removed_items:
             self.virtual_storage_vector.remove(removed_item)

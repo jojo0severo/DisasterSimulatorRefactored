@@ -61,7 +61,7 @@ class Agent:
 
     def remove_physical_item(self, kind, amount):
         if self.physical_storage == self.physical_capacity:
-            raise FailedItemAmount('The agents has no physical items to deliver.')
+            raise FailedItemAmount('The agent has no physical items to deliver.')
 
         if not amount:
             return []
@@ -88,7 +88,7 @@ class Agent:
 
     def remove_virtual_item(self, kind, amount):
         if self.virtual_storage == self.virtual_capacity:
-            raise FailedItemAmount('The agents has no virtual items to deliver.')
+            raise FailedItemAmount('The agent has no virtual items to deliver.')
 
         if not amount:
             return []
