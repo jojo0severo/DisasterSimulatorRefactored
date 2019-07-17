@@ -139,7 +139,7 @@ class Map:
 
         points = []
         while True:
-            if start - .0005 * speed < end:
+            if start - .0005 * speed <= end:
                 points.append(end)
                 break
             else:
@@ -162,7 +162,7 @@ class Map:
 
         points = []
         while True:
-            if start + .0005 * speed > end:
+            if start + .0005 * speed >= end:
                 points.append(end)
                 break
             else:
