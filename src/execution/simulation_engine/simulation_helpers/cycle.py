@@ -61,6 +61,9 @@ class Cycle:
     def get_previous_steps(self):
         previous_steps = []
         for i in range(self.current_step):
+            if self.steps[i]['flood'] is None:
+                continue
+
             if self.steps[i]['flood'].active:
                 previous_steps.append(self.steps[i])
 
