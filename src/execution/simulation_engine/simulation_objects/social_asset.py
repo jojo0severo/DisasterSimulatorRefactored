@@ -50,6 +50,9 @@ class SocialAsset:
         if self.physical_storage == self.physical_capacity:
             raise FailedItemAmount('The asset has no physical items to deliver.')
 
+        if not amount:
+            return []
+
         found_item = False
         removed_items = []
         for stored_item in self.physical_storage_vector:
@@ -73,6 +76,9 @@ class SocialAsset:
     def remove_virtual_item(self, kind, amount):
         if self.virtual_storage == self.virtual_capacity:
             raise FailedItemAmount('The asset has no virtual items to deliver.')
+
+        if not amount:
+            return []
 
         found_item = False
         removed_items = []
