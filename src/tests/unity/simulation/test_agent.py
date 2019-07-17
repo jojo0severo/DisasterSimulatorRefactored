@@ -1,3 +1,15 @@
+import sys
+import pathlib
+
+file_path = pathlib.Path(__file__).parents[4]
+if str(file_path.absolute) not in sys.path:
+    sys.path.insert(0, str(file_path.absolute()))
+
+engine_path = pathlib.Path(__file__).parents[3] / 'execution'
+if str(engine_path.absolute()) not in sys.path:
+    sys.path.insert(1, str(engine_path.absolute()))
+
+
 from src.execution.simulation_engine.simulation_objects.agent import Agent, FailedCapacity, FailedItemAmount
 
 
@@ -222,7 +234,3 @@ def test_disconnect():
     assert len(agent.physical_storage_vector) == 0
     assert len(agent.virtual_storage_vector) == 0
     assert len(agent.social_assets) == 0
-
-
-if __name__ == '__main__':
-    test_disconnect()
