@@ -73,7 +73,7 @@ class SocialAssetsManager:
         return self.social_assets.get(token)
 
     def get_tokens(self):
-        return list(self.social_assets.keys())
+        return [token for token in self.social_assets if self.social_assets[token].is_active]
 
     def get_social_assets_info(self):
         return list(self.social_assets.values())

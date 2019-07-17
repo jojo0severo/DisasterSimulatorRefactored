@@ -73,7 +73,7 @@ class AgentsManager:
         return self.agents.get(token)
 
     def get_tokens(self):
-        return list(self.agents.keys())
+        return [token for token in self.agents if self.agents[token].is_active]
 
     def get_agents_info(self):
         return list(self.agents.values())
