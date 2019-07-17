@@ -45,7 +45,7 @@ class SocialAssetsManager:
         return capacities
 
     def connect_social_asset(self, token):
-        if not self.capacities:
+        if not self.capacities or token in self.social_assets:
             return None
 
         asset_info = self.capacities.pop(0)
@@ -54,6 +54,9 @@ class SocialAssetsManager:
 
     def disconnect_social_asset(self, token):
         if token not in self.social_assets:
+            return False
+
+        elif not self.social_assets[token].is_active:
             return False
 
         else:

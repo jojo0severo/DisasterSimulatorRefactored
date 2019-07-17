@@ -38,7 +38,7 @@ class AgentsManager:
         return roles
 
     def connect_agent(self, token):
-        if not self.roles:
+        if not self.roles or token in self.agents:
             return False
 
         role = self.roles.pop(0)
@@ -48,6 +48,9 @@ class AgentsManager:
 
     def disconnect_agent(self, token):
         if token not in self.agents:
+            return False
+
+        elif not self.agents[token].is_active:
             return False
 
         else:
