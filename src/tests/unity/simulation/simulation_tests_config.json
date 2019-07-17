@@ -26,9 +26,9 @@
       "virtualCapacity": 100
     },
     "teacher": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
+      "abilities": [],
       "resources": ["battery", "strength", "memory"],
-      "amount": 0,
+      "amount": 1,
       "minSize": 66,
       "maxSize": 70,
       "speed": 10,
@@ -37,8 +37,8 @@
     },
     "nurse": {
       "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
-      "amount": 0,
+      "resources": [],
+      "amount": 1,
       "minSize": 70,
       "maxSize": 86,
       "speed": 15,
@@ -78,10 +78,10 @@
       "battery": 20
     },
     "car": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
+      "abilities": [],
       "resources": ["battery", "strength", "memory"],
       "size": 1200,
-      "amount": 0,
+      "amount": 1,
       "speed": 7,
       "physicalCapacity": 450,
       "virtualCapacity": 0,
@@ -89,9 +89,9 @@
     },
     "boat": {
       "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
+      "resources": [],
       "size": 8000,
-      "amount": 0,
+      "amount": 1,
       "speed": 7,
       "physicalCapacity": 10000,
       "virtualCapacity": 100,
