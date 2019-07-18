@@ -37,7 +37,7 @@ class Agent:
             self.actual_battery = self.check_battery()
 
     def check_battery(self):
-        return self.actual_battery - int(self.speed / 5) if self.actual_battery - self.speed / 5 else 0
+        return self.actual_battery - int(self.speed / 5) if self.actual_battery - int(self.speed / 5) > 0 else 0
 
     def charge(self):
         self.actual_battery = self.max_charge
