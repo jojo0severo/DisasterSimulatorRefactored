@@ -635,7 +635,7 @@ class Cycle:
             self.agents_manager.edit_agent(token, 'last_action_result', True)
 
         else:
-            if not agent.route:
+            if not agent.route or destination != agent.route[-1]:
                 nodes = []
                 for i in range(self.current_step):
                     if self.steps[i]['flood'] and self.steps[i]['flood'].active:
