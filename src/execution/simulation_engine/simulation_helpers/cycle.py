@@ -530,7 +530,7 @@ class Cycle:
 
         for j in range(current_position + 1, len(special_action_tokens)):
             sub_token, sub_action, sub_parameters = special_action_tokens[j]
-            if sub_action == 'getCarried' and sub_token == parameters[0] and not sub_parameters:
+            if sub_action == 'getCarried' and sub_token == parameters[0] and sub_parameters[0] == token:
                 if self.agents_manager.get_agent(token) is None:
                     self.social_assets_manager.edit_social_asset(token, 'last_action', 'carry')
                     self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
@@ -566,14 +566,14 @@ class Cycle:
 
         for j in range(current_position + 1, len(special_action_tokens)):
             sub_token, sub_action, sub_parameters = special_action_tokens[j]
-            if sub_action == 'carry' and sub_token == parameters[0]:
+            if sub_action == 'carry' and sub_token == parameters[0] and sub_parameters[0] == token:
                 if self.agents_manager.get_agent(token) is None:
-                    self.social_assets_manager.edit_social_asset(token, 'last_action', 'get_carried')
+                    self.social_assets_manager.edit_social_asset(token, 'last_action', 'getCarried')
                     self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
                     self.social_assets_manager.edit_social_asset(sub_token, 'carried', True)
 
                 else:
-                    self.agents_manager.edit_agent(token, 'last_action', 'get_carried')
+                    self.agents_manager.edit_agent(token, 'last_action', 'getCarried')
                     self.agents_manager.edit_agent(token, 'last_action_result', True)
                     self.agents_manager.edit_agent(token, 'carried', True)
 
