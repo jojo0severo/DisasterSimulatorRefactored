@@ -163,7 +163,7 @@
       "maxSize": 64,
       "minAmount": 20,
       "maxAmount": 40,
-      "victimProbability": 2
+      "victimProbability": 40
     },
     "victim": {
       "minSize": 55,
