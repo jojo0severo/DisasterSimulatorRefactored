@@ -655,13 +655,9 @@ class Cycle:
 
             if self.agents_manager.get_agent(token).destination_distance:
                 self.agents_manager.update_agent_location(token)
-
-                origin_node = self.map.get_closest_node(*agent.location)
-                destination_node = self.map.get_closest_node(*agent.route[-1])
-                distance = self.map.get_distance(origin_node, destination_node)
-
-                self.agents_manager.edit_agent(token, 'last_action_result', 'True')
+                _, _, distance = self.map.get_route(agent.location, destination, agent.role, agent.speed, [])
                 self.agents_manager.edit_agent(token, 'destination_distance', distance)
+                self.agents_manager.edit_agent(token, 'last_action_result', True)
                 self.agents_manager.discharge_agent(token)
 
     def _move_asset(self, token, parameters):
@@ -708,13 +704,9 @@ class Cycle:
 
             if self.social_assets_manager.get_social_asset(token).destination_distance:
                 self.social_assets_manager.update_social_asset_location(token)
-
-                origin_node = self.map.get_closest_node(*asset.location)
-                destination_node = self.map.get_closest_node(*asset.route[-1])
-                distance = self.map.get_distance(origin_node, destination_node)
-
+                _, _, distance = self.map.get_route(asset.location, destination, 'car', asset.speed, [])
                 self.social_assets_manager.edit_social_asset(token, 'destination_distance', distance)
-                self.social_assets_manager.edit_social_asset(token, 'last_action_result', 'True')
+                self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
 
     def _rescue_victim_agent(self, token, parameters):
         if parameters:
