@@ -23,8 +23,8 @@ def test_connect_agent():
 
 
 def test_connect_asset():
-    assert cycle.connect_social_asset('token')
-    assert not cycle.connect_social_asset('token')
+    assert cycle.connect_social_asset('token_asset')
+    assert not cycle.connect_social_asset('token_asset')
 
 
 def test_disconnect_agent():
@@ -33,8 +33,8 @@ def test_disconnect_agent():
 
 
 def test_disconnect_asset():
-    assert cycle.disconnect_social_asset('token')
-    assert not cycle.disconnect_social_asset('token')
+    assert cycle.disconnect_social_asset('token_asset')
+    assert not cycle.disconnect_social_asset('token_asset')
 
 
 def test_get_agents_info():
@@ -48,7 +48,7 @@ def test_get_agents_info():
 def test_get_assets_info():
     assert len(cycle.get_assets_info()) == 1
 
-    cycle.connect_social_asset('token1')
+    cycle.connect_social_asset('token_asset1')
     assert len(cycle.get_assets_info()) == 2
 
 

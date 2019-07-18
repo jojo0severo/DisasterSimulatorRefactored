@@ -371,7 +371,7 @@ class Cycle:
                 self._search_social_asset_agent(token, parameters)
 
             elif action_name == 'deliverPhysical':
-                self._delivery_physical_agent(token, parameters)
+                self._deliver_physical_agent(token, parameters)
 
             elif action_name == 'deliverVirtual':
                 self._deliver_virtual_agent(token, parameters)
@@ -462,7 +462,7 @@ class Cycle:
                 self._search_social_asset_asset(token, parameters)
 
             elif action_name == 'deliverPhysical':
-                self._delivery_physical_asset(token, parameters)
+                self._deliver_physical_asset(token, parameters)
 
             elif action_name == 'deliverVirtual':
                 self._deliver_virtual_asset(token, parameters)
@@ -588,11 +588,11 @@ class Cycle:
                 return token, sub_token
 
         if self.agents_manager.get_agent(token) is None:
-            self.social_assets_manager.edit_social_asset(token, 'last_action', 'get_carried')
+            self.social_assets_manager.edit_social_asset(token, 'last_action', 'getCarried')
             self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
 
         else:
-            self.agents_manager.edit_agent(token, 'last_action', 'get_carried')
+            self.agents_manager.edit_agent(token, 'last_action', 'getCarried')
             self.agents_manager.edit_agent(token, 'last_action_result', False)
 
         return token, None
@@ -613,13 +613,13 @@ class Cycle:
             if parameters[0] == 'cdm':
                 destination = self.cdm_location
             else:
-                raise FailedUnknownFacility('Unknown facility')
+                raise FailedUnknownFacility('Unknown facility.')
 
         elif len(parameters) <= 0:
-            raise FailedWrongParam('Less than 1 parameter was given')
+            raise FailedWrongParam('Less than 1 parameter was given.')
 
         elif len(parameters) > 2:
-            raise FailedWrongParam('More than 2 parameters were given')
+            raise FailedWrongParam('More than 2 parameters were given.')
 
         else:
             destination = parameters
@@ -669,13 +669,13 @@ class Cycle:
             if parameters[0] == 'cdm':
                 destination = self.cdm_location
             else:
-                raise FailedUnknownFacility('Unknown facility')
+                raise FailedUnknownFacility('Unknown facility.')
 
         elif len(parameters) <= 0:
-            raise FailedWrongParam('Less than 1 parameter was given')
+            raise FailedWrongParam('Less than 1 parameter was given.')
 
         elif len(parameters) > 2:
-            raise FailedWrongParam('More than 2 parameters were given')
+            raise FailedWrongParam('More than 2 parameters were given.')
 
         else:
             destination = parameters
@@ -792,7 +792,7 @@ class Cycle:
                     self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
                     return
 
-        raise FailedLocation('The asset is not in a location with a water sample.')
+        raise FailedLocation('The asset is not in a location with a water sample event.')
 
     def _take_photo_agent(self, token, parameters):
         if parameters:
@@ -915,7 +915,7 @@ class Cycle:
             self.social_assets_manager.add_social_asset(token, closer_asset)
             self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
 
-    def _delivery_physical_agent(self, token, parameters):
+    def _deliver_physical_agent(self, token, parameters):
         if len(parameters) < 1:
             raise FailedWrongParam('Less than 1 parameter was given.')
 
@@ -941,7 +941,7 @@ class Cycle:
         else:
             raise FailedLocation('The agent is not located at the CDM.')
 
-    def _delivery_physical_asset(self, token, parameters):
+    def _deliver_physical_asset(self, token, parameters):
         if len(parameters) < 1:
             raise FailedWrongParam('Less than 1 parameter was given.')
 
