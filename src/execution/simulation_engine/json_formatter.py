@@ -37,7 +37,7 @@ class JsonFormatter:
                 return {'status': 1, 'message': 'Agent connected.'}
 
             else:
-                return {'status': 0, 'message': 'Agent could not connect. No more roles available.'}
+                return {'status': 0, 'message': 'Agent could not connect.'}
 
         except Exception as e:
             return {'status': 0, 'message': f'An error occurred during connection: {str(e)}.'}
@@ -49,8 +49,7 @@ class JsonFormatter:
                 return {'status': 1, 'social_asset': self.jsonify_asset(response), 'message': 'Social asset connected.'}
 
             else:
-                return {'status': 0, 'social_asset': {},
-                        'message': 'Social asset could not connect. No more professions available.'}
+                return {'status': 0, 'social_asset': {}, 'message': 'Social asset could not connect.'}
 
         except Exception as e:
             return {'status': 0, 'social_asset': {}, 'message': f'An error occurred during connection: {str(e)}.'}
@@ -63,10 +62,10 @@ class JsonFormatter:
                 return {'status': 1, 'message': 'Agent disconnected.'}
 
             else:
-                return {'status': 0, 'message': 'Agent already disconnected.'}
+                return {'status': 0, 'message': 'Agent is not connected.'}
 
         except Exception as e:
-            return {'status': 0, 'message': f'An error occurred during connection: {str(e)}.'}
+            return {'status': 0, 'message': f'An error occurred during disconnection: {str(e)}.'}
 
     def disconnect_social_asset(self, token):
         try:
@@ -76,10 +75,10 @@ class JsonFormatter:
                 return {'status': 1, 'message': 'Social asset disconnected.'}
 
             else:
-                return {'status': 0, 'message': 'Social asset already disconnected.'}
+                return {'status': 0, 'message': 'Social asset is not connected.'}
 
         except Exception as e:
-            return {'status': 0, 'message': f'An error occurred during connection: {str(e)}.'}
+            return {'status': 0, 'message': f'An error occurred during disconnection: {str(e)}.'}
 
     def start(self):
         try:

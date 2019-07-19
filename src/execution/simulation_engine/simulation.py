@@ -24,8 +24,8 @@ class Simulation:
 
     def start(self):
         self.cycler.activate_step()
-        agents = self.cycler.get_agents_info()
-        social_assets = self.cycler.get_assets_info()
+        agents = self.cycler.get_active_agents_info()
+        social_assets = self.cycler.get_active_assets_info()
         step = self.cycler.get_step()
 
         self.cycler.current_step += 1

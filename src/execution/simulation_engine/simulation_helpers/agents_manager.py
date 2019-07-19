@@ -38,7 +38,7 @@ class AgentsManager:
         return roles
 
     def connect_agent(self, token):
-        if not self.roles or token in self.agents:
+        if not self.roles:
             return False
 
         role = self.roles.pop(0)
@@ -48,9 +48,6 @@ class AgentsManager:
 
     def disconnect_agent(self, token):
         if token not in self.agents:
-            return False
-
-        elif not self.agents[token].is_active:
             return False
 
         else:
@@ -80,6 +77,9 @@ class AgentsManager:
 
     def get_agents_info(self):
         return list(self.agents.values())
+
+    def get_active_agents_info(self):
+        return [self.agents[token] for token in self.agents if self.agents[token].is_active]
 
     def deliver_physical(self, token, kind, amount=1):
         return self.agents[token].remove_physical_item(kind, amount)

@@ -52,8 +52,14 @@ class Cycle:
     def get_agents_info(self):
         return self.agents_manager.get_agents_info()
 
+    def get_active_agents_info(self):
+        return self.agents_manager.get_active_agents_info()
+
     def get_assets_info(self):
         return self.social_assets_manager.get_social_assets_info()
+
+    def get_active_assets_info(self):
+        return self.social_assets_manager.get_active_social_assets_info()
 
     def get_step(self):
         return self.steps[self.current_step]
@@ -170,11 +176,15 @@ class Cycle:
         computed_tokens = []
         for i in range(len(special_action_tokens)):
             token, action, parameters = special_action_tokens[i]
+
+            if token in computed_tokens:
+                continue
+
             if self.agents_manager.get_agent(token) is None:
                 if self.social_assets_manager.get_social_asset(token).carried:
                     action_results.append({
                         'social_asset': self.social_assets_manager.get_social_asset(token),
-                        'message': 'Asset can not do any action while being carried.'
+                        'message': 'Social asset can not do any action while being carried.'
                     })
                     continue
             else:
@@ -184,9 +194,6 @@ class Cycle:
                         'message': 'Agent can not do any action while being carried.'
                     })
                     continue
-
-            if token in computed_tokens:
-                continue
 
             if not self._check_abilities_and_resources(token, action):
                 if self.agents_manager.get_agent(token) is None:
@@ -324,9 +331,9 @@ class Cycle:
         self.agents_manager.edit_agent(token, 'last_action', action_name)
         self.agents_manager.edit_agent(token, 'last_action_result', False)
 
-        if self.agents_manager.get_agent(token).carried:
-            return {'agent': self.agents_manager.get_agent(token),
-                    'message': 'Agent can not do any action while being carried.'}
+        if action_name == 'inactive':
+            self.agents_manager.edit_agent(token, 'last_action', 'pass')
+            return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent did not send any action.'}
 
         if action_name not in self.actions:
             return {'agent': self.agents_manager.get_agent(token),
@@ -335,13 +342,13 @@ class Cycle:
         if not self.agents_manager.get_agent(token).is_active:
             return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent is not active.'}
 
+        if self.agents_manager.get_agent(token).carried:
+            return {'agent': self.agents_manager.get_agent(token),
+                    'message': 'Agent can not do any action while being carried.'}
+
         if action_name == 'pass':
             self.agents_manager.edit_agent(token, 'last_action_result', True)
             return {'agent': self.agents_manager.get_agent(token), 'message': ''}
-
-        if action_name == 'inactive':
-            self.agents_manager.edit_agent(token, 'last_action', 'pass')
-            return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent did not send any action.'}
 
         if not self._check_abilities_and_resources(token, action_name):
             return {'agent': self.agents_manager.get_agent(token),
@@ -416,9 +423,10 @@ class Cycle:
         self.social_assets_manager.edit_social_asset(token, 'last_action', action_name)
         self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
 
-        if self.social_assets_manager.get_social_asset(token).carried:
+        if action_name == 'inactive':
+            self.social_assets_manager.edit_social_asset(token, 'last_action', 'pass')
             return {'social_asset': self.social_assets_manager.get_social_asset(token),
-                    'message': 'Asset can not do any action while being carried.'}
+                    'message': 'Social asset did not send any action.'}
 
         if action_name not in self.actions:
             return {'social_asset': self.social_assets_manager.get_social_asset(token),
@@ -428,14 +436,13 @@ class Cycle:
             return {'social_asset': self.social_assets_manager.get_social_asset(token),
                     'message': 'Social asset is not active.'}
 
+        if self.social_assets_manager.get_social_asset(token).carried:
+            return {'social_asset': self.social_assets_manager.get_social_asset(token),
+                    'message': 'Social asset can not do any action while being carried.'}
+
         if action_name == 'pass':
             self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
             return {'social_asset': self.social_assets_manager.get_social_asset(token), 'message': ''}
-
-        if action_name == 'inactive':
-            self.social_assets_manager.edit_social_asset(token, 'last_action', 'pass')
-            return {'social_asset': self.social_assets_manager.get_social_asset(token),
-                    'message': 'Social Asset did not send any action.'}
 
         if not self._check_abilities_and_resources(token, action_name):
             return {'social_asset': self.social_assets_manager.get_social_asset(token),
