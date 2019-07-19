@@ -78,12 +78,17 @@ class Simulation:
         current_step = self.cycler.current_step
         max_steps = self.cycler.max_steps
         delivered_items = self.cycler.delivered_items
-        agents_amount = len(self.cycler.agents_manager.get_tokens())
+        agents_amount = len(self.cycler.agents_manager.get_agents_info())
         agents = self.cycler.agents_manager.get_agents_info()
-        active_agents_amount = sum([1 if agent.is_active else 0 for agent in self.cycler.agents_manager.get_agents_info()])
-        active_agents = [agent for agent in self.cycler.agents_manager.get_agents_info() if agent.is_active]
+        active_agents_amount = len(self.cycler.get_active_agents_info())
+        active_agents = self.cycler.get_active_agents_info()
+        assets_amount = len(self.cycler.social_assets_manager.get_social_assets_info())
+        assets = self.cycler.get_assets_info()
+        active_assets_amount = len(self.cycler.get_active_assets_info())
+        active_assets = self.cycler.get_active_assets_info()
 
         floods_amount = 0
+        victims_in_photo = 0
         victims_saved = 0
         victims_dead = 0
         photos_taken = 0
@@ -109,6 +114,8 @@ class Simulation:
                 if not photo.active:
                     photos_taken += 1
 
+                victims_in_photo += len(photo.victims)
+
                 if photo.analyzed:
                     photos_analyzed += 1
 
@@ -118,6 +125,8 @@ class Simulation:
 
                         elif not victim.lifetime:
                             victims_dead += 1
+
+                        victims_in_photo += 1
 
                 else:
                     photos_ignored += 1
@@ -136,6 +145,7 @@ class Simulation:
                 'delivered_items': delivered_items,
                 'floods_amount': floods_amount,
                 'total_victims': self.cycler.max_victims,
+                'total_victims_in_photos': victims_in_photo,
                 'victims_saved': victims_saved,
                 'victims_dead': victims_dead,
                 'total_photos': self.cycler.max_photos,
@@ -151,6 +161,12 @@ class Simulation:
                 'agents_amount': agents_amount,
                 'active_agents': active_agents,
                 'agents': agents,
+            },
+            'assets': {
+                'active_assets_amount': active_assets_amount,
+                'assets_amount': assets_amount,
+                'active_assets': active_assets,
+                'assets': assets
             },
             'actions': {
                 'amount_of_actions_executed': self.actions_amount,
