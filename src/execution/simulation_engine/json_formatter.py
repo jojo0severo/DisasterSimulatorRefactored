@@ -16,9 +16,9 @@ class JsonFormatter:
         else:
             return {'status': 1, 'message': 'New match generated.'}
 
-    def regenerate(self):
+    def restart(self):
         try:
-            response = self.copycat.regenerate()
+            response = self.copycat.restart()
             json_agents = self.jsonify_agents(response[0])
             json_assets = self.jsonify_assets(response[1])
 

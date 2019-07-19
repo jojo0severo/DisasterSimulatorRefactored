@@ -111,7 +111,7 @@ def restart():
     can_restart = formatter.log()
 
     if can_restart['status'] == 1:
-        response = formatter.regenerate()
+        response = formatter.restart()
     else:
         response = can_restart
 

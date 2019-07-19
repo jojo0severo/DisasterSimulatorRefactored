@@ -17,7 +17,7 @@ class CopyCat:
             return 0
         return 1
 
-    def regenerate(self):
+    def restart(self):
         response = self.simulation.restart(self.config)
         return copy.deepcopy(response)
 
