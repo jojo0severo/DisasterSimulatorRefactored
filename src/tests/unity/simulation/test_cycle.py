@@ -19,22 +19,18 @@ cycle = Cycle(config_json)
 
 def test_connect_agent():
     assert cycle.connect_agent('token_agent')
-    assert not cycle.connect_agent('token_agent')
 
 
 def test_connect_asset():
     assert cycle.connect_social_asset('token_asset')
-    assert not cycle.connect_social_asset('token_asset')
 
 
 def test_disconnect_agent():
     assert cycle.disconnect_agent('token_agent')
-    assert not cycle.disconnect_agent('token_agent')
 
 
 def test_disconnect_asset():
     assert cycle.disconnect_social_asset('token_asset')
-    assert not cycle.disconnect_social_asset('token_asset')
 
 
 def test_get_agents_info():
@@ -45,11 +41,19 @@ def test_get_agents_info():
     assert len(cycle.get_agents_info()) == 2
 
 
+def test_get_active_agents_info():
+    assert len(cycle.get_active_agents_info()) == 1
+
+
 def test_get_assets_info():
     assert len(cycle.get_assets_info()) == 1
 
     cycle.connect_social_asset('token_asset1')
     assert len(cycle.get_assets_info()) == 2
+
+
+def test_get_active_assets_info():
+    assert len(cycle.get_active_assets_info()) == 1
 
 
 def test_get_step():
@@ -602,7 +606,8 @@ def test_search_social_asset_agent_failed_purpose():
 
 def test_search_social_asset_agent_failed_no_assets():
     cycle.social_assets_manager.social_assets.clear()
-    cycle.social_assets_manager.capacities = cycle.social_assets_manager.generate_objects(config_json['map'], config_json['socialAssets'])
+    cycle.social_assets_manager.capacities = cycle.social_assets_manager.generate_objects(config_json['map'],
+                                                                                          config_json['socialAssets'])
     try:
         cycle._search_social_asset_agent('token4_agent', ['doctor'])
         assert False
@@ -850,7 +855,8 @@ def test_update_photos_state():
 
 
 def test_carry():
-    special_action_tokens = [('token4_agent', 'carry', ['token4_asset']), ('token4_asset', 'getCarried', ['token4_agent'])]
+    special_action_tokens = [('token4_agent', 'carry', ['token4_asset']),
+                             ('token4_asset', 'getCarried', ['token4_agent'])]
     assert cycle._carry(0, special_action_tokens) == ('token4_agent', 'token4_asset')
 
     agent = cycle.agents_manager.get_agent('token4_agent')
@@ -866,7 +872,8 @@ def test_carry():
 
 
 def test_get_carried():
-    special_action_tokens = [('token4_agent', 'getCarried', ['token4_asset']), ('token4_asset', 'carry', ['token4_agent'])]
+    special_action_tokens = [('token4_agent', 'getCarried', ['token4_asset']),
+                             ('token4_asset', 'carry', ['token4_agent'])]
     assert cycle._get_carried(0, special_action_tokens) == ('token4_agent', 'token4_asset')
 
     agent = cycle.agents_manager.get_agent('token4_agent')
@@ -881,13 +888,207 @@ def test_get_carried():
     assert not agent.last_action_result
 
 
+def test_execute_agent_action():
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+    assert cycle._execute_agent_action('token4_agent', 'unknown', [])['message'] == 'Wrong action name given.'
+
+    cycle.agents_manager.edit_agent('token4_agent', 'is_active', False)
+    assert cycle._execute_agent_action('token4_agent', 'pass', [])['message'] == 'Agent is not active.'
+    cycle.agents_manager.edit_agent('token4_agent', 'is_active', True)
+
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', True)
+    assert cycle._execute_agent_action('token4_agent', 'pass', [])[
+               'message'] == 'Agent can not do any action while being carried.'
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+
+    assert not cycle._execute_agent_action('token4_agent', 'pass', [])['message']
+
+    assert cycle._execute_agent_action('token4_agent', 'inactive', [])['message'] == 'Agent did not send any action.'
+
+    cycle.agents_manager.edit_agent('token4_agent', 'resources', [])
+    assert cycle._execute_agent_action('token4_agent', 'charge', [])[
+               'message'] == 'Agent does not have the abilities or resources to complete the action.'
+
+    cycle.agents_manager.edit_agent('token4_agent', 'resources', ['battery'])
+    cycle.agents_manager.edit_agent('token4_agent', 'location', cycle.cdm_location)
+    assert not cycle._execute_agent_action('token4_agent', 'charge', [])['message']
+
+
+def test_execute_asset_action():
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+    assert cycle._execute_asset_action('token4_asset', 'unknown', [])['message'] == 'Wrong action name given.'
+
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'is_active', False)
+    assert cycle._execute_asset_action('token4_asset', 'pass', [])['message'] == 'Social asset is not active.'
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'is_active', True)
+
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', True)
+    assert cycle._execute_asset_action('token4_asset', 'pass', [])[
+               'message'] == 'Social asset can not do any action while being carried.'
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+
+    assert not cycle._execute_asset_action('token4_asset', 'pass', [])['message']
+
+    assert cycle._execute_asset_action('token4_asset', 'inactive', [])[
+               'message'] == 'Social asset did not send any action.'
+
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', cycle.steps[0]['victims'][0].location)
+    assert cycle._execute_asset_action('token4_asset', 'rescueVictim', [])['message'] == ''
+
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', [])
+    assert cycle._execute_asset_action('token4_asset', 'rescueVictim', [])[
+               'message'] == 'Social asset does not have the abilities or resources to complete the action.'
+
+
+def test_execute_special_actions():
+    special_actions_list = [
+        ('token2_agent', 'carry', ['token2_asset']), ('token2_asset', 'getCarried', ['token2_agent']),
+        ('token3_agent', 'getCarried', ['token3_asset']), ('token3_asset', 'carry', ['token3_agent']),
+        ('token4_agent', 'carry', ['token4_asset']), ('token4_asset', 'getCarried', ['token4_agent'])
+    ]
+
+    cycle.agents_manager.edit_agent('token2_agent', 'carried', False)
+    cycle.agents_manager.edit_agent('token2_agent', 'abilities', ["carry", "physicalCapacity"])
+    cycle.social_assets_manager.edit_social_asset('token2_asset', 'carried', False)
+    cycle.agents_manager.edit_agent('token3_agent', 'carried', False)
+    cycle.social_assets_manager.edit_social_asset('token3_asset', 'carried', False)
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+    cycle.agents_manager.edit_agent('token4_agent', 'abilities', ["carry", "physicalCapacity"])
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+    result, _ = cycle._execute_special_actions(special_actions_list)
+    assert not result[0]['message']
+    assert result[0]['agent'].last_action_result
+    assert result[0]['agent'].last_action == 'carry'
+
+    assert not result[1]['message']
+    assert result[1]['social_asset'].last_action_result
+    assert result[1]['social_asset'].last_action == 'getCarried'
+
+    assert not result[2]['message']
+    assert result[2]['agent'].last_action_result
+    assert result[2]['agent'].last_action == 'getCarried'
+
+    assert not result[3]['message']
+    assert result[3]['social_asset'].last_action_result
+    assert result[3]['social_asset'].last_action == 'carry'
+
+    assert not result[4]['message']
+    assert result[4]['agent'].last_action_result
+    assert result[4]['agent'].last_action == 'carry'
+
+    assert not result[5]['message']
+    assert result[5]['social_asset'].last_action_result
+    assert result[5]['social_asset'].last_action == 'getCarried'
+
+
+def test_execute_special_actions_failed_being_carried():
+    special_actions_list = [
+        ('token4_agent', 'carry', ['token4_asset']), ('token4_asset', 'carry', ['token4_agent'])
+    ]
+
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', True)
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', True)
+    result, _ = cycle._execute_special_actions(special_actions_list)
+    assert result[0]['message'] == 'Agent can not do any action while being carried.'
+    assert result[1]['message'] == 'Social asset can not do any action while being carried.'
+
+
+def test_execute_special_actions_failed_abilities():
+    special_actions_list = [
+        ('token4_agent', 'carry', ['token4_asset']), ('token4_asset', 'carry', ['token4_agent'])
+    ]
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+    cycle.agents_manager.edit_agent('token4_agent', 'abilities', [])
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', [])
+    result, _ = cycle._execute_special_actions(special_actions_list)
+    assert result[0]['message'] == 'Agent does not have the abilities or resources to do the action.'
+    assert result[1]['message'] == 'Social asset does not have the abilities or resources to do the action.'
+
+
+def test_execute_special_actions_failed_param():
+    special_actions_list = [
+        ('token4_agent', 'carry', []), ('token4_asset', 'carry', [1, 2])
+    ]
+
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+    cycle.agents_manager.edit_agent('token4_agent', 'abilities', ['carry', 'physicalCapacity'])
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', ['carry', 'physicalCapacity'])
+    result, _ = cycle._execute_special_actions(special_actions_list)
+    assert result[0]['message'] == 'Wrong amount of parameters given.'
+    assert result[1]['message'] == 'Wrong amount of parameters given.'
+
+
+def test_execute_special_actions_failed_no_other_get_carried():
+    special_actions_list = [
+        ('token4_agent', 'carry', ['token4_asset']), ('token4_asset', 'carry', ['token4_agent'])
+    ]
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+    cycle.agents_manager.edit_agent('token4_agent', 'abilities', ['carry', 'physicalCapacity'])
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', ['carry', 'physicalCapacity'])
+    result, _ = cycle._execute_special_actions(special_actions_list)
+    assert result[0]['message'] == 'No other actor wanted to be carried.'
+    assert result[1]['message'] == 'No other actor wanted to be carried.'
+
+
+def test_execute_special_actions_failed_no_other_carry():
+    special_actions_list = [
+        ('token4_agent', 'getCarried', ['token4_asset']), ('token4_asset', 'getCarried', ['token4_agent'])
+    ]
+    result, _ = cycle._execute_special_actions(special_actions_list)
+    assert result[0]['message'] == 'No other actor wanted to carry.'
+    assert result[1]['message'] == 'No other actor wanted to carry.'
+
+
+def test_execute_actions():
+    actions_tokens_list = [
+        {'token': 'token2_agent', 'action': 'carry', 'parameters': ['token2_asset']},
+        {'token': 'token2_asset', 'action': 'getCarried', 'parameters': ['token2_agent']},
+        {'token': 'token3_agent', 'action': 'pass', 'parameters': []},
+        {'token': 'token3_asset', 'action': 'rescueVictim', 'parameters': []}
+    ]
+    cycle.agents_manager.edit_agent('token2_agent', 'carried', False)
+    cycle.agents_manager.edit_agent('token3_agent', 'carried', False)
+    cycle.social_assets_manager.edit_social_asset('token2_asset', 'carried', False)
+    cycle.social_assets_manager.edit_social_asset('token3_asset', 'carried', False)
+    cycle.social_assets_manager.edit_social_asset('token3_asset', 'location', cycle.steps[0]['victims'][1].location)
+    result = cycle.execute_actions(actions_tokens_list)
+
+    for i in range(4):
+        assert not result[i]['message']
+
+    for i in range(4, 9):
+        assert result[i]['message'] == 'Agent did not send any action.'
+
+    assert result[9]['message'] == 'Social asset did not send any action.'
+
+
+def test_restart():
+    cycle.agents_manager.edit_agent('token4_agent', 'carried', True)
+    cycle.agents_manager.edit_agent('token4_agent', 'is_active', False)
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', True)
+    cycle.social_assets_manager.edit_social_asset('token4_asset', 'is_active', False)
+    cycle.restart(config_json)
+    assert not cycle.steps[0]['flood'].active
+    assert cycle.current_step == 0
+    assert not cycle.delivered_items
+    assert not cycle.agents_manager.get_agent('token4_agent').carried
+    assert cycle.agents_manager.get_agent('token4_agent').is_active
+    assert not cycle.social_assets_manager.get_social_asset('token4_asset').carried
+    assert cycle.social_assets_manager.get_social_asset('token4_asset').is_active
+
+
 if __name__ == '__main__':
     test_connect_agent()
     test_connect_asset()
     test_disconnect_agent()
     test_disconnect_asset()
     test_get_agents_info()
+    test_get_active_agents_info()
     test_get_assets_info()
+    test_get_active_assets_info()
     test_get_step()
     test_activate_step()
     test_get_previous_steps()
@@ -959,3 +1160,13 @@ if __name__ == '__main__':
     test_update_photos_state()
     test_carry()
     test_get_carried()
+    test_execute_agent_action()
+    test_execute_asset_action()
+    test_execute_special_actions()
+    test_execute_special_actions_failed_being_carried()
+    test_execute_special_actions_failed_param()
+    test_execute_special_actions_failed_abilities()
+    test_execute_special_actions_failed_no_other_carry()
+    test_execute_special_actions_failed_no_other_get_carried()
+    test_execute_actions()
+    test_restart()

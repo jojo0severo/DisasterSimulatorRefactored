@@ -132,6 +132,13 @@ def test_get_agents_info():
     assert agents_infos[1].is_active
 
 
+def test_get_active_agents_info():
+    agents_infos = manager.get_active_agents_info()
+
+    assert len(agents_infos) == 1
+    assert agents_infos[0].is_active
+
+
 def test_deliver_physical():
     assert manager.deliver_physical('token1', 'item')
     try:
@@ -194,7 +201,7 @@ def test_restart():
 def test_generate_roles():
     roles = manager.generate_roles(config_json['agents'])
     for role in roles:
-        if getattr(role, 'name') != 'drone':
+        if getattr(role, 'name') != 'drone' and getattr(role, 'name') != 'boat' and getattr(role, 'name') != 'car':
             assert False
 
         if getattr(role, 'size') != 30:
@@ -227,6 +234,7 @@ if __name__ == '__main__':
     test_get_agent()
     test_get_tokens()
     test_get_agents_info()
+    test_get_active_agents_info()
     test_deliver_physical()
     test_deliver_virtual()
     test_edit_agent()

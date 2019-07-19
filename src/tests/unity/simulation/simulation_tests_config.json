@@ -3,7 +3,8 @@
     "id": "2018-SampleSimulation",
     "steps": 10,
     "maps": [
-      "src/tests/unity/test_map.osm"
+      "src/tests/unity/map_for_tests.osm",
+      "src/tests/unity/map_for_tests.osm"
     ],
     "minLon": -51.2163800,
     "maxLon": -51.2076000,
@@ -22,7 +23,7 @@
       "minSize": 80,
       "maxSize": 100,
       "speed": 11,
-      "physicalCapacity": 100,
+      "physicalCapacity": 1000,
       "virtualCapacity": 100
     },
     "teacher": {
@@ -31,7 +32,7 @@
       "amount": 1,
       "minSize": 66,
       "maxSize": 70,
-      "speed": 10,
+      "speed": 11,
       "physicalCapacity": 55,
       "virtualCapacity": 0
     },
@@ -41,7 +42,7 @@
       "amount": 1,
       "minSize": 70,
       "maxSize": 86,
-      "speed": 15,
+      "speed": 11,
       "physicalCapacity": 80,
       "virtualCapacity": 0
     },
@@ -80,7 +81,7 @@
     "car": {
       "abilities": [],
       "resources": ["battery", "strength", "memory"],
-      "size": 1200,
+      "size": 30,
       "amount": 1,
       "speed": 7,
       "physicalCapacity": 450,
@@ -90,7 +91,7 @@
     "boat": {
       "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
       "resources": [],
-      "size": 8000,
+      "size": 30,
       "amount": 1,
       "speed": 7,
       "physicalCapacity": 10000,

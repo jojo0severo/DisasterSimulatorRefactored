@@ -26,7 +26,6 @@ class Item:
 def test_connect_asset():
     assert manager.connect_social_asset('token')
     assert len(manager.get_tokens()) == 1
-    assert manager.connect_social_asset('token') is not None
 
 
 def test_disconnect_asset():
@@ -125,6 +124,13 @@ def test_get_assets_info():
     assert assets_infos[1].is_active
 
 
+def test_get_active_assets_info():
+    assets_infos = manager.get_active_social_assets_info()
+
+    assert len(assets_infos) == 1
+    assert assets_infos[0].is_active
+
+
 def test_deliver_physical():
     assert manager.deliver_physical('token1', 'item')
     try:
@@ -188,7 +194,7 @@ def test_generate_objects():
     objects = manager.generate_objects(config_json['map'], config_json['socialAssets'])
 
     for obj in objects:
-        if getattr(obj, 'profession') != 'doctor':
+        if getattr(obj, 'profession') != 'doctor' and getattr(obj, 'profession') != 'teacher' and getattr(obj, 'profession') != 'nurse':
             assert False
 
         if 80 > getattr(obj, 'size') > 100:
@@ -215,6 +221,7 @@ if __name__ == '__main__':
     test_get_asset()
     test_get_tokens()
     test_get_assets_info()
+    test_get_active_assets_info()
     test_deliver_physical()
     test_deliver_virtual()
     test_edit_asset()
