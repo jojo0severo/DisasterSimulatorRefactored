@@ -201,14 +201,14 @@ class Cycle:
                     self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
                     action_results.append({
                         'social_asset': self.social_assets_manager.get_social_asset(token),
-                        'message': 'Social asset does not have the abilities or resources to do the action'
+                        'message': 'Social asset does not have the abilities or resources to do the action.'
                     })
                 else:
                     self.agents_manager.edit_agent(token, 'last_action', action)
                     self.agents_manager.edit_agent(token, 'last_action_result', False)
                     action_results.append({
                         'agent': self.social_assets_manager.get_social_asset(token),
-                        'message': 'Agent does not have the abilities or resources to do the action'
+                        'message': 'Agent does not have the abilities or resources to do the action.'
                     })
 
             elif action == 'carry':
@@ -226,7 +226,7 @@ class Cycle:
                         self.agents_manager.edit_agent(token, 'last_action_result', False)
                         action_results.append({
                             'agent': self.agents_manager.get_agent(token),
-                            'message': 'Wrong amount o parameters given.'
+                            'message': 'Wrong amount of parameters given.'
                         })
                 else:
                     result = self._carry(i, special_action_tokens)
@@ -290,12 +290,12 @@ class Cycle:
                         if self.agents_manager.get_agent(token) is None:
                             action_results.append({
                                 'social_asset': self.social_assets_manager.get_social_asset(token),
-                                'message': 'No other actor wanted to be carried or accomplishes the requirements to be.'
+                                'message': 'No other actor wanted to carry.'
                             })
                         else:
                             action_results.append({
                                 'agent': self.agents_manager.get_agent(token),
-                                'message': 'No other actor wanted to be carried or accomplishes the requirements to be..'
+                                'message': 'No other actor wanted to carry.'
                             })
 
                     else:
