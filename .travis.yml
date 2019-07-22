@@ -4,4 +4,4 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - pytest src/tests/integration/test_agents_actions.py src/tests/integration/test_social_assets_actions.py src/tests/integration/test_carry_carried_actions.py src/tests/unity/simulation
+  - pytest src/tests/integration/test_agents_actions.py src/tests/integration/test_social_assets_actions.py src/tests/integration/test_carry_carried_actions.py src/tests/unity/
