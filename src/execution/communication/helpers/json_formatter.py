@@ -1,5 +1,5 @@
 def simulation_started_format(response, token):
-    info = {'status': 0, 'result': False, 'event': {}, 'message': 'Possible internal error'}
+    info = {'status': 0, 'result': False, 'event': {}, 'message': ''}
 
     if response:
         if response['status']:
@@ -44,7 +44,7 @@ def simulation_ended_format(response):
 
 
 def action_results_format(response, token):
-    info = {'status': 0, 'result': False, 'event': {}, 'message': 'Possible internal error'}
+    info = {'status': 0, 'result': False, 'event': {}, 'message': ''}
 
     if response:
         if response['status']:
@@ -78,4 +78,4 @@ def action_results_format(response, token):
 
 
 def event_error_format(message):
-    return {'status': 0, 'result': False, 'actor': {}, 'event': {}, 'message': f'{message}Possible internal error'}
+    return {'status': 0, 'result': False, 'actor': {}, 'event': {}, 'message': f'{message}Possible internal error.'}
