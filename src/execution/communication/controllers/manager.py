@@ -99,9 +99,13 @@ class Manager:
         return True
 
     def clear_workers(self):
-        self.agents_manager.clear_workers()
-        self.social_assets_manager.clear_workers()
-        return True
+        try:
+            self.agents_manager.clear_workers()
+            self.social_assets_manager.clear_workers()
+            return True
+
+        except Exception:
+            return False
 
     def remove(self, token, kind):
         if kind == 'agent':

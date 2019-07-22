@@ -49,6 +49,9 @@ class Controller:
         except json.JSONDecodeError:
             return 2, 'JSON format error.'
 
+        except TypeError:
+            return 2, 'Wrong format.'
+
     def do_agent_connection(self, request):
         try:
             obj = json.loads(request.get_json(force=True))
