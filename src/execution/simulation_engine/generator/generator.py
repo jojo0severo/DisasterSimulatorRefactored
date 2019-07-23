@@ -124,7 +124,7 @@ class Generator:
             photo_size: int = random.randint(photo_min_size, photo_max_size)
             photo_victims: list = []
             if random.randint(0, 100) <= victim_probability:
-                photo_victims = self.generate_photo_victims(nodes)
+                photo_victims = self.generate_photo_victims(photo_location)
 
             photos[i] = Photo(self.photo_id, photo_size, photo_victims, photo_location)
             self.photo_id = self.photo_id + 1
@@ -178,9 +178,8 @@ class Generator:
         while i < amount:
             victim_size: int = random.randint(victim_min_size, victim_max_size)
             victim_lifetime: int = random.randint(victim_min_lifetime, victim_max_lifetime)
-            victim_location: tuple = self.map.get_node_coord(random.choice(nodes))
 
-            victims[i] = Victim(self.victim_id, victim_size, victim_lifetime, victim_location, True)
+            victims[i] = Victim(self.victim_id, victim_size, victim_lifetime, location, True)
             self.victim_id = self.victim_id + 1
             i += 1
 
