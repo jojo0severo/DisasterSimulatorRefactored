@@ -14,7 +14,7 @@ def get_venv_path():
     :return str: Path to the virtual environment system independent."""
 
     h = Handler()
-    h.create_environment(False, '')
+    h.create_environment()
     return h.venv_path + 'python'
 
 

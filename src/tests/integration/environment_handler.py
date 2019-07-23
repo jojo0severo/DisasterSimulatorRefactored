@@ -10,27 +10,24 @@ class Handler:
         self.venv_path = None
         self.root = pathlib.Path(__file__).parents[3].absolute()
 
-    def create_environment(self, globally, python_version):
-        if globally:
-            self.install_requirements('', python_version)
-            self.venv_path = ''
+    def create_environment(self):
+        """Install all dependencies created virtual environment."""
 
-        else:
-            venv_path = self.get_venv_path()
-            
-            if not os.path.exists(venv_path):
-                try:
-                    subprocess.call(['virtualenv', 'venv'])
-                except FileNotFoundError:
-                    FNULL = open(os.devnull, 'w')
-                    subprocess.call([f'pip{python_version}', 'install', 'virtualenv'], stdout=FNULL,
-                                    stderr=subprocess.STDOUT)
-                    subprocess.call(['virtualenv', 'venv'], stdout=FNULL, stderr=subprocess.STDOUT)
+        venv_path = self.get_venv_path()
 
-            venv_path += '/' if not venv_path.find('/') else '\\'
-            self.venv_path = venv_path
+        if not os.path.exists(venv_path):
+            try:
+                subprocess.call(['virtualenv', 'venv'])
+            except FileNotFoundError:
+                FNULL = open(os.devnull, 'w')
+                subprocess.call([f'pip', 'install', 'virtualenv'], stdout=FNULL,
+                                stderr=subprocess.STDOUT)
+                subprocess.call(['virtualenv', 'venv'], stdout=FNULL, stderr=subprocess.STDOUT)
 
-            self.install_requirements(venv_path, python_version)
+        venv_path += '/' if not venv_path.find('/') else '\\'
+        self.venv_path = venv_path
+
+        self.install_requirements()
 
     def get_venv_path(self):
         """Return the path to the created virtual environment."""
@@ -41,10 +38,10 @@ class Handler:
 
         return str(venv_path.absolute())
 
-    def install_requirements(self, venv_path, python_version):
+    def install_requirements(self):
         """Install the requirements on the environment."""
 
         requirements_path = self.root / 'requirements.txt'
         FNULL = open(os.devnull, 'w')
-        subprocess.call([f"{str(venv_path)}pip{python_version}", "install", "-r", str(requirements_path.absolute())],
+        subprocess.call([f"{str(self.venv_path)}pip", "install", "-r", str(requirements_path.absolute())],
                         stdout=FNULL, stderr=subprocess.STDOUT)
