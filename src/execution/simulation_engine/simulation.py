@@ -2,6 +2,9 @@ from simulation_engine.simulation_helpers.cycle import Cycle
 
 
 class Simulation:
+    """Class that represents the engine of the simulation, connecting agents and social assets, doing steps and saving
+    log information."""
+
     def __init__(self, config):
         self.cycler = Cycle(config)
         self.terminated = False
@@ -11,18 +14,44 @@ class Simulation:
         self.action_token_by_step = []
 
     def connect_agent(self, token):
+        """Connect the agent to the simulation.
+
+        :param token: The identifier of the agent.
+        :return bool: True if the agent was connected else False."""
+
         return self.cycler.connect_agent(token)
 
     def connect_social_asset(self, token):
+        """Connect the social asset to the simulation.
+
+        :param token: The identifier of the social asset.
+        :return bool: True if the social asset was connected else False."""
+
         return self.cycler.connect_social_asset(token)
 
     def disconnect_agent(self, token):
+        """Disconnect the agent from the simulation.
+
+        :param token: The identifier of the agent.
+        :return bool: True if the agent was connected else False."""
+
         return self.cycler.disconnect_agent(token)
 
     def disconnect_social_asset(self, token):
+        """Disconnect the social asset from the simulation.
+
+        :param token: The identifier of the social asset.
+        :return bool: True if the agent was connected else False."""
+
         return self.cycler.disconnect_social_asset(token)
 
     def start(self):
+        """Start the simulation by activating the first step and returning all the connected agents and social assets
+        information saved back to them along with the current step.
+
+        :return tuple: First position holding the agents, second position the social assets and the third holding
+        the current step"""
+
         self.cycler.activate_step()
         agents = self.cycler.get_active_agents_info()
         social_assets = self.cycler.get_active_assets_info()
@@ -39,6 +68,11 @@ class Simulation:
         return agents, social_assets, step
 
     def restart(self, config_file):
+        """Restart the simulation by regenerating all the simulation adn reseting all the log variables.
+
+        :return tuple: First position holding the agents, second position the social assets and the third holding
+        the current step"""
+
         self.cycler.restart(config_file)
         self.terminated = False
         self.actions_amount = 0
@@ -49,6 +83,14 @@ class Simulation:
         return self.start()
 
     def do_step(self, agent_action_list):
+        """Do one step against the simulation.
+
+        Do one step means that the simulation will process all the actions sent and activate the next step.
+
+        :param agent_action_list: The actions sent by each agent or social asset.
+        :return tuple|None: If not terminated the first position holds the results from the actions sent and the second,
+        the current step, else None"""
+
         actions = [token_action_param['action'] for token_action_param in agent_action_list]
         tokens = [token_action_param['token'] for token_action_param in agent_action_list]
 
@@ -75,6 +117,11 @@ class Simulation:
         return actions_results, step
 
     def log(self):
+        """Save information about each step, the map, victims, flood, water samples, photos, every event related to the
+        simulation.
+
+        :return dict: Dictionary containing all the information that will be saved in a JSON file."""
+
         current_step = self.cycler.current_step
         max_steps = self.cycler.max_steps
         delivered_items = self.cycler.delivered_items
