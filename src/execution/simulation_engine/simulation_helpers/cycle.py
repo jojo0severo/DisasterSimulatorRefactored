@@ -662,7 +662,7 @@ class Cycle:
 
             if self.agents_manager.get_agent(token).destination_distance:
                 self.agents_manager.update_agent_location(token)
-                _, _, distance = self.map.get_route(agent.location, destination, agent.role, agent.speed, [])
+                distance = self.map.node_distance(self.map.get_closest_node(*agent.location), self.map.get_closest_node(*destination))
                 self.agents_manager.edit_agent(token, 'destination_distance', distance)
                 self.agents_manager.edit_agent(token, 'last_action_result', True)
                 self.agents_manager.discharge_agent(token)
