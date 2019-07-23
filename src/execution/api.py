@@ -475,7 +475,7 @@ def notify_actors(event, response):
     internal errors."""
 
     tokens = [*controller.manager.agents_sockets_manager.get_tokens(), *controller.manager.assets_sockets_manager.get_tokens()]
-
+    room_response_list = []
     for token in tokens:
         if event == 'simulation_started':
             info = json_formatter.simulation_started_format(response, token)
@@ -490,8 +490,10 @@ def notify_actors(event, response):
             exit('Wrong event name. Possible internal errors.')
 
         room = controller.manager.get(token, 'socket')
-        socket.emit(event, json.dumps(info), room=room)
+        room_response_list.append((room, json.dumps(info)))
 
+    for room, response in room_response_list:
+        socket.emit(event, response, room=room)
 
 
 @app.route('/terminate', methods=['GET'])

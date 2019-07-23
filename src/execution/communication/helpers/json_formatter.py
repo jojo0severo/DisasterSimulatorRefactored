@@ -18,17 +18,20 @@ def simulation_started_format(response, token):
             info['status'] = response['status']
             info['result'] = True
 
-            for actor in response['actors']:
+            found_index = 0
+            for idx, actor in enumerate(response['actors']):
                 if actor['token'] == token:
                     if 'role' in actor:
                         info['agent'] = actor
                     else:
                         info['social_asset'] = actor
+                    found_index = idx
                     break
 
             if 'agent' not in info and 'social_asset' not in info:
                 return event_error_format('Actor not found in response. ')
 
+            response['actors'].pop(found_index)
             info['event'] = response['event']
 
         info['message'] = response['message']
@@ -74,21 +77,25 @@ def action_results_format(response, token):
             info['status'] = response['status']
             info['result'] = True
 
-            for actor in response['actors']:
+            found_index = 0
+            for idx, actor in enumerate(response['actors']):
                 if 'agent' in actor:
                     if actor['agent']['token'] == token:
                         info['agent'] = actor['agent']
                         info['message'] = actor['message']
+                        found_index = idx
                         break
                 else:
                     if actor['social_asset']['token'] == token:
                         info['social_asset'] = actor['social_asset']
                         info['message'] = actor['message']
+                        found_index = idx
                         break
 
             if 'agent' not in info and 'social_asset' not in info:
                 return event_error_format('Actor not found in response. ')
 
+            response['actors'].pop(found_index)
             info['event'] = response['event']
 
         else:
