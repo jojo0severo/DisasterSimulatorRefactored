@@ -9,12 +9,22 @@ from environment_handler import Handler
 
 
 def get_venv_path():
+    """Get the path to the generated virtual environment.
+
+    :return str: Path to the virtual environment system independent."""
+
     h = Handler()
     h.create_environment(False, '')
     return h.venv_path + 'python'
 
 
 def collect_modules():
+    """Get all the test modules inside the test_agents folder.
+
+    Note: test modules must start with 'test_' and have the .py extension.
+
+    :return list: List of all the test modules paths."""
+
     tests_dir = pathlib.Path(__file__).parent / 'test_agents'
 
     modules = []
@@ -27,6 +37,15 @@ def collect_modules():
 
 
 def execute_modules():
+    """Loop through all the modules executing them against the API and saving the responses.
+
+    To execute the tests properly the simulation have to be online, any other way one is not able to pass
+    through all the steps that an agent would. In order to do that, a process is popped to run the simulation itself
+    and another one to run the test. When the test is completed, both the processes are killed and there is no
+    remaining processes.
+
+    :return list: All the results from the modules."""
+
     start_system_path = str((pathlib.Path(__file__).parents[3] / 'start_system.py').absolute())
     venv_path = get_venv_path()
     command = [venv_path, start_system_path,
@@ -64,4 +83,6 @@ def execute_modules():
 
 
 def test_system():
+    """Call the function to execute all test modules and check if all the responses were True."""
+
     assert all(execute_modules())

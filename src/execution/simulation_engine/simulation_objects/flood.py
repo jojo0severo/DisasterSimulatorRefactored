@@ -1,4 +1,5 @@
 class Flood:
+    """Class that represents a flood inside the simulation."""
 
     def __init__(self, identifier: int, period: int, dimensions: dict, list_of_nodes: list):
         self.identifier: int = identifier

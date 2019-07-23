@@ -1,3 +1,6 @@
+"""This module is the endpoint for the engine to communicate with the API. It is not supposed to receive external calls
+of for the user to callit on its own. If is intended to call this module directly, be cautious."""
+
 import os
 import sys
 import time
@@ -20,6 +23,8 @@ formatter = JsonFormatter(config_path)
 
 @app.route('/start', methods=['POST'])
 def start():
+    """Start the engine."""
+
     message = request.get_json(force=True)
 
     if 'secret' not in message:
@@ -33,6 +38,8 @@ def start():
 
 @app.route('/register_agent', methods=['POST'])
 def register_agent():
+    """Register an agent in the engine."""
+
     message = request.get_json(force=True)
 
     if 'secret' not in message:
@@ -46,6 +53,8 @@ def register_agent():
 
 @app.route('/register_asset', methods=['POST'])
 def register_asset():
+    """Register a social asset in the engine."""
+
     message = request.get_json(force=True)
 
     if 'secret' not in message:
@@ -59,6 +68,8 @@ def register_asset():
 
 @app.route('/delete_agent', methods=['PUT'])
 def delete_agent():
+    """Delete a registered agent from the engine."""
+
     message = request.get_json(force=True)
 
     if 'secret' not in message:
@@ -72,6 +83,8 @@ def delete_agent():
 
 @app.route('/delete_asset', methods=['PUT'])
 def delete_asset():
+    """Delete a registered social asset from the engine."""
+
     message = request.get_json(force=True)
 
     if 'secret' not in message:
@@ -85,6 +98,8 @@ def delete_asset():
 
 @app.route('/do_actions', methods=['POST'])
 def do_actions():
+    """Process all the actions from the agents and social assets."""
+
     message = request.get_json(force=True)
 
     if 'secret' not in message:
@@ -98,6 +113,8 @@ def do_actions():
 
 @app.route('/restart', methods=['PUT'])
 def restart():
+    """Restart the engine and save the log from the previous one."""
+
     global formatter
 
     message = request.get_json(force=True)
@@ -120,6 +137,8 @@ def restart():
 
 @app.route('/terminate', methods=['GET'])
 def finish():
+    """Terminate the process the runs the engine."""
+
     global app
     message = request.get_json(force=True)
 
@@ -141,6 +160,8 @@ def finish():
 
 
 def auto_destruction():
+    """Wait for one second and then call the terminate endpoint."""
+
     time.sleep(1)
     try:
         requests.get(f'http://{base_url}:{simulation_port}/terminate', json={'secret': secret, 'api': False})

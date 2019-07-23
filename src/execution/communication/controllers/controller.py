@@ -5,6 +5,8 @@ from communication.controllers.manager import Manager
 
 
 class Controller:
+    """Class that will hold the agents, social assets and sockets and also do the validations for the endpoints."""
+
     def __init__(self, agents_amount, social_assets_amount, time_limit, internal_secret):
         self.manager = Manager()
         self.start_time = None
@@ -17,24 +19,43 @@ class Controller:
         self.processing_actions = False
 
     def set_started(self):
+        """Set the started attribute.
+
+        Every time it is called it will change the value from True to False and otherwise."""
+
         if self.started:
             self.started = False
         else:
             self.started = True
 
     def set_processing_actions(self):
+        """Set the processing_actions attribute.
+
+        Every time it is called it will change the value from True to False and otherwise."""
+
         if self.processing_actions:
             self.processing_actions = False
         else:
             self.processing_actions = True
 
     def start_timer(self):
+        """Start the timer."""
+
         self.start_time = time.time()
 
     def finish_connection_timer(self):
+        """Finish the connection time by adding the limit to the start."""
+
         self.start_time -= self.time_limit
 
     def do_internal_verification(self, request):
+        """Do the internal verifications on the data sent to the endpoints.
+
+        This function is exclusive to the endpoints that only the API or the engine are supposed to call.
+
+        :param request: The request object received on the API containing all the data and JSON.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             message = request.get_json(force=True)
 
@@ -53,6 +74,12 @@ class Controller:
             return 2, 'Wrong format.'
 
     def do_agent_connection(self, request):
+        """Do the connection of the agent.
+
+        After several validations, the token is generated and added to the manager.
+
+        :param request: The request object received on the API containing all the data and JSON.
+        :return tuple: First position with the status and the second position with the message."""
         try:
             obj = json.loads(request.get_json(force=True))
 
@@ -88,6 +115,13 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_social_asset_connection(self, request):
+        """Do the connection of the social asset.
+
+        After several validations, the token is generated and added to the manager.
+
+        :param request: The request object received on the API containing all the data and JSON.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(request.get_json(force=True))
 
@@ -120,6 +154,13 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_agent_registration(self, request):
+        """Do the registration of the agent.
+
+        After several validations, agent is edited as registered on the manager.
+
+        :param request: The request object received on the API containing all the data and JSON.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(request.get_json(force=True))
 
@@ -157,6 +198,13 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_social_asset_registration(self, request):
+        """Do the registration of the social asset.
+
+        After several validations, social asset is edited as registered on the manager.
+
+        :param request: The request object received on the API containing all the data and JSON.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(request.get_json(force=True))
 
@@ -191,6 +239,14 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_agent_socket_connection(self, request, msg):
+        """Do the socket connect of the agent.
+
+        After several validations, the socket is added to the manager.
+
+        :param request: The request object received on the API containing all the data and JSON.
+        :param msg: Message sent to the API through socket by the agent.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(msg)
 
@@ -231,6 +287,14 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_social_asset_socket_connection(self, request, msg):
+        """Do the socket connect of the social asset.
+
+        After several validations, the socket is added to the manager.
+
+        :param request: The request object received on the API containing all the data and JSON.
+        :param msg: Message sent to the API through socket by the social asset.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(msg)
 
@@ -268,6 +332,13 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_agent_socket_disconnection(self, msg):
+        """Do the socket disconnect of the agent.
+
+        After several validations, the socket is removed from the manager.
+
+        :param msg: Message sent to the API through socket by the agent.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(msg)
 
@@ -298,6 +369,13 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_social_asset_socket_disconnection(self, msg):
+        """Do the socket disconnect of the social asset.
+
+        After several validations, the socket is removed from the manager.
+
+        :param msg: Message sent to the API through socket by the social asset.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(msg)
 
@@ -328,6 +406,14 @@ class Controller:
             return 0, f'Unknown error: {str(e)}'
 
     def do_action(self, request):
+        """Save the action from either the agent or the social asset.
+
+        After several validations, the agent or social asset is edited on the manager with the action given and the
+        parameters passed.
+
+        :param request: The request sent to the API containing all the data and JSON.
+        :return tuple: First position with the status and the second position with the message."""
+
         try:
             obj = json.loads(request.get_json(force=True))
 
@@ -390,6 +476,12 @@ class Controller:
 
     @staticmethod
     def check_secret(secret, other_secret):
+        """Check if two strings match.
+
+        :param secret: Secret received on the startup.
+        :param other_secret: Secret received on the endpoint.
+        :return bool: True if they match else False."""
+
         if len(other_secret) != len(secret):
             return False
 

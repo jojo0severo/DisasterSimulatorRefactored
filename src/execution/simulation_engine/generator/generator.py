@@ -6,6 +6,8 @@ from simulation_engine.simulation_objects.water_sample import WaterSample
 
 
 class Generator:
+    """Class that generate all the events step, by step or separated if needed."""
+
     def __init__(self, config, map):
         self.map_variables: dict = config['map']
         self.generate_variables: dict = config['generate']
@@ -18,6 +20,13 @@ class Generator:
         random.seed(config['map']['randomSeed'])
 
     def generate_events(self) -> list:
+        """Generate all the events based on probabilities.
+
+        If the probability of a flood to occur is bigger than the drawn number, an event is created. Except the first
+        step which will always have a flood.
+
+        :return list: All the steps containing either a dictionary with the event or a dictionary with a None flood."""
+
         steps_number: int = self.map_variables['steps']
         events = [0] * steps_number
 
@@ -49,6 +58,12 @@ class Generator:
         return events
 
     def generate_flood(self) -> Flood:
+        """Generate one flood.
+
+        Note: The only shape available currently is the circle.
+
+        :return Flood: Flood event with dimensions gotten from the configuration file."""
+
         dimensions: dict = {'shape': 'circle' if random.randint(0, 0) == 0 else 'rectangle'}
 
         if dimensions['shape'] == 'circle':
@@ -90,6 +105,12 @@ class Generator:
         return Flood(self.flood_id, period, dimensions, list_of_nodes)
 
     def generate_photos(self, nodes: list) -> list:
+        """Generate a list of photo events inside the flood location.
+
+        Note: Each photo can have N victims.
+
+        :return list: List with all the photos generated."""
+
         victim_probability: int = self.generate_variables['photo']['victimProbability']
         photo_min_size: int = self.generate_variables['photo']['minSize']
         photo_max_size: int = self.generate_variables['photo']['maxSize']
@@ -112,6 +133,10 @@ class Generator:
         return photos
 
     def generate_victims(self, nodes: list) -> list:
+        """Generate a list of victims.
+
+        :return list: List of all the victims generated"""
+
         victim_min_size: int = self.generate_variables['victim']['minSize']
         victim_max_size: int = self.generate_variables['victim']['maxSize']
 
@@ -133,7 +158,13 @@ class Generator:
 
         return victims
 
-    def generate_photo_victims(self, nodes: list) -> list:
+    def generate_photo_victims(self, location: tuple) -> list:
+        """Generate list of victims for photos.
+
+        Note: the victims will be generated on the same location as the photo.
+
+        :return list: List with all the generated Victims."""
+
         victim_min_size: int = self.generate_variables['victim']['minSize']
         victim_max_size: int = self.generate_variables['victim']['maxSize']
 
@@ -156,6 +187,10 @@ class Generator:
         return victims
 
     def generate_water_samples(self, nodes: list) -> list:
+        """Generate list of water samples.
+
+        :return list: List with all the generated water samples."""
+
         water_sample_min_size: int = self.generate_variables['waterSample']['minSize']
         water_sample_max_size: int = self.generate_variables['waterSample']['maxSize']
 

@@ -1,4 +1,5 @@
 class Photo:
+    """Class that represents a photo event inside the simulation."""
 
     def __init__(self, identifier: int, size: int, victims: list, location: tuple):
         self.identifier: int = identifier

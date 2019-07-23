@@ -4,6 +4,8 @@ import subprocess
 
 
 class Handler:
+    """Class that handles all the creation of the environment for tests."""
+
     def __init__(self):
         self.venv_path = None
         self.root = pathlib.Path(__file__).parents[3].absolute()
@@ -31,6 +33,8 @@ class Handler:
             self.install_requirements(venv_path, python_version)
 
     def get_venv_path(self):
+        """Return the path to the created virtual environment."""
+
         venv_path = self.root / 'venv'
 
         venv_path = venv_path / 'Scripts' if os.name == 'nt' else venv_path / 'bin'
@@ -38,6 +42,8 @@ class Handler:
         return str(venv_path.absolute())
 
     def install_requirements(self, venv_path, python_version):
+        """Install the requirements on the environment."""
+
         requirements_path = self.root / 'requirements.txt'
         FNULL = open(os.devnull, 'w')
         subprocess.call([f"{str(venv_path)}pip{python_version}", "install", "-r", str(requirements_path.absolute())],

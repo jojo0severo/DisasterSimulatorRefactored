@@ -11,6 +11,10 @@ class Checker:
         self.config = pathlib.Path(__file__).parents[2] / config_file
 
     def run_all_tests(self):
+        """Run all the tests on the configuration file and returns the error ir any.
+
+        :return tuple: The code on the first position (1|0) and the error message if the code is 0 else just 'Ok.'"""
+
         test = self.test_json_load()
         if not test[0]:
             return test

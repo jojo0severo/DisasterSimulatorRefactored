@@ -10,6 +10,10 @@ from environment_handler import Handler
 
 
 def get_venv_path():
+    """Get the path to the generated virtual environment.
+
+    :return str: Path to the virtual environment system independent."""
+
     h = Handler()
     h.create_environment(False, '')
     return h.venv_path + 'python'
@@ -29,6 +33,8 @@ carried_token = None
 
 
 def connect_agents():
+    """Connect both the agents in the simulation. The one that will carry and the one that will be carried."""
+
     global token, carried_token
 
     response = requests.post('http://127.0.0.1:12345/connect_agent', json=json.dumps(agent)).json()
@@ -44,6 +50,10 @@ def connect_agents():
 
 @socket.on('action_results')
 def action_result(msg):
+    """Receive the results from the simulation for the actions sent by the agent that will carry the other.
+
+    After carrying, the agent disconnects from the simulation and add True to the waiting variable."""
+
     msg = json.loads(msg)
 
     if msg['agent']['last_action'] == 'carry':
@@ -55,6 +65,10 @@ def action_result(msg):
 
 @carried_socket.on('action_results')
 def carried_action_result(msg):
+    """Receive the results from the simulation for the actions sent by the agent that will be carried by the other.
+
+    After being carried, the agent disconnects from the simulation and add True to the waiting variable."""
+
     msg = json.loads(msg)
 
     if msg['agent']['last_action'] == 'getCarried':
@@ -66,24 +80,36 @@ def carried_action_result(msg):
 
 @socket.on('simulation_ended')
 def simulation_ended(*args):
+    """Add True to the waiting variable if the simulation ends. Just in case the agent can not finish the action."""
+
     waits.append(True)
 
 
 @carried_socket.on('simulation_ended')
 def carried_simulation_ended(*args):
+    """Add True to the waiting variable if the simulation ends. Just in case the agent can not finish the action."""
+
     waits.append(True)
 
 
 def quit_program(*args):
+    """Add True to the waiting variable after the agent finish its action."""
+
     waits.append(True)
 
 
 def do_cycle():
+    """Do the cycle of connecting and waiting for the actions to be done by the agents."""
+
     socket.connect('http://127.0.0.1:12345')
     carried_socket.connect('http://127.0.0.1:12345')
     connect_agents()
+
+    start_time = time.time()
     while len(waits) < 2:
-        pass
+        if start_time + 60 > time.time():
+            responses.append(False)
+            break
 
     socket.disconnect()
     carried_socket.disconnect()
@@ -92,6 +118,8 @@ def do_cycle():
 
 
 def test_carry_carried():
+    """Start the simulation and execute the test against it."""
+
     start_system_path = str((pathlib.Path(__file__).parents[3] / 'start_system.py').absolute())
     venv_path = get_venv_path()
     command = [venv_path, start_system_path,

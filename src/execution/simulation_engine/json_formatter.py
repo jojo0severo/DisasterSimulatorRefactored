@@ -89,7 +89,7 @@ class JsonFormatter:
             json_actors = [*json_agents, *json_assets]
             json_events = self.jsonify_events(response[2])
 
-            return {'status': 1, 'actors': json_actors, 'event': json_events, 'message': 'Simulation restarted.'}
+            return {'status': 1, 'actors': json_actors, 'event': json_events, 'message': 'Simulation started.'}
 
         except Exception as e:
             return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}

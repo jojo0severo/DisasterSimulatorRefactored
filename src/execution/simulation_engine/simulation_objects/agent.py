@@ -2,6 +2,8 @@ from simulation_engine.exceptions.exceptions import *
 
 
 class Agent:
+    """Class that represents the Agent inside the simulation."""
+
     def __init__(self, token, cdm_location, abilities, resources, size,
                  role_name, battery, speed, physical_capacity, virtual_capacity):
         self.token = token
@@ -30,19 +32,35 @@ class Agent:
 
     @property
     def size(self):
+        """Return the size of the agent based on its current storage weight and its own size.
+
+        :return int: Weight of the agent."""
+
         return self.min_size + (self.physical_capacity - self.physical_storage)
 
     def discharge(self):
-        if self.destination_distance:
-            self.actual_battery = self.check_battery()
+        """Discharge the battery based on the speed."""
+
+        self.actual_battery = self.check_battery()
 
     def check_battery(self):
+        """Check if the agent supports another discharge."""
+
         return self.actual_battery - int(self.speed / 5) if self.actual_battery - int(self.speed / 5) > 0 else 0
 
     def charge(self):
+        """Charge the agent battery to its full capacity."""
+
         self.actual_battery = self.max_charge
 
     def add_physical_item(self, item):
+        """Add a physical item to the storage of the agent.
+
+        Note: The item must have a size and type attributes.
+
+        :param item: The physical item.
+        :raise FailedCapacity: If the size of the item is bigger than the available storage."""
+
         size = item.size
         if size > self.physical_storage:
             raise FailedCapacity('The agent does not have enough physical storage.')
@@ -51,6 +69,12 @@ class Agent:
         self.physical_storage_vector.append(item)
 
     def add_virtual_item(self, item):
+        """Add a virtual item to the storage of the agent.
+
+        Note: The item must have a size and type attributes.
+
+        :param item: The virtual item.
+        :raise FailedCapacity: If the size of the item is bigger than the available storage."""
 
         size = item.size
         if size > self.virtual_storage:
@@ -60,6 +84,14 @@ class Agent:
         self.virtual_storage_vector.append(item)
 
     def remove_physical_item(self, kind, amount):
+        """Remove physical items from the agent.
+
+        :param kind: The type of the item to be removed
+        :param amount: The amount of items of the given type to be removed.
+        :raise FailedItemAmount: If the agent has no physical items.
+        :raise FailedUnknownItem: If there is no item with the given kind stored.
+        :return list: List of the removed items."""
+
         if self.physical_storage == self.physical_capacity:
             raise FailedItemAmount('The agent has no physical items to deliver.')
 
@@ -87,6 +119,14 @@ class Agent:
         return removed_items
 
     def remove_virtual_item(self, kind, amount):
+        """Remove virtual items from the social asset.
+
+        :param kind: The type of the item to be removed
+        :param amount: The amount of items of the given type to be removed.
+        :raise FailedItemAmount: If the agent has no virtual items.
+        :raise FailedUnknownItem: If there is no item with the given kind stored.
+        :return list: List of the removed items."""
+
         if self.virtual_storage == self.virtual_capacity:
             raise FailedItemAmount('The agent has no virtual items to deliver.')
 
@@ -114,14 +154,24 @@ class Agent:
         return removed_items
 
     def clear_physical_storage(self):
+        """Clear the physical storage vector and restore the physical storage to its full capacity."""
+
         self.physical_storage_vector.clear()
         self.physical_storage = self.physical_capacity
 
     def clear_virtual_storage(self):
+        """Clear the virtual storage vector and restore the virtual storage to its full capacity."""
+
         self.virtual_storage_vector.clear()
         self.virtual_storage = self.virtual_capacity
 
     def disconnect(self):
+        """Disconnect the agent.
+
+        It would not be good to just erase the agent from memory since the log will have errors about the amount of
+        agents connected and the last activities. To fix this problem the social asset is then deactivated harshly, that
+        means the agent will have no storage, nor items, nor route, not destination distance and will not be active."""
+
         self.is_active = False
         self.last_action_result = False
         self.actual_battery = 0

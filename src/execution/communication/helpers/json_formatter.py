@@ -1,4 +1,16 @@
+"""This module formats the different events to send to the agents and social assets.
+
+Note: The response does not have agent or social asset as key until they are processed."""
+
+
 def simulation_started_format(response, token):
+    """Build the response for the token given in the parameters.
+
+    It will loop through all the actors named on the response until if finds the one that matches the token.
+
+    :param response: Response from the engine.
+    :param token: Current token."""
+
     info = {'status': 0, 'result': False, 'event': {}, 'message': ''}
 
     if response:
@@ -28,7 +40,11 @@ def simulation_started_format(response, token):
 
 
 def simulation_ended_format(response):
-    info = {'status': 0, 'result': False, 'agent': {}, 'event': {}, 'message': 'Possible internal error'}
+    """Build the response for the token given in the parameters.
+
+    :param response: Response from the engine."""
+
+    info = {'status': 0, 'result': False, 'event': {}, 'message': ''}
 
     if response:
         if response['status']:
@@ -44,6 +60,13 @@ def simulation_ended_format(response):
 
 
 def action_results_format(response, token):
+    """Build the response for the token given in the parameters.
+
+    It will loop through all the actors named on the response until if finds the one that matches the token.
+
+    :param response: Response from the engine.
+    :param token: Current token."""
+
     info = {'status': 0, 'result': False, 'event': {}, 'message': ''}
 
     if response:
@@ -78,4 +101,7 @@ def action_results_format(response, token):
 
 
 def event_error_format(message):
-    return {'status': 0, 'result': False, 'actor': {}, 'event': {}, 'message': f'{message}Possible internal error.'}
+    """Build a typical error response for the agents. When this function is called, it is very probably that an internal
+    error occurred."""
+
+    return {'status': 0, 'result': False, 'event': {}, 'message': f'{message}Possible internal error.'}
