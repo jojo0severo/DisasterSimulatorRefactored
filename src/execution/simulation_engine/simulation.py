@@ -50,7 +50,7 @@ class Simulation:
         information saved back to them along with the current step.
 
         :return tuple: First position holding the agents, second position the social assets and the third holding
-        the current step"""
+        the current step."""
 
         self.cycler.activate_step()
         agents = self.cycler.get_active_agents_info()
@@ -71,7 +71,7 @@ class Simulation:
         """Restart the simulation by regenerating all the simulation adn reseting all the log variables.
 
         :return tuple: First position holding the agents, second position the social assets and the third holding
-        the current step"""
+        the current step."""
 
         self.cycler.restart(config_file)
         self.terminated = False
@@ -82,27 +82,27 @@ class Simulation:
 
         return self.start()
 
-    def do_step(self, agent_action_list):
+    def do_step(self, token_action_list):
         """Do one step against the simulation.
 
         Do one step means that the simulation will process all the actions sent and activate the next step.
 
-        :param agent_action_list: The actions sent by each agent or social asset.
+        :param token_action_list: The actions sent by each agent or social asset.
         :return tuple|None: If not terminated the first position holds the results from the actions sent and the second,
-        the current step, else None"""
+        the current step, else None."""
 
-        actions = [token_action_param['action'] for token_action_param in agent_action_list]
-        tokens = [token_action_param['token'] for token_action_param in agent_action_list]
+        actions = [token_action_param['action'] for token_action_param in token_action_list]
+        tokens = [token_action_param['token'] for token_action_param in token_action_list]
 
-        self.actions_amount += len(agent_action_list)
-        self.actions_amount_by_step.append((self.cycler.current_step, len(agent_action_list)))
+        self.actions_amount += len(token_action_list)
+        self.actions_amount_by_step.append((self.cycler.current_step, len(token_action_list)))
         self.actions_by_step.append((self.cycler.current_step, actions))
         self.action_token_by_step.append((self.cycler.current_step, zip(tokens, actions)))
 
         if self.terminated:
             return None
 
-        actions_results = self.cycler.execute_actions(agent_action_list)
+        actions_results = self.cycler.execute_actions(token_action_list)
         step = self.cycler.get_step()
 
         self.cycler.current_step += 1
