@@ -6,17 +6,31 @@ from simulation_engine.copycat import CopyCat
 
 
 class JsonFormatter:
+    """Class that converts all the objects into JSON style dicts."""
+
     def __init__(self, config):
         config_location = pathlib.Path(__file__).parents[3] / config
         self.copycat = CopyCat(json.load(open(config_location, 'r')))
 
     def log(self):
+        """Do the log and returns a JSON response.
+
+        :return dict: Dictionary with status (0|1) if it is possible do to another round and the appropriate message."""
+
         if not self.copycat.log():
             return {'status': 0, 'message': 'No more maps available for matches.'}
         else:
             return {'status': 1, 'message': 'New match generated.'}
 
     def restart(self):
+        """Restart the simulation and returns a JSON response.
+
+        All the agents, social assets and events are converted, the copycat class prevents from the formatter changing
+        the objects inside the engine.
+
+        :return dict: Dictionary with status representing if any errors were found, the list of agents and social assets,
+        the event with the flood, victims, photos and water samples and a general message."""
+
         try:
             response = self.copycat.restart()
             json_agents = self.jsonify_agents(response[0])
@@ -28,9 +42,14 @@ class JsonFormatter:
             return {'status': 1, 'actors': json_actors, 'event': json_events, 'message': 'Simulation restarted.'}
 
         except Exception as e:
-            return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}
+            return {'status': 0, 'actors': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}
 
     def connect_agent(self, token):
+        """Connect the agent to the simulation and returns a JSON response.
+
+        :param token: The generated token for the agent.
+        :return dict: Dictionary with status representing if any errors were found and a general message."""
+
         try:
             response = self.copycat.connect_agent(token)
             if response:
@@ -43,6 +62,12 @@ class JsonFormatter:
             return {'status': 0, 'message': f'An error occurred during connection: {str(e)}.'}
 
     def connect_social_asset(self, token):
+        """Connect the social asset to the simulation and returns a JSON response.
+
+        :param token: The generated token for the social asset.
+        :return dict: Dictionary with status representing if any errors were found, the social asset object and a
+        general message."""
+
         try:
             response = self.copycat.connect_social_asset(token)
             if response is not None:
@@ -55,6 +80,11 @@ class JsonFormatter:
             return {'status': 0, 'social_asset': {}, 'message': f'An error occurred during connection: {str(e)}.'}
 
     def disconnect_agent(self, token):
+        """Disconnect the agent to the simulation and returns a JSON response.
+
+        :param token: The generated token for the agent.
+        :return dict: Dictionary with status representing if any errors were found and a general message."""
+
         try:
             response = self.copycat.disconnect_agent(token)
 
@@ -68,6 +98,11 @@ class JsonFormatter:
             return {'status': 0, 'message': f'An error occurred during disconnection: {str(e)}.'}
 
     def disconnect_social_asset(self, token):
+        """Disconnect the social asset to the simulation and returns a JSON response.
+
+        :param token: The generated token for the social asset.
+        :return dict: Dictionary with status representing if any errors were found and a general message."""
+
         try:
             response = self.copycat.disconnect_social_asset(token)
 
@@ -81,6 +116,14 @@ class JsonFormatter:
             return {'status': 0, 'message': f'An error occurred during disconnection: {str(e)}.'}
 
     def start(self):
+        """Start the simulation and returns a JSON response.
+
+        All the agents, social assets and events are converted, the copycat class prevents from the formatter changing
+        the objects inside the engine.
+
+        :return dict: Dictionary with status representing if any errors were found, the list of agents and social assets,
+        the event with the flood, victims, photos and water samples and a general message."""
+
         try:
             response = self.copycat.start()
             json_agents = self.jsonify_agents(response[0])
@@ -92,9 +135,17 @@ class JsonFormatter:
             return {'status': 1, 'actors': json_actors, 'event': json_events, 'message': 'Simulation started.'}
 
         except Exception as e:
-            return {'status': 0, 'agents': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}
+            return {'status': 0, 'actors': [], 'event': {}, 'message': f'An error occurred during restart: "{str(e)}"'}
 
     def do_step(self, token_action_list):
+        """Do a step on the simulation.
+
+        After the step, all the results from the actions are converted to JSON.
+
+        :param token_action_list: List with all the tokens combined with the action|parameter sent.
+        :return dict: Dictionary with a status representing if any errors were found, the list of agents and social
+        assets, the event with the flood, victims, photos, and water samples and a general message."""
+
         try:
             response = self.copycat.do_step(token_action_list)
             if response is None:
@@ -115,6 +166,9 @@ class JsonFormatter:
             return {'status': 0, 'actors': [], 'event': {}, 'message': f'An error occurred during step: "{str(e)}"'}
 
     def save_logs(self):
+        """Write all the saved logs to a file on the root of the project, the file will be inside a folder structure
+        based on the date and time the simulation ran."""
+
         year, month, day, hour, minute, config_file, logs = self.copycat.get_logs()
         path = pathlib.Path(__file__).parents[3] / str(year) / str(month) / str(day) / str(config_file)
 
@@ -145,6 +199,11 @@ class JsonFormatter:
                 file.write('\n\n' + '=' * 120 + '\n\n')
 
     def jsonify_agents(self, agents_list):
+        """Transform a list of agents objects into JSON objects.
+
+        :param agents_list: List of the agents objects.
+        :return list: List of all the agents as JSON objects."""
+
         json_agents = []
         for agent in agents_list:
             json_agents.append(self.jsonify_agent(agent))
@@ -152,6 +211,11 @@ class JsonFormatter:
         return json_agents
 
     def jsonify_assets(self, assets_list):
+        """Transform a list of social assets objects into JSON objects.
+
+        :param assets_list: List of the social assets objects.
+        :return list: List of all the social assets as JSON objects."""
+
         json_assets = []
         for asset in assets_list:
             json_assets.append(self.jsonify_asset(asset))
@@ -159,6 +223,13 @@ class JsonFormatter:
         return json_assets
 
     def jsonify_agent(self, agent):
+        """Transform a single agent into a JSON object.
+
+        The keys of the dict were organized from priority and relation to make easier for the user to read it.
+
+        :param agent: The agent object saved in the simulation.
+        :return dict: Dictionary with all the information from the agent."""
+
         json_physical_items = self.jsonify_delivered_items(agent.physical_storage_vector)
 
         json_virtual_items = self.jsonify_delivered_items(agent.virtual_storage_vector)
@@ -190,6 +261,13 @@ class JsonFormatter:
         }
 
     def jsonify_asset(self, asset):
+        """Transform a single social asset into a JSON object.
+
+        The keys of the dict were organized from priority and relation to make easier for the user to read it.
+
+        :param asset: The social asset object saved in the simulation.
+        :return dict: Dictionary with all the information from the social asset."""
+
         json_physical_items = self.jsonify_delivered_items(asset.physical_storage_vector)
 
         json_virtual_items = self.jsonify_delivered_items(asset.virtual_storage_vector)
@@ -220,6 +298,14 @@ class JsonFormatter:
 
     @staticmethod
     def jsonify_events(events_list):
+        """Transform the event into a JSON object.
+
+        It will transform all the victims and the victims inside the photos, the water samples, everything related to
+        the event.
+
+        :param events_list: Dictionary with flood, victims, photos and water sampples.
+        :return dict: Dictionary with all the elements converted to JSON."""
+
         if events_list['flood'] is None:
             return {'flood': '', 'victims': [], 'water_samples': [], 'photos': []}
 
@@ -282,6 +368,14 @@ class JsonFormatter:
         return {'flood': json_flood, 'victims': json_victims, 'water_samples': json_water_samples, 'photos': json_photos}
 
     def jsonify_delivered_items(self, items):
+        """Transform all the items to JSON.
+
+        The supported items are: victim, photo, water sample, social asset or agent. Any other item is considered
+        unknown and only saved the type and identifier of the item.
+
+        :param items: List of the delivered items.
+        :return list: List of all the items converted to JSON."""
+
         json_items = []
         for item in items:
             if item.type == 'victim':
@@ -340,6 +434,11 @@ class JsonFormatter:
 
     @staticmethod
     def jsonify_action_token_by_step(action_token_by_step):
+        """Transform the list of actions by step into a more readable structure.
+
+        :param action_token_by_step: List of all the actions step by step.
+        :return list: List of dictionaries with token and action sent step by step."""
+
         json_action_token_by_step = []
         for step, action_token_list in action_token_by_step:
             json_token_action = []
@@ -352,8 +451,18 @@ class JsonFormatter:
 
     @staticmethod
     def jsonify_amount_of_actions_by_step(amount_of_actions_by_step):
+        """Transform the list of amount of actions by step to a more readable structure.
+
+        :param amount_of_actions_by_step: List of amount of actions sent step by step.
+        :return list: List of dictionaries with the step and amount of actions."""
+
         return [{'step': step, 'actions_amount': actions_amount} for step, actions_amount in amount_of_actions_by_step]
 
     @staticmethod
     def jsonify_actions_by_step(actions_by_step):
+        """Transform the list of actions by step to a more readable structure.
+
+        :param actions_by_step: List of steps each one with a list of actions sent.
+        :return list: List of dictionaries with the step and the list of actions."""
+
         return [{'step': step, 'actions': actions} for step, actions in actions_by_step]
