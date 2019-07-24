@@ -135,7 +135,15 @@
       "abilities": ["carry", "physicalCapacity"],
       "resources": []
     },
+    "receivePhysical": {
+      "abilities": ["carry", "physicalCapacity"],
+      "resources": []
+    },
     "deliverVirtual": {
+      "abilities": ["carry", "virtualCapacity"],
+      "resources": ["memory"]
+    },
+    "receiveVirtual": {
       "abilities": ["carry", "virtualCapacity"],
       "resources": ["memory"]
     },
