@@ -260,7 +260,7 @@ class Checker:
 
     def test_actions_key(self):
         keys = ['pass', 'move', 'charge', 'rescueVictim', 'collectWater', 'takePhoto', 'analyzePhoto', 'searchSocialAsset',
-                'deliverPhysical', 'deliverVirtual', 'carry', 'getCarried']
+                'deliverPhysical', 'deliverVirtual', 'carry', 'getCarried', 'receivePhysical', 'receiveVirtual']
 
         sub_keys = ['abilities', 'resources']
 
