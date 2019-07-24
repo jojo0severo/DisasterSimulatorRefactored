@@ -1,4 +1,3 @@
-
 class FailedWrongParam(Exception):
 
     def __init__(self, message=None):
@@ -96,3 +95,21 @@ class UnableToReach(Exception):
 
     def __str__(self):
         return 'UnableToReach: ' + self.message
+
+
+class FailedUnknownToken(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return 'FailedUnknownToken: ' + self.message
+
+
+class FailedNoMatch(Exception):
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return 'FailedNoMatch: ' + self.message
