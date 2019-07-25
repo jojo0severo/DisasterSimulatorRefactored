@@ -4,14 +4,14 @@ import socketio
 
 
 asset = {'name': 'search_action_test'}
+asset2 = {'name': 'search_action_test2'}
 wait = True
 responses = []
 
 
 socket = socketio.Client()
+other_socket = socketio.Client()
 token = None
-counter = 0
-max_iter = 4
 
 
 def connect_asset():
@@ -21,6 +21,11 @@ def connect_asset():
     requests.post('http://127.0.0.1:12345/register_asset', json=json.dumps({'token': token}))
     socket.emit('connect_registered_asset', data=json.dumps({'token': token}))
 
+    response = requests.post('http://127.0.0.1:12345/connect_asset', json=json.dumps(asset2)).json()
+    other_token = response['message']
+    requests.post('http://127.0.0.1:12345/register_asset', json=json.dumps({'token': other_token}))
+    other_socket.emit('connect_registered_asset', data=json.dumps({'token': other_token}))
+
 
 @socket.on('simulation_started')
 def simulation_started(msg):
@@ -29,13 +34,11 @@ def simulation_started(msg):
 
 @socket.on('action_results')
 def action_result(msg):
-    global counter
+    global responses
 
-    if counter == max_iter:
-        socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
-    else:
-        requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'searchSocialAsset', 'parameters': ['doctor']}))
-        counter += 1
+    msg = json.loads(msg)
+    responses.append(msg['social_asset']['last_action_result'])
+    socket.emit('disconnect_registered_asset', data=json.dumps({'token': token}), callback=quit_program)
 
 
 @socket.on('simulation_ended')
@@ -55,16 +58,13 @@ def test_cycle():
     while wait:
         pass
 
-    assert all(responses)
-
     socket.disconnect()
+    assert all(responses)
 
 
 if __name__ == '__main__':
-    socket.connect('http://127.0.0.1:12345')
-    connect_asset()
-    while wait:
-        pass
-
-    print(all(responses))
-    socket.disconnect()
+    try:
+        test_cycle()
+        print(True)
+    except AssertionError:
+        print(False)
