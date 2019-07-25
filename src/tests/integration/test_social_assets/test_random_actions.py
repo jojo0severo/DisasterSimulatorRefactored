@@ -56,16 +56,13 @@ def test_cycle():
     while wait:
         pass
 
-    assert all(responses)
-
     socket.disconnect()
+    assert all(responses)
 
 
 if __name__ == '__main__':
-    socket.connect('http://127.0.0.1:12345')
-    connect_asset()
-    while wait:
-        pass
-
-    print(all(responses))
-    socket.disconnect()
+    try:
+        test_cycle()
+        print(True)
+    except AssertionError:
+        print(False)

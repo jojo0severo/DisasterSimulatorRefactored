@@ -3,7 +3,7 @@ import json
 import socketio
 
 
-agent = {'name': 'virtual_action_test'}
+agent = {'name': 'physical_action_test'}
 wait = True
 responses = []
 
@@ -23,22 +23,22 @@ def connect_agent():
 
 @socket.on('simulation_started')
 def simulation_started(msg):
-    photo_loc = get_photo_loc(msg)
-    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': photo_loc}))
+    water_loc = get_water_loc(msg)
+    requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': water_loc}))
 
 
-def get_photo_loc(msg):
+def get_water_loc(msg):
     msg = json.loads(msg)
     my_location = msg['agent']['location']
     min_distance = 999999999
-    photo_loc = None
-    for photo in msg['event']['photos']:
-        actual_distance = calculate_distance(my_location, photo['location'])
+    water_loc = None
+    for water_sample in msg['event']['water_samples']:
+        actual_distance = calculate_distance(my_location, water_sample['location'])
         if actual_distance < min_distance:
             min_distance = actual_distance
-            photo_loc = photo['location']
+            water_loc = water_sample['location']
 
-    return photo_loc
+    return water_loc
 
 
 def calculate_distance(x, y):
@@ -54,15 +54,15 @@ def action_result(msg):
     responses.append(msg['agent']['last_action_result'])
 
     if not msg['agent']['route']:
-        if msg['agent']['last_action'] == 'deliverVirtual':
+        if msg['agent']['last_action'] == 'deliverPhysical':
             socket.emit('disconnect_registered_agent', data=json.dumps({'token': token}), callback=quit_program)
 
         elif not got:
             got = True
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'takePhoto', 'parameters': []}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'collectWater', 'parameters': []}))
 
         elif got and msg['agent']['last_action'] == 'move':
-            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverVirtual', 'parameters': ['photo']}))
+            requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'deliverPhysical', 'parameters': ['water_sample']}))
 
         elif got:
             requests.post('http://127.0.0.1:12345/send_action', json=json.dumps({'token': token, 'action': 'move', 'parameters': ['cdm']}))
@@ -88,16 +88,14 @@ def test_cycle():
     while wait:
         pass
 
-    assert all(responses)
-
     socket.disconnect()
+    assert all(responses)
 
 
 if __name__ == '__main__':
-    socket.connect('http://127.0.0.1:12345')
-    connect_agent()
-    while wait:
-        pass
+    try:
+        test_cycle()
+        print(True)
+    except AssertionError:
+        print(False)
 
-    print(all(responses))
-    socket.disconnect()
