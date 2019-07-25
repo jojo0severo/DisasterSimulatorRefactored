@@ -43,12 +43,7 @@ class SocialAsset:
         :param item: The physical item.
         :raise FailedCapacity: If the size of the item is bigger than the available storage."""
 
-        if isinstance(item, dict):
-            size = item['size']
-
-        else:
-            size = item.size
-
+        size = item.size
         if size > self.physical_storage:
             raise FailedCapacity('The asset does not have enough physical storage.')
 
@@ -63,12 +58,7 @@ class SocialAsset:
         :param item: The virtual item.
         :raise FailedCapacity: If the size of the item is bigger than the available storage."""
 
-        if isinstance(item, dict):
-            size = item['size']
-
-        else:
-            size = item.size
-
+        size = item.size
         if size > self.virtual_storage:
             raise FailedCapacity('The asset does not have enough physical storage.')
 
@@ -120,7 +110,7 @@ class SocialAsset:
         :return list: List of the removed items."""
 
         if self.virtual_storage == self.virtual_capacity:
-            raise FailedItemAmount('The asset has no virtual items to deliver.')
+            raise FailedItemAmount('The social asset has no virtual items to deliver.')
 
         if not amount:
             return []

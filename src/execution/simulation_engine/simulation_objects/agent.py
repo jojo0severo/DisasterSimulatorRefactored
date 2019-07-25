@@ -61,12 +61,7 @@ class Agent:
         :param item: The physical item. Either object or JSON object.
         :raise FailedCapacity: If the size of the item is bigger than the available storage."""
 
-        if isinstance(item, dict):
-            size = item['size']
-
-        else:
-            size = item.size
-
+        size = item.size
         if size > self.physical_storage:
             raise FailedCapacity('The agent does not have enough physical storage.')
 
@@ -81,12 +76,7 @@ class Agent:
         :param item: The virtual item. Either object or JSON object.
         :raise FailedCapacity: If the size of the item is bigger than the available storage."""
 
-        if isinstance(item, dict):
-            size = item['size']
-
-        else:
-            size = item.size
-
+        size = item.size
         if size > self.virtual_storage:
             raise FailedCapacity('The agent does not have enough physical storage.')
 
