@@ -24,7 +24,7 @@ class SocialAssetsManager:
         self.social_assets.clear()
         self.capacities = self.generate_objects(map_info, social_assets_info)
         for token in tokens:
-            self.connect_social_asset(token)
+            self.connect(token)
 
     @staticmethod
     def generate_objects(map_info, social_assets_info):
@@ -57,7 +57,7 @@ class SocialAssetsManager:
 
         return capacities
 
-    def connect_social_asset(self, token):
+    def connect(self, token):
         """Connect the social asset if there are professions still available.
 
         :param token: The identifier of the social asset.
@@ -70,7 +70,7 @@ class SocialAssetsManager:
         self.social_assets[token] = SocialAsset(token, *asset_info)
         return self.social_assets[token]
 
-    def disconnect_social_asset(self, token):
+    def disconnect(self, token):
         """Disconnect the social asset if it was connected.
 
         :param token: The identifier of the social asset.
@@ -99,7 +99,7 @@ class SocialAssetsManager:
 
         self.social_assets[token].add_virtual_item(item)
 
-    def add_social_asset(self, token, social_asset):
+    def add(self, token, social_asset):
         """Add a social asset to the requested social asset.
 
         :param token: Identifier of the requested social asset.
@@ -107,7 +107,7 @@ class SocialAssetsManager:
 
         self.social_assets[token].social_assets.append(social_asset)
 
-    def get_social_asset(self, token):
+    def get(self, token):
         """Get the SocialAsset object saved inside the engine.
 
         :param token: The identifier of the requested social asset.
@@ -122,14 +122,14 @@ class SocialAssetsManager:
 
         return [token for token in self.social_assets if self.social_assets[token].is_active]
 
-    def get_social_assets_info(self):
+    def get_info(self):
         """Get all the information saved from the social assets.
 
         :return list: List of all the social assets objects."""
 
         return list(self.social_assets.values())
 
-    def get_active_social_assets_info(self):
+    def get_active_info(self):
         """Get all the information saved from the social assets that are active.
 
         :return list: List of all the active social assets objects."""
@@ -156,7 +156,7 @@ class SocialAssetsManager:
 
         return self.social_assets[token].remove_virtual_item(kind, amount)
 
-    def edit_social_asset(self, token, attribute, new_value):
+    def edit(self, token, attribute, new_value):
         """Edit the requested social asset.
 
         :param token: The identifier of the requested social asset.
@@ -165,7 +165,7 @@ class SocialAssetsManager:
 
         exec(f'self.social_assets[token].{attribute} = new_value')
 
-    def update_social_asset_location(self, token):
+    def update_location(self, token):
         """Update the social asset location based on the remaining locations on its route.
 
         :param token: The identifier of the requested social asset."""
@@ -174,14 +174,14 @@ class SocialAssetsManager:
             location = self.social_assets[token].route.pop(0)
             self.social_assets[token].location = location
 
-    def clear_social_asset_physical_storage(self, token):
+    def clear_physical_storage(self, token):
         """Clear the physical storage of the requested social asset.
 
         :param token: The identifier of the requested social asset."""
 
         self.social_assets[token].clear_physical_storage()
 
-    def clear_social_asset_virtual_storage(self, token):
+    def clear_virtual_storage(self, token):
         """Clear the virtual storage of the requested social asset.
 
         :param token: The identifier of the requested social asset."""

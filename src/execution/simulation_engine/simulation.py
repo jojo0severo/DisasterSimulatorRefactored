@@ -125,11 +125,11 @@ class Simulation:
         current_step = self.cycler.current_step
         max_steps = self.cycler.max_steps
         delivered_items = self.cycler.delivered_items
-        agents_amount = len(self.cycler.agents_manager.get_agents_info())
-        agents = self.cycler.agents_manager.get_agents_info()
+        agents_amount = len(self.cycler.agents_manager.get_info())
+        agents = self.cycler.agents_manager.get_info()
         active_agents_amount = len(self.cycler.get_active_agents_info())
         active_agents = self.cycler.get_active_agents_info()
-        assets_amount = len(self.cycler.social_assets_manager.get_social_assets_info())
+        assets_amount = len(self.cycler.social_assets_manager.get_info())
         assets = self.cycler.get_assets_info()
         active_assets_amount = len(self.cycler.get_active_assets_info())
         active_assets = self.cycler.get_active_assets_info()

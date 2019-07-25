@@ -38,28 +38,28 @@ class Cycle:
         self.social_assets_manager.restart(config_file['map'], config_file['socialAssets'])
 
     def connect_agent(self, token):
-        return self.agents_manager.connect_agent(token)
+        return self.agents_manager.connect(token)
 
     def connect_social_asset(self, token):
-        return self.social_assets_manager.connect_social_asset(token)
+        return self.social_assets_manager.connect(token)
 
     def disconnect_agent(self, token):
-        return self.agents_manager.disconnect_agent(token)
+        return self.agents_manager.disconnect(token)
 
     def disconnect_social_asset(self, token):
-        return self.social_assets_manager.disconnect_social_asset(token)
+        return self.social_assets_manager.disconnect(token)
 
     def get_agents_info(self):
-        return self.agents_manager.get_agents_info()
+        return self.agents_manager.get_info()
 
     def get_active_agents_info(self):
-        return self.agents_manager.get_active_agents_info()
+        return self.agents_manager.get_active_info()
 
     def get_assets_info(self):
-        return self.social_assets_manager.get_social_assets_info()
+        return self.social_assets_manager.get_info()
 
     def get_active_assets_info(self):
-        return self.social_assets_manager.get_active_social_assets_info()
+        return self.social_assets_manager.get_active_info()
 
     def get_step(self):
         return self.steps[self.current_step]
@@ -184,22 +184,22 @@ class Cycle:
         return action_results
 
     def _execute_agent_special_action(self, token, action_name, parameters, special_action_tokens):
-        self.agents_manager.edit_agent(token, 'last_action', action_name)
-        self.agents_manager.edit_agent(token, 'last_action_result', False)
+        self.agents_manager.edit(token, 'last_action', action_name)
+        self.agents_manager.edit(token, 'last_action_result', False)
         secondary_result = None
 
         if action_name not in self.actions:
-            return {'agent': self.agents_manager.get_agent(token), 'message': 'Wrong action name given.'}, secondary_result
+            return {'agent': self.agents_manager.get(token), 'message': 'Wrong action name given.'}, secondary_result
 
-        if not self.agents_manager.get_agent(token).is_active:
-            return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent is not active.'}, secondary_result
+        if not self.agents_manager.get(token).is_active:
+            return {'agent': self.agents_manager.get(token), 'message': 'Agent is not active.'}, secondary_result
 
-        if self.agents_manager.get_agent(token).carried:
-            return {'agent': self.agents_manager.get_agent(token),
+        if self.agents_manager.get(token).carried:
+            return {'agent': self.agents_manager.get(token),
                     'message': 'Agent can not do any action while being carried.'}, secondary_result
 
         if not self._check_abilities_and_resources(token, action_name):
-            return {'agent': self.agents_manager.get_agent(token),
+            return {'agent': self.agents_manager.get(token),
                     'message': 'Agent does not have the abilities or resources to complete the action.'}, secondary_result
 
         error_message = ''
@@ -215,32 +215,32 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
-                            self.agents_manager.add_physical(token, self.agents_manager.get_agent(parameters[0]))
-                            self.agents_manager.edit_agent(token, 'last_action_result', True)
-                            self.agents_manager.edit_agent(parameters[0], 'carried', True)
-                            self.agents_manager.edit_agent(parameters[0], 'last_action', 'getCarried')
-                            self.agents_manager.edit_agent(parameters[0], 'last_action_result', True)
+                        if self.agents_manager.get(parameters[0]) is not None:
+                            self.agents_manager.add_physical(token, self.agents_manager.get(parameters[0]))
+                            self.agents_manager.edit(token, 'last_action_result', True)
+                            self.agents_manager.edit(parameters[0], 'carried', True)
+                            self.agents_manager.edit(parameters[0], 'last_action', 'getCarried')
+                            self.agents_manager.edit(parameters[0], 'last_action_result', True)
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
                         else:
                             self.agents_manager.add_physical(token,
-                                                             self.social_assets_manager.get_social_asset(parameters[0]))
-                            self.agents_manager.edit_agent(token, 'last_action_result', True)
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'carried', True)
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action', 'getCarried')
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action_result', True)
+                                                             self.social_assets_manager.get(parameters[0]))
+                            self.agents_manager.edit(token, 'last_action_result', True)
+                            self.social_assets_manager.edit(parameters[0], 'carried', True)
+                            self.social_assets_manager.edit(parameters[0], 'last_action', 'getCarried')
+                            self.social_assets_manager.edit(parameters[0], 'last_action_result', True)
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
                     else:
                         raise FailedNoMatch('No other agent or social asset wants to be carried.')
 
                 else:
-                    raise FailedWrongParam('More than 1 parameter was given.')
+                    raise FailedWrongParam('More or less than 1 parameter was given.')
 
             elif action_name == 'getCarried':
                 if len(parameters) == 1:
@@ -253,31 +253,31 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
+                        if self.agents_manager.get(parameters[0]) is not None:
                             self.agents_manager.add_physical(parameters[0],
-                                                             self.agents_manager.get_agent(parameters[0]))
-                            self.agents_manager.edit_agent(parameters[0], 'last_action_result', True)
-                            self.agents_manager.edit_agent(token, 'last_action_result', True)
-                            self.agents_manager.edit_agent(token, 'last_action', 'getCarried')
+                                                             self.agents_manager.get(token))
+                            self.agents_manager.edit(parameters[0], 'last_action_result', True)
+                            self.agents_manager.edit(token, 'last_action_result', True)
+                            self.agents_manager.edit(token, 'last_action', 'getCarried')
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
                         else:
                             self.social_assets_manager.add_physical(parameters[0],
-                                                                    self.agents_manager.get_agent(parameters[0]))
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action_result', True)
-                            self.agents_manager.edit_agent(token, 'last_action_result', True)
-                            self.agents_manager.edit_agent(token, 'last_action', 'getCarried')
+                                                                    self.agents_manager.get(token))
+                            self.social_assets_manager.edit(parameters[0], 'last_action_result', True)
+                            self.agents_manager.edit(token, 'last_action_result', True)
+                            self.agents_manager.edit(token, 'last_action', 'getCarried')
                             secondary_result = {
-                                'agent': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
                     else:
                         raise FailedNoMatch('No other agent or social asset wants to carry.')
 
                 else:
-                    raise FailedWrongParam('More than 1 parameter was given.')
+                    raise FailedWrongParam('More or less than 1 parameter was given.')
 
             elif action_name == 'deliverPhysical':
                 if len(parameters) == 3:
@@ -290,17 +290,17 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[2]) is not None:
+                        if self.agents_manager.get(parameters[2]) is not None:
                             self._deliver_physical_agent_agent(token, parameters)
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[2]),
+                                'agent': self.agents_manager.get(parameters[2]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[2]) is not None:
+                        elif self.social_assets_manager.get(parameters[2]) is not None:
                             self._deliver_physical_agent_asset(token, parameters)
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[2]),
+                                'social_asset': self.social_assets_manager.get(parameters[2]),
                                 'message': ''
                             }
 
@@ -324,17 +324,17 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[2]) is not None:
+                        if self.agents_manager.get(parameters[2]) is not None:
                             self._deliver_virtual_agent_agent(token, parameters)
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[2]),
+                                'agent': self.agents_manager.get(parameters[2]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[2]) is not None:
+                        elif self.social_assets_manager.get(parameters[2]) is not None:
                             self._deliver_virtual_agent_asset(token, parameters)
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[2]),
+                                'social_asset': self.social_assets_manager.get(parameters[2]),
                                 'message': ''
                             }
 
@@ -358,19 +358,19 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
+                        if self.agents_manager.get(parameters[0]) is not None:
                             self._deliver_physical_agent_agent(match[0], match[2])
-                            self.agents_manager.edit_agent(parameters[0], 'last_action', 'deliverPhysical')
+                            self.agents_manager.edit(parameters[0], 'last_action', 'deliverPhysical')
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[0]) is not None:
+                        elif self.social_assets_manager.get(parameters[0]) is not None:
                             self._deliver_physical_asset_agent(match[0], match[2])
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action', 'deliverPhysical')
+                            self.social_assets_manager.edit(parameters[0], 'last_action', 'deliverPhysical')
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
 
@@ -394,19 +394,19 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
+                        if self.agents_manager.get(parameters[0]) is not None:
                             self._deliver_virtual_agent_agent(match[0], match[2])
-                            self.agents_manager.edit_agent(parameters[0], 'last_action', 'deliverVirtual')
+                            self.agents_manager.edit(parameters[0], 'last_action', 'deliverVirtual')
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[0]) is not None:
+                        elif self.social_assets_manager.get(parameters[0]) is not None:
                             self._deliver_virtual_asset_agent(match[0], match[2])
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action', 'deliverVirtual')
+                            self.social_assets_manager.edit(parameters[0], 'last_action', 'deliverVirtual')
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
 
@@ -434,35 +434,38 @@ class Cycle:
         except FailedNoMatch as e:
             error_message = e.message
 
+        except FailedItemAmount as e:
+            error_message = e.message
+
         except Exception as e:
             error_message = 'Unknown error: ' + str(e)
 
         finally:
-            return {'agent': self.agents_manager.get_agent(token), 'message': error_message}, secondary_result
+            return {'agent': self.agents_manager.get(token), 'message': error_message}, secondary_result
 
     def _execute_asset_special_action(self, token, action_name, parameters, special_action_tokens):
-        self.social_assets_manager.edit_social_asset(token, 'last_action', action_name)
-        self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+        self.social_assets_manager.edit(token, 'last_action', action_name)
+        self.social_assets_manager.edit(token, 'last_action_result', False)
         secondary_result = None
 
         if action_name not in self.actions:
-            return {'social_asset': self.social_assets_manager.get_social_asset(token),
+            return {'social_asset': self.social_assets_manager.get(token),
                     'message': 'Wrong action name given.'}, secondary_result
 
-        if not self.social_assets_manager.get_social_asset(token).is_active:
-            return {'social_asset': self.social_assets_manager.get_social_asset(token),
+        if not self.social_assets_manager.get(token).is_active:
+            return {'social_asset': self.social_assets_manager.get(token),
                     'message': 'Social asset is not active.'}, secondary_result
 
-        if self.social_assets_manager.get_social_asset(token).carried:
-            return {'social_asset': self.social_assets_manager.get_social_asset(token),
+        if self.social_assets_manager.get(token).carried:
+            return {'social_asset': self.social_assets_manager.get(token),
                     'message': 'Social asset can not do any action while being carried.'}, secondary_result
 
         if action_name == 'pass':
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
-            return {'social_asset': self.social_assets_manager.get_social_asset(token), 'message': ''}, secondary_result
+            self.social_assets_manager.edit(token, 'last_action_result', True)
+            return {'social_asset': self.social_assets_manager.get(token), 'message': ''}, secondary_result
 
         if not self._check_abilities_and_resources(token, action_name):
-            return {'social_asset': self.social_assets_manager.get_social_asset(token),
+            return {'social_asset': self.social_assets_manager.get(token),
                     'message': 'Social asset does not have the abilities or resources to complete the action.'}, secondary_result
 
         error_message = ''
@@ -478,25 +481,25 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
-                            self.social_assets_manager.add_physical(token, self.agents_manager.get_agent(parameters[0]))
-                            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
-                            self.agents_manager.edit_agent(parameters[0], 'carried', True)
-                            self.agents_manager.edit_agent(parameters[0], 'last_action', 'getCarried')
-                            self.agents_manager.edit_agent(parameters[0], 'last_action_result', True)
+                        if self.agents_manager.get(parameters[0]) is not None:
+                            self.social_assets_manager.add_physical(token, self.agents_manager.get(parameters[0]))
+                            self.social_assets_manager.edit(token, 'last_action_result', True)
+                            self.agents_manager.edit(parameters[0], 'carried', True)
+                            self.agents_manager.edit(parameters[0], 'last_action', 'getCarried')
+                            self.agents_manager.edit(parameters[0], 'last_action_result', True)
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
                         else:
-                            self.social_assets_manager.add_physical(token, self.social_assets_manager.get_social_asset(
+                            self.social_assets_manager.add_physical(token, self.social_assets_manager.get(
                                 parameters[0]))
-                            self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'carried', True)
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action', 'getCarried')
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action_result', True)
+                            self.social_assets_manager.edit(token, 'last_action_result', False)
+                            self.social_assets_manager.edit(parameters[0], 'carried', True)
+                            self.social_assets_manager.edit(parameters[0], 'last_action', 'getCarried')
+                            self.social_assets_manager.edit(parameters[0], 'last_action_result', True)
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
                     else:
@@ -516,24 +519,22 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
-                            self.agents_manager.add_physical(parameters[0],
-                                                             self.agents_manager.get_agent(parameters[2]))
-                            self.agents_manager.edit_agent(parameters[0], 'last_action_result', True)
-                            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
-                            self.social_assets_manager.edit_social_asset(token, 'last_action', 'getCarried')
+                        if self.agents_manager.get(parameters[0]) is not None:
+                            self.agents_manager.add_physical(parameters[0], self.agents_manager.get(token))
+                            self.agents_manager.edit(parameters[0], 'last_action_result', True)
+                            self.social_assets_manager.edit(token, 'last_action_result', True)
+                            self.social_assets_manager.edit(token, 'last_action', 'getCarried')
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
                         else:
-                            self.social_assets_manager.add_physical(parameters[0],
-                                                                    self.agents_manager.get_agent(parameters[0]))
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action_result', True)
-                            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
-                            self.social_assets_manager.edit_social_asset(token, 'last_action', 'getCarried')
+                            self.social_assets_manager.add_physical(parameters[0], self.agents_manager.get(token))
+                            self.social_assets_manager.edit(parameters[0], 'last_action_result', True)
+                            self.social_assets_manager.edit(token, 'last_action_result', True)
+                            self.social_assets_manager.edit(token, 'last_action', 'getCarried')
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
                     else:
@@ -550,17 +551,17 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[2]) is not None:
+                        if self.agents_manager.get(parameters[2]) is not None:
                             self._deliver_physical_asset_agent(token, parameters)
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[2]),
+                                'agent': self.agents_manager.get(parameters[2]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[2]) is not None:
+                        elif self.social_assets_manager.get(parameters[2]) is not None:
                             self._deliver_physical_asset_asset(token, parameters)
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[2]),
+                                'social_asset': self.social_assets_manager.get(parameters[2]),
                                 'message': ''
                             }
 
@@ -584,17 +585,17 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[2]) is not None:
+                        if self.agents_manager.get(parameters[2]) is not None:
                             self._deliver_virtual_asset_agent(token, parameters)
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[2]),
+                                'agent': self.agents_manager.get(parameters[2]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[2]) is not None:
+                        elif self.social_assets_manager.get(parameters[2]) is not None:
                             self._deliver_virtual_asset_asset(token, parameters)
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[2]),
+                                'social_asset': self.social_assets_manager.get(parameters[2]),
                                 'message': ''
                             }
 
@@ -618,19 +619,19 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
+                        if self.agents_manager.get(parameters[0]) is not None:
                             self._deliver_physical_agent_asset(match[0], match[2])
-                            self.agents_manager.edit_agent(parameters[0], 'last_action', 'deliverPhysical')
+                            self.agents_manager.edit(parameters[0], 'last_action', 'deliverPhysical')
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[0]) is not None:
+                        elif self.social_assets_manager.get(parameters[0]) is not None:
                             self._deliver_physical_asset_asset(match[0], match[2])
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action', 'deliverPhysical')
+                            self.social_assets_manager.edit(parameters[0], 'last_action', 'deliverPhysical')
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
 
@@ -651,19 +652,19 @@ class Cycle:
 
                     if match is not None:
                         special_action_tokens.remove(match)
-                        if self.agents_manager.get_agent(parameters[0]) is not None:
+                        if self.agents_manager.get(parameters[0]) is not None:
                             self._deliver_virtual_agent_asset(match[0], match[2])
-                            self.agents_manager.edit_agent(parameters[0], 'last_action', 'deliverVirtual')
+                            self.agents_manager.edit(parameters[0], 'last_action', 'deliverVirtual')
                             secondary_result = {
-                                'agent': self.agents_manager.get_agent(parameters[0]),
+                                'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
 
-                        elif self.social_assets_manager.get_social_asset(parameters[0]) is not None:
+                        elif self.social_assets_manager.get(parameters[0]) is not None:
                             self._deliver_virtual_asset_asset(match[0], match[2])
-                            self.social_assets_manager.edit_social_asset(parameters[0], 'last_action', 'deliverVirtual')
+                            self.social_assets_manager.edit(parameters[0], 'last_action', 'deliverVirtual')
                             secondary_result = {
-                                'social_asset': self.social_assets_manager.get_social_asset(parameters[0]),
+                                'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
 
@@ -688,11 +689,17 @@ class Cycle:
         except FailedNoMatch as e:
             error_message = e.message
 
+        except FailedInvalidKind as e:
+            error_message = e.message
+
+        except FailedItemAmount as e:
+            error_message = e.message
+
         except Exception as e:
             error_message = 'Unknown error: ' + str(e)
 
         finally:
-            return {'social_asset': self.social_assets_manager.get_social_asset(token), 'message': error_message}, secondary_result
+            return {'social_asset': self.social_assets_manager.get(token), 'message': error_message}, secondary_result
 
     def _deliver_physical_agent_cdm(self, token, parameters):
         if len(parameters) < 1:
@@ -701,7 +708,7 @@ class Cycle:
         if len(parameters) > 2:
             raise FailedWrongParam('More than 2 parameters were given.')
 
-        agent = self.agents_manager.get_agent(token)
+        agent = self.agents_manager.get(token)
         if self.map.check_location(agent.location, self.cdm_location):
             if len(parameters) == 1:
                 delivered_items = self.agents_manager.deliver_physical(token, parameters[0])
@@ -716,37 +723,55 @@ class Cycle:
                 'step': self.current_step
             })
 
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The agent is not located at the CDM.')
 
     def _deliver_physical_agent_agent(self, token, parameters):
-        agent = self.agents_manager.get_agent(token)
-        receiving_agent = self.agents_manager.get_agent(parameters[2])
-        if self.map.check_location(agent.location, receiving_agent.location):
-            amount = 1 if parameters[1] > 0 else parameters[0]
-            for i in range(amount):
-                self.agents_manager.add_physical(receiving_agent.token, parameters[0])
+        delivering_agent = self.agents_manager.get(token)
+        receiving_agent = self.agents_manager.get(parameters[2])
+        if self.map.check_location(delivering_agent.location, receiving_agent.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action', 'receivePhysical')
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action_result', True)
+            items = [item for item in delivering_agent.physical_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The agent has no physical items of this kind to deliver.')
+
+            if receiving_agent.physical_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving agent does not have enough physical storage.')
+
+            removed_items = self.agents_manager.deliver_physical(delivering_agent.token, parameters[0], amount)
+            for item in removed_items:
+                self.agents_manager.add_physical(receiving_agent.token, item)
+
+            self.agents_manager.edit(token, 'last_action_result', True)
+            self.agents_manager.edit(receiving_agent.token, 'last_action', 'receivePhysical')
+            self.agents_manager.edit(receiving_agent.token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The agent is not located near the desired agent.')
 
     def _deliver_physical_agent_asset(self, token, parameters):
-        agent = self.agents_manager.get_agent(token)
-        receiving_asset = self.social_assets_manager.get_social_asset(parameters[2])
-        if self.map.check_location(agent.location, receiving_asset.location):
-            amount = 1 if parameters[1] > 0 else parameters[0]
-            for i in range(amount):
-                self.social_assets_manager.add_physical(receiving_asset.token, parameters[0])
+        delivering_agent = self.agents_manager.get(token)
+        receiving_asset = self.social_assets_manager.get(parameters[2])
+        if self.map.check_location(delivering_agent.location, receiving_asset.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action', 'receivePhysical')
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action_result', True)
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+            items = [item for item in delivering_agent.physical_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The agent has no physical items of this kind to deliver.')
+
+            if receiving_asset.physical_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving social asset does not have enough physical storage.')
+
+            removed_items = self.agents_manager.deliver_physical(delivering_agent.token, parameters[0], amount)
+            for item in removed_items:
+                self.social_assets_manager.add_physical(receiving_asset.token, item)
+
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action', 'receivePhysical')
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action_result', True)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The agent is not located near the desired social asset.')
@@ -758,7 +783,7 @@ class Cycle:
         if len(parameters) > 2:
             raise FailedWrongParam('More than 2 parameters were given.')
 
-        asset = self.social_assets_manager.get_social_asset(token)
+        asset = self.social_assets_manager.get(token)
         if self.map.check_location(asset.location, self.cdm_location):
             if len(parameters) == 1:
                 delivered_items = self.social_assets_manager.deliver_physical(token, parameters[0])
@@ -772,35 +797,55 @@ class Cycle:
                 'items': delivered_items,
                 'step': self.current_step})
 
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The social asset is not located at the CDM.')
 
     def _deliver_physical_asset_agent(self, token, parameters):
-        asset = self.social_assets_manager.get_social_asset(token)
-        receiving_agent = self.agents_manager.get_agent(parameters[2])
-        if self.map.check_location(asset.location, receiving_agent.location):
-            for i in range((1 if parameters[1] > 0 else parameters[0])):
-                self.agents_manager.add_physical(receiving_agent.token, parameters[0])
+        delivering_asset = self.social_assets_manager.get(token)
+        receiving_agent = self.agents_manager.get(parameters[2])
+        if self.map.check_location(delivering_asset.location, receiving_agent.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action', 'receivePhysical')
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action_result', True)
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            items = [item for item in delivering_asset.physical_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The social asset has no physical items of this kind to deliver.')
+
+            if receiving_agent.physical_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving agent does not have enough physical storage.')
+
+            removed_items = self.social_assets_manager.deliver_physical(delivering_asset.token, parameters[0], amount)
+            for item in removed_items:
+                self.agents_manager.add_physical(receiving_agent.token, item)
+
+            self.agents_manager.edit(receiving_agent.token, 'last_action', 'receivePhysical')
+            self.agents_manager.edit(receiving_agent.token, 'last_action_result', True)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The social asset is not located near the desired agent.')
 
     def _deliver_physical_asset_asset(self, token, parameters):
-        asset = self.social_assets_manager.get_social_asset(token)
-        receiving_asset = self.social_assets_manager.get_social_asset(parameters[2])
-        if self.map.check_location(asset.location, receiving_asset.location):
-            for i in range((1 if parameters[1] > 0 else parameters[0])):
-                self.social_assets_manager.add_physical(receiving_asset.token, parameters[0])
+        delivering_asset = self.social_assets_manager.get(token)
+        receiving_asset = self.social_assets_manager.get(parameters[2])
+        if self.map.check_location(delivering_asset.location, receiving_asset.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action', 'receivePhysical')
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action_result', True)
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            items = [item for item in delivering_asset.physical_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The social asset has no physical items of this kind to deliver.')
+
+            if receiving_asset.physical_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving social asset does not have enough physical storage.')
+
+            removed_items = self.social_assets_manager.deliver_physical(delivering_asset.token, parameters[0], amount)
+            for item in removed_items:
+                self.social_assets_manager.add_physical(receiving_asset.token, item)
+
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action', 'receivePhysical')
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action_result', True)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The social asset is not located near the desired social asset.')
@@ -812,7 +857,7 @@ class Cycle:
         if len(parameters) > 2:
             raise FailedWrongParam('More than 2 parameters were given.')
 
-        agent = self.agents_manager.get_agent(token)
+        agent = self.agents_manager.get(token)
         if self.map.check_location(agent.location, self.cdm_location):
             if len(parameters) == 1:
                 delivered_items = self.agents_manager.deliver_virtual(token, parameters[0])
@@ -826,37 +871,55 @@ class Cycle:
                 'items': delivered_items,
                 'step': self.current_step})
 
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The agent is not located at the CDM.')
 
     def _deliver_virtual_agent_agent(self, token, parameters):
-        agent = self.agents_manager.get_agent(token)
-        receiving_agent = self.agents_manager.get_agent(parameters[2])
-        if self.map.check_location(agent.location, receiving_agent.location):
-            amount = 1 if parameters[1] < 0 else parameters[1]
-            for i in range(amount):
-                self.agents_manager.add_virtual(receiving_agent.token, parameters[0])
+        delivering_agent = self.agents_manager.get(token)
+        receiving_agent = self.agents_manager.get(parameters[2])
+        if self.map.check_location(delivering_agent.location, receiving_agent.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action', 'receiveVirtual')
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action_result', True)
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+            items = [item for item in delivering_agent.virtual_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The agent has no virtual items of this kind to deliver.')
+
+            if receiving_agent.virtual_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving agent does not have enough virtual storage.')
+
+            removed_items = self.agents_manager.deliver_virtual(delivering_agent.token, parameters[0], amount)
+            for item in removed_items:
+                self.agents_manager.add_virtual(receiving_agent.token, item)
+
+            self.agents_manager.edit(receiving_agent.token, 'last_action', 'receiveVirtual')
+            self.agents_manager.edit(receiving_agent.token, 'last_action_result', True)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The agent is not located near the desired agent.')
 
     def _deliver_virtual_agent_asset(self, token, parameters):
-        agent = self.agents_manager.get_agent(token)
-        receiving_asset = self.social_assets_manager.get_social_asset(parameters[2])
-        if self.map.check_location(agent.location, receiving_asset.location):
-            amount = 1 if parameters[1] < 0 else parameters[1]
-            for i in range(amount):
-                self.social_assets_manager.add_virtual(receiving_asset.token, parameters[0])
+        delivering_agent = self.agents_manager.get(token)
+        receiving_asset = self.social_assets_manager.get(parameters[2])
+        if self.map.check_location(delivering_agent.location, receiving_asset.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action', 'receiveVirtual')
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action_result', True)
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+            items = [item for item in delivering_agent.virtual_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The agent has no virtual items of this kind to deliver.')
+
+            if receiving_asset.virtual_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving social asset does not have enough virtual storage.')
+
+            removed_items = self.agents_manager.deliver_virtual(delivering_agent.token, parameters[0], amount)
+            for item in removed_items:
+                self.social_assets_manager.add_virtual(receiving_asset.token, item)
+
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action', 'receiveVirtual')
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action_result', True)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The agent is not located near the desired agent.')
@@ -868,7 +931,7 @@ class Cycle:
         if len(parameters) > 2:
             raise FailedWrongParam('More than 2 parameters were given.')
 
-        asset = self.social_assets_manager.get_social_asset(token)
+        asset = self.social_assets_manager.get(token)
         if self.map.check_location(asset.location, self.cdm_location):
             if len(parameters) == 1:
                 delivered_items = self.social_assets_manager.deliver_virtual(token, parameters[0])
@@ -882,67 +945,85 @@ class Cycle:
                 'items': delivered_items,
                 'step': self.current_step})
 
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The social asset is not located at the CDM.')
 
     def _deliver_virtual_asset_agent(self, token, parameters):
-        asset = self.social_assets_manager.get_social_asset(token)
-        receiving_agent = self.agents_manager.get_agent(parameters[2])
-        if self.map.check_location(asset.location, receiving_agent.location):
-            amount = 1 if parameters[1] < 0 else parameters[1]
-            for i in range(amount):
-                self.agents_manager.add_virtual(receiving_agent.token, parameters[0])
+        delivering_asset = self.social_assets_manager.get(token)
+        receiving_agent = self.agents_manager.get(parameters[2])
+        if self.map.check_location(delivering_asset.location, receiving_agent.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action', 'receiveVirtual')
-            self.agents_manager.edit_agent(receiving_agent.token, 'last_action_result', True)
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            items = [item for item in delivering_asset.virtual_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The social asset has no virtual items of this kind to deliver.')
+
+            if receiving_agent.virtual_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving agent does not have enough virtual storage.')
+
+            removed_items = self.social_assets_manager.deliver_virtual(delivering_asset.token, parameters[0], amount)
+            for item in removed_items:
+                self.agents_manager.add_virtual(receiving_agent.token, item)
+
+            self.agents_manager.edit(receiving_agent.token, 'last_action', 'receiveVirtual')
+            self.agents_manager.edit(receiving_agent.token, 'last_action_result', True)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The social asset is not located near the desired agent.')
 
     def _deliver_virtual_asset_asset(self, token, parameters):
-        asset = self.social_assets_manager.get_social_asset(token)
-        receiving_asset = self.social_assets_manager.get_social_asset(parameters[2])
-        if self.map.check_location(asset.location, receiving_asset.location):
-            amount = 1 if parameters[1] < 0 else parameters[1]
-            for i in range(amount):
-                self.social_assets_manager.add_virtual(receiving_asset.token, parameters[0])
+        delivering_asset = self.social_assets_manager.get(token)
+        receiving_asset = self.social_assets_manager.get(parameters[2])
+        if self.map.check_location(delivering_asset.location, receiving_asset.location):
+            amount = 0 if parameters[1] < 0 else parameters[1]
 
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action', 'receiveVirtual')
-            self.social_assets_manager.edit_social_asset(receiving_asset.token, 'last_action_result', True)
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            items = [item for item in delivering_asset.virtual_storage_vector if item.type == parameters[0]]
+            if not items:
+                raise FailedItemAmount('The social asset has no virtual items of this kind to deliver.')
+
+            if receiving_asset.virtual_storage < amount * items[0].size:
+                raise FailedCapacity('The receiving social asset does not have enough virtual storage.')
+
+            removed_items = self.social_assets_manager.deliver_virtual(delivering_asset.token, parameters[0], amount)
+            for item in removed_items:
+                self.social_assets_manager.add_virtual(receiving_asset.token, item)
+
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action', 'receiveVirtual')
+            self.social_assets_manager.edit(receiving_asset.token, 'last_action_result', True)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The social asset is not located near the desired agent.')
 
     def _execute_agent_action(self, token, action_name, parameters):
-        self.agents_manager.edit_agent(token, 'last_action', action_name)
-        self.agents_manager.edit_agent(token, 'last_action_result', False)
+        self.agents_manager.edit(token, 'last_action', action_name)
+        self.agents_manager.edit(token, 'last_action_result', False)
 
         if action_name == 'inactive':
-            self.agents_manager.edit_agent(token, 'last_action', 'pass')
-            return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent did not send any action.'}
+            self.agents_manager.edit(token, 'last_action', 'pass')
+            return {'agent': self.agents_manager.get(token), 'message': 'Agent did not send any action.'}
 
         if action_name not in self.actions:
-            return {'agent': self.agents_manager.get_agent(token), 'message': 'Wrong action name given.'}
+            return {'agent': self.agents_manager.get(token), 'message': 'Wrong action name given.'}
 
-        if not self.agents_manager.get_agent(token).is_active:
-            return {'agent': self.agents_manager.get_agent(token), 'message': 'Agent is not active.'}
+        if not self.agents_manager.get(token).is_active:
+            return {'agent': self.agents_manager.get(token), 'message': 'Agent is not active.'}
 
-        if self.agents_manager.get_agent(token).carried:
+        if self.agents_manager.get(token).carried:
             return {
-                'agent': self.agents_manager.get_agent(token),
+                'agent': self.agents_manager.get(token),
                 'message': 'Agent can not do any action while being carried.'}
 
         if action_name == 'pass':
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
-            return {'agent': self.agents_manager.get_agent(token), 'message': ''}
+            self.agents_manager.edit(token, 'last_action_result', True)
+            return {'agent': self.agents_manager.get(token), 'message': ''}
 
         if not self._check_abilities_and_resources(token, action_name):
             return {
-                'agent': self.agents_manager.get_agent(token),
+                'agent': self.agents_manager.get(token),
                 'message': 'Agent does not have the abilities or resources to complete the action.'}
 
         error_message = ''
@@ -1002,40 +1083,40 @@ class Cycle:
             error_message = 'Unknown error: ' + str(e)
 
         finally:
-            return {'agent': self.agents_manager.get_agent(token), 'message': error_message}
+            return {'agent': self.agents_manager.get(token), 'message': error_message}
 
     def _execute_asset_action(self, token, action_name, parameters):
-        self.social_assets_manager.edit_social_asset(token, 'last_action', action_name)
-        self.social_assets_manager.edit_social_asset(token, 'last_action_result', False)
+        self.social_assets_manager.edit(token, 'last_action', action_name)
+        self.social_assets_manager.edit(token, 'last_action_result', False)
 
         if action_name == 'inactive':
-            self.social_assets_manager.edit_social_asset(token, 'last_action', 'pass')
+            self.social_assets_manager.edit(token, 'last_action', 'pass')
             return {
-                'social_asset': self.social_assets_manager.get_social_asset(token),
+                'social_asset': self.social_assets_manager.get(token),
                 'message': 'Social asset did not send any action.'}
 
         if action_name not in self.actions:
             return {
-                'social_asset': self.social_assets_manager.get_social_asset(token),
+                'social_asset': self.social_assets_manager.get(token),
                 'message': 'Wrong action name given.'}
 
-        if not self.social_assets_manager.get_social_asset(token).is_active:
+        if not self.social_assets_manager.get(token).is_active:
             return {
-                'social_asset': self.social_assets_manager.get_social_asset(token),
+                'social_asset': self.social_assets_manager.get(token),
                 'message': 'Social asset is not active.'}
 
-        if self.social_assets_manager.get_social_asset(token).carried:
+        if self.social_assets_manager.get(token).carried:
             return {
-                'social_asset': self.social_assets_manager.get_social_asset(token),
+                'social_asset': self.social_assets_manager.get(token),
                 'message': 'Social asset can not do any action while being carried.'}
 
         if action_name == 'pass':
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
-            return {'social_asset': self.social_assets_manager.get_social_asset(token), 'message': ''}
+            self.social_assets_manager.edit(token, 'last_action_result', True)
+            return {'social_asset': self.social_assets_manager.get(token), 'message': ''}
 
         if not self._check_abilities_and_resources(token, action_name):
             return {
-                'social_asset': self.social_assets_manager.get_social_asset(token),
+                'social_asset': self.social_assets_manager.get(token),
                 'message': 'Social asset does not have the abilities or resources to complete the action.'}
 
         error_message = ''
@@ -1095,13 +1176,13 @@ class Cycle:
             error_message = 'Unknown error: ' + str(e)
 
         finally:
-            return {'social_asset': self.social_assets_manager.get_social_asset(token), 'message': error_message}
+            return {'social_asset': self.social_assets_manager.get(token), 'message': error_message}
 
     def _check_abilities_and_resources(self, token, action):
-        if self.agents_manager.get_agent(token) is None:
-            actor = self.social_assets_manager.get_social_asset(token)
+        if self.agents_manager.get(token) is None:
+            actor = self.social_assets_manager.get(token)
         else:
-            actor = self.agents_manager.get_agent(token)
+            actor = self.agents_manager.get(token)
 
         if actor is None:
             exit('Internal error. Non registered token requested.')
@@ -1120,9 +1201,9 @@ class Cycle:
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        if self.map.check_location(self.agents_manager.get_agent(token).location, self.cdm_location):
-            self.agents_manager.charge_agent(token)
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+        if self.map.check_location(self.agents_manager.get(token).location, self.cdm_location):
+            self.agents_manager.charge(token)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
         else:
             raise FailedLocation('The agent is not located at the CDM.')
@@ -1143,15 +1224,15 @@ class Cycle:
         else:
             destination = parameters
 
-        agent = self.agents_manager.get_agent(token)
+        agent = self.agents_manager.get(token)
 
         if not agent.check_battery():
             raise FailedInsufficientBattery('Not enough battery to complete this step.')
 
         elif self.map.check_location(agent.location, destination):
-            self.agents_manager.edit_agent(token, 'route', [])
-            self.agents_manager.edit_agent(token, 'destination_distance', 0)
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+            self.agents_manager.edit(token, 'route', [])
+            self.agents_manager.edit(token, 'destination_distance', 0)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
         else:
             if not agent.route or destination != agent.route[-1]:
@@ -1164,22 +1245,22 @@ class Cycle:
                                                              nodes)
 
                 if not result:
-                    self.agents_manager.edit_agent(token, 'route', [])
-                    self.agents_manager.edit_agent(token, 'destination_distance', 0)
+                    self.agents_manager.edit(token, 'route', [])
+                    self.agents_manager.edit(token, 'destination_distance', 0)
 
                     raise UnableToReach('Agent is not capable of entering flood locations.')
 
                 else:
-                    self.agents_manager.edit_agent(token, 'route', route)
-                    self.agents_manager.edit_agent(token, 'destination_distance', distance)
+                    self.agents_manager.edit(token, 'route', route)
+                    self.agents_manager.edit(token, 'destination_distance', distance)
 
-            if self.agents_manager.get_agent(token).destination_distance:
-                self.agents_manager.update_agent_location(token)
+            if self.agents_manager.get(token).destination_distance:
+                self.agents_manager.update_location(token)
                 distance = self.map.node_distance(self.map.get_closest_node(*agent.location),
                                                   self.map.get_closest_node(*destination))
-                self.agents_manager.edit_agent(token, 'destination_distance', distance)
-                self.agents_manager.edit_agent(token, 'last_action_result', True)
-                self.agents_manager.discharge_agent(token)
+                self.agents_manager.edit(token, 'destination_distance', distance)
+                self.agents_manager.edit(token, 'last_action_result', True)
+                self.agents_manager.discharge(token)
 
     def _move_asset(self, token, parameters):
         if len(parameters) == 1:
@@ -1197,12 +1278,12 @@ class Cycle:
         else:
             destination = parameters
 
-        asset = self.social_assets_manager.get_social_asset(token)
+        asset = self.social_assets_manager.get(token)
 
         if self.map.check_location(asset.location, destination):
-            self.social_assets_manager.edit_social_asset(token, 'route', [])
-            self.social_assets_manager.edit_social_asset(token, 'destination_distance', 0)
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            self.social_assets_manager.edit(token, 'route', [])
+            self.social_assets_manager.edit(token, 'destination_distance', 0)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
         else:
             if not asset.route:
@@ -1214,33 +1295,33 @@ class Cycle:
                 result, route, distance = self.map.get_route(asset.location, destination, 'car', asset.speed, nodes)
 
                 if not result:
-                    self.social_assets_manager.edit_social_asset(token, 'route', [])
-                    self.social_assets_manager.edit_social_asset(token, 'destination_distance', 0)
+                    self.social_assets_manager.edit(token, 'route', [])
+                    self.social_assets_manager.edit(token, 'destination_distance', 0)
 
                     raise UnableToReach('Asset is not capable of entering flood locations.')
 
                 else:
-                    self.social_assets_manager.edit_social_asset(token, 'route', route)
-                    self.social_assets_manager.edit_social_asset(token, 'destination_distance', distance)
+                    self.social_assets_manager.edit(token, 'route', route)
+                    self.social_assets_manager.edit(token, 'destination_distance', distance)
 
-            if self.social_assets_manager.get_social_asset(token).destination_distance:
-                self.social_assets_manager.update_social_asset_location(token)
+            if self.social_assets_manager.get(token).destination_distance:
+                self.social_assets_manager.update_location(token)
                 _, _, distance = self.map.get_route(asset.location, destination, 'car', asset.speed, [])
-                self.social_assets_manager.edit_social_asset(token, 'destination_distance', distance)
-                self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+                self.social_assets_manager.edit(token, 'destination_distance', distance)
+                self.social_assets_manager.edit(token, 'last_action_result', True)
 
     def _rescue_victim_agent(self, token, parameters):
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        agent = self.agents_manager.get_agent(token)
+        agent = self.agents_manager.get(token)
 
         for i in range(self.current_step):
             for victim in self.steps[i]['victims']:
                 if victim.active and self.map.check_location(victim.location, agent.location):
                     victim.active = False
                     self.agents_manager.add_physical(token, victim)
-                    self.agents_manager.edit_agent(token, 'last_action_result', True)
+                    self.agents_manager.edit(token, 'last_action_result', True)
                     return
 
             for photo in self.steps[i]['photos']:
@@ -1248,7 +1329,7 @@ class Cycle:
                     if victim.active and self.map.check_location(victim.location, agent.location):
                         victim.active = False
                         self.agents_manager.add_physical(token, victim)
-                        self.agents_manager.edit_agent(token, 'last_action_result', True)
+                        self.agents_manager.edit(token, 'last_action_result', True)
                         return
 
         raise FailedUnknownItem('No victim by the given location is known.')
@@ -1257,14 +1338,14 @@ class Cycle:
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        asset = self.social_assets_manager.get_social_asset(token)
+        asset = self.social_assets_manager.get(token)
 
         for i in range(self.current_step):
             for victim in self.steps[i]['victims']:
                 if victim.active and self.map.check_location(victim.location, asset.location):
                     victim.active = False
                     self.social_assets_manager.add_physical(token, victim)
-                    self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+                    self.social_assets_manager.edit(token, 'last_action_result', True)
                     return
 
             for photo in self.steps[i]['photos']:
@@ -1272,7 +1353,7 @@ class Cycle:
                     if victim.active and self.map.check_location(victim.location, asset.location):
                         victim.active = False
                         self.social_assets_manager.add_physical(token, victim)
-                        self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+                        self.social_assets_manager.edit(token, 'last_action_result', True)
                         return
 
         raise FailedUnknownItem('No victim by the given location is known.')
@@ -1281,13 +1362,13 @@ class Cycle:
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        agent = self.agents_manager.get_agent(token)
+        agent = self.agents_manager.get(token)
         for i in range(self.current_step):
             for water_sample in self.steps[i]['water_samples']:
                 if water_sample.active and self.map.check_location(water_sample.location, agent.location):
                     water_sample.active = False
                     self.agents_manager.add_physical(token, water_sample)
-                    self.agents_manager.edit_agent(token, 'last_action_result', True)
+                    self.agents_manager.edit(token, 'last_action_result', True)
                     return
 
         raise FailedLocation('The agent is not in a location with a water sample event.')
@@ -1296,13 +1377,13 @@ class Cycle:
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        asset = self.social_assets_manager.get_social_asset(token)
+        asset = self.social_assets_manager.get(token)
         for i in range(self.current_step):
             for water_sample in self.steps[i]['water_samples']:
                 if water_sample.active and self.map.check_location(water_sample.location, asset.location):
                     water_sample.active = False
                     self.social_assets_manager.add_physical(token, water_sample)
-                    self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+                    self.social_assets_manager.edit(token, 'last_action_result', True)
                     return
 
         raise FailedLocation('The asset is not in a location with a water sample event.')
@@ -1311,13 +1392,13 @@ class Cycle:
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        agent = self.agents_manager.get_agent(token)
+        agent = self.agents_manager.get(token)
         for i in range(self.current_step):
             for photo in self.steps[i]['photos']:
                 if photo.active and self.map.check_location(photo.location, agent.location):
                     photo.active = False
                     self.agents_manager.add_virtual(token, photo)
-                    self.agents_manager.edit_agent(token, 'last_action_result', True)
+                    self.agents_manager.edit(token, 'last_action_result', True)
                     return
 
         raise FailedLocation('The agent is not in a location with a photograph event.')
@@ -1326,13 +1407,13 @@ class Cycle:
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        asset = self.social_assets_manager.get_social_asset(token)
+        asset = self.social_assets_manager.get(token)
         for i in range(self.current_step):
             for photo in self.steps[i]['photos']:
                 if photo.active and self.map.check_location(photo.location, asset.location):
                     photo.active = False
                     self.social_assets_manager.add_virtual(token, photo)
-                    self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+                    self.social_assets_manager.edit(token, 'last_action_result', True)
                     return
 
         raise FailedLocation('The asset is not in a location with a photograph event.')
@@ -1341,7 +1422,7 @@ class Cycle:
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        agent = self.agents_manager.get_agent(token)
+        agent = self.agents_manager.get(token)
         if len(agent.virtual_storage_vector) == 0:
             raise FailedItemAmount('The agent has no photos to analyze.')
 
@@ -1354,14 +1435,14 @@ class Cycle:
             photo_identifiers.append(photo.identifier)
 
         self._update_photos_state(photo_identifiers)
-        self.agents_manager.edit_agent(token, 'last_action_result', True)
-        self.agents_manager.clear_agent_virtual_storage(token)
+        self.agents_manager.edit(token, 'last_action_result', True)
+        self.agents_manager.clear_virtual_storage(token)
 
     def _analyze_photo_asset(self, token, parameters):
         if parameters:
             raise FailedWrongParam('Parameters were given.')
 
-        asset = self.social_assets_manager.get_social_asset(token)
+        asset = self.social_assets_manager.get(token)
         if len(asset.virtual_storage_vector) == 0:
             raise FailedItemAmount('The asset has no photos to analyze.')
 
@@ -1374,8 +1455,8 @@ class Cycle:
             photo_identifiers.append(photo.identifier)
 
         self._update_photos_state(photo_identifiers)
-        self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
-        self.social_assets_manager.clear_social_asset_virtual_storage(token)
+        self.social_assets_manager.edit(token, 'last_action_result', True)
+        self.social_assets_manager.clear_virtual_storage(token)
 
     def _search_social_asset_agent(self, token, parameters):
         if not self.social_assets_manager.get_tokens():
@@ -1387,10 +1468,10 @@ class Cycle:
         closer_asset = None
         distance = 999999
         for asset_token in self.social_assets_manager.get_tokens():
-            asset = self.social_assets_manager.get_social_asset(asset_token)
+            asset = self.social_assets_manager.get(asset_token)
             if asset.is_active:
                 if parameters[0] == asset.profession:
-                    current_dist = self.map.euclidean_distance(self.agents_manager.get_agent(token).location,
+                    current_dist = self.map.euclidean_distance(self.agents_manager.get(token).location,
                                                                asset.location)
                     if current_dist <= distance:
                         distance = current_dist
@@ -1400,8 +1481,8 @@ class Cycle:
             raise FailedNoSocialAsset('No social asset found for the needed purposes.')
 
         else:
-            self.agents_manager.add_social_asset(token, closer_asset)
-            self.agents_manager.edit_agent(token, 'last_action_result', True)
+            self.agents_manager.add(token, closer_asset)
+            self.agents_manager.edit(token, 'last_action_result', True)
 
     def _search_social_asset_asset(self, token, parameters):
         if not self.social_assets_manager.get_tokens():
@@ -1413,11 +1494,10 @@ class Cycle:
         closer_asset = None
         distance = 999999
         for asset_token in self.social_assets_manager.get_tokens():
-            asset = self.social_assets_manager.get_social_asset(asset_token)
+            asset = self.social_assets_manager.get(asset_token)
             if asset.is_active:
-                if parameters[0] == asset.profession:
-                    current_dist = self.map.euclidean_distance(
-                        self.social_assets_manager.get_social_asset(token).location, asset.location)
+                if parameters[0] == asset.profession and token != asset.token:
+                    current_dist = self.map.euclidean_distance(self.social_assets_manager.get(token).location, asset.location)
                     if current_dist <= distance:
                         distance = current_dist
                         closer_asset = asset
@@ -1426,8 +1506,8 @@ class Cycle:
             raise FailedNoSocialAsset('No social asset found for the needed purposes.')
 
         else:
-            self.social_assets_manager.add_social_asset(token, closer_asset)
-            self.social_assets_manager.edit_social_asset(token, 'last_action_result', True)
+            self.social_assets_manager.add(token, closer_asset)
+            self.social_assets_manager.edit(token, 'last_action_result', True)
 
     def _update_photos_state(self, identifiers):
         for i in range(self.current_step):

@@ -24,7 +24,7 @@ class AgentsManager:
         self.roles.clear()
         self.roles = self.generate_roles(roles_info)
         for token in tokens:
-            self.connect_agent(token)
+            self.connect(token)
 
     @staticmethod
     def generate_roles(roles_info):
@@ -49,7 +49,7 @@ class AgentsManager:
 
         return roles
 
-    def connect_agent(self, token):
+    def connect(self, token):
         """Connect the agent if there are roles still available.
 
         :param token: The identifier of the agent.
@@ -63,7 +63,7 @@ class AgentsManager:
 
         return True
 
-    def disconnect_agent(self, token):
+    def disconnect(self, token):
         """Disconnect the agent if it was connected.
 
         :param token: The identifier of the agent.
@@ -92,7 +92,7 @@ class AgentsManager:
 
         self.agents[token].add_virtual_item(item)
 
-    def add_social_asset(self, token, social_asset):
+    def add(self, token, social_asset):
         """Add a social asset to the requested agent.
 
         :param token: Identifier of the requested agent.
@@ -100,21 +100,21 @@ class AgentsManager:
 
         self.agents[token].social_assets.append(social_asset)
 
-    def charge_agent(self, token):
+    def charge(self, token):
         """Charge the requested agent.
 
         :param token: The identifier of the requested agent."""
 
         self.agents[token].charge()
 
-    def discharge_agent(self, token):
+    def discharge(self, token):
         """Discharge the requestede agent.
 
         :param token: The identifier of the requested agent."""
 
         self.agents[token].discharge()
 
-    def get_agent(self, token):
+    def get(self, token):
         """Get the Agent object saved inside the engine.
 
         :param token: The identifier of the requested agent.
@@ -129,14 +129,14 @@ class AgentsManager:
 
         return [token for token in self.agents if self.agents[token].is_active]
 
-    def get_agents_info(self):
+    def get_info(self):
         """Get all the information saved from the agents.
 
         :return list: List of all the agents objects."""
 
         return list(self.agents.values())
 
-    def get_active_agents_info(self):
+    def get_active_info(self):
         """Get all the information saved from the agents that are active.
 
         :return list: List of all the active agents objects."""
@@ -163,7 +163,7 @@ class AgentsManager:
 
         return self.agents[token].remove_virtual_item(kind, amount)
 
-    def edit_agent(self, token, attribute, new_value):
+    def edit(self, token, attribute, new_value):
         """Edit the requested agent.
 
         :param token: The identifier of the requested agent.
@@ -172,7 +172,7 @@ class AgentsManager:
 
         exec(f'self.agents[token].{attribute} = new_value')
 
-    def update_agent_location(self, token):
+    def update_location(self, token):
         """Update the agent location based on the remaining locations on its route.
 
         :param token: The identifier of the requested agent."""
@@ -181,14 +181,14 @@ class AgentsManager:
             location = self.agents[token].route.pop(0)
             self.agents[token].location = location
 
-    def clear_agent_physical_storage(self, token):
+    def clear_physical_storage(self, token):
         """Clear the physical storage of the requested agent.
 
         :param token: The identifier of the requested agent."""
 
         self.agents[token].clear_physical_storage()
 
-    def clear_agent_virtual_storage(self, token):
+    def clear_virtual_storage(self, token):
         """Clear the virtual storage of the requested agent.
 
         :param token: The identifier of the requested agent."""
