@@ -235,7 +235,6 @@ def test_action_results_format_error():
     assert resp
     assert resp['status'] == 0
     assert not resp['result']
-    assert not resp['actor']
     assert not resp['event']
     assert resp['message'].startswith('Empty simulation response. ')
 
@@ -243,7 +242,6 @@ def test_action_results_format_error():
     assert resp
     assert resp['status'] == 0
     assert not resp['result']
-    assert not resp['actor']
     assert not resp['event']
     assert resp['message'].startswith('Actor not found in response. ')
 

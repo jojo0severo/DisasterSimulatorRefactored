@@ -117,7 +117,7 @@ def test_do_step():
 
 
 def test_jsonify_agent():
-    agent = formatter.copycat.simulation.cycler.agents_manager.get_active_agents_info()[0]
+    agent = formatter.copycat.simulation.cycler.agents_manager.get_active_info()[0]
 
     agent_formatted = formatter.jsonify_agent(agent)
     assert agent_formatted['token'] == agent.token
@@ -131,7 +131,7 @@ def test_jsonify_agent():
 
 
 def test_jsonify_agents():
-    agents = list(formatter.copycat.simulation.cycler.agents_manager.get_active_agents_info())
+    agents = list(formatter.copycat.simulation.cycler.agents_manager.get_active_info())
 
     agents_formatted = formatter.jsonify_agents(agents)
 
@@ -147,7 +147,7 @@ def test_jsonify_agents():
 
 
 def test_jsonify_asset():
-    asset = formatter.copycat.simulation.cycler.social_assets_manager.get_active_social_assets_info()[0]
+    asset = formatter.copycat.simulation.cycler.social_assets_manager.get_active_info()[0]
 
     asset_formatted = formatter.jsonify_asset(asset)
     assert asset_formatted['token'] == asset.token
@@ -161,7 +161,7 @@ def test_jsonify_asset():
 
 
 def test_jsonify_assets():
-    assets = formatter.copycat.simulation.cycler.social_assets_manager.get_active_social_assets_info()
+    assets = formatter.copycat.simulation.cycler.social_assets_manager.get_active_info()
 
     assets_formatted = formatter.jsonify_assets(assets)
     for i in range(len(assets)):

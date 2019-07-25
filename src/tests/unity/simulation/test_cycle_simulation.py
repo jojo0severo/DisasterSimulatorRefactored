@@ -18,8 +18,10 @@ cycle = Cycle(config_json)
 
 
 class Item:
-    def __init__(self, size):
+    def __init__(self, size, type, identifier):
         self.size = size
+        self.type = type
+        self.identifier = identifier
 
 
 def test_connect_agent():
@@ -130,7 +132,7 @@ def test_check_abilities_and_resources():
 
 def test_charge():
     loc = config_json['map']['centerLat'], config_json['map']['centerLon']
-    cycle.agents_manager.edit_agent('token_agent1', 'location', loc)
+    cycle.agents_manager.edit('token_agent1', 'location', loc)
     assert cycle._charge_agent('token_agent1', []) is None
 
 
@@ -146,7 +148,7 @@ def test_charge_failed_param():
 
 
 def test_charge_failed_location():
-    cycle.agents_manager.edit_agent('token_agent1', 'location', [120, 120])
+    cycle.agents_manager.edit('token_agent1', 'location', [120, 120])
     try:
         cycle._charge_agent('token_agent1', [])
         assert False
@@ -158,15 +160,15 @@ def test_charge_failed_location():
 
 
 def test_move_agent():
-    agent = cycle.agents_manager.get_agent('token3_agent')
+    agent = cycle.agents_manager.get('token3_agent')
     loc = list(agent.location)
     loc[0] = loc[0] + 5
     loc[1] = loc[1] + 5
 
     assert cycle._move_agent('token3_agent', loc) is None
-    assert cycle.agents_manager.get_agent('token3_agent').route
-    assert cycle.agents_manager.get_agent('token3_agent').destination_distance
-    old_dist = [cycle.agents_manager.get_agent('token3_agent').destination_distance]
+    assert cycle.agents_manager.get('token3_agent').route
+    assert cycle.agents_manager.get('token3_agent').destination_distance
+    old_dist = [cycle.agents_manager.get('token3_agent').destination_distance]
 
     cycle._move_agent('token3_agent', loc)
     cycle._move_agent('token3_agent', loc)
@@ -174,9 +176,9 @@ def test_move_agent():
     loc = ['cdm']
 
     assert cycle._move_agent('token3_agent', loc) is None
-    assert cycle.agents_manager.get_agent('token3_agent').route
-    assert cycle.agents_manager.get_agent('token3_agent').destination_distance
-    assert old_dist[0] != cycle.agents_manager.get_agent('token3_agent').destination_distance
+    assert cycle.agents_manager.get('token3_agent').route
+    assert cycle.agents_manager.get('token3_agent').destination_distance
+    assert old_dist[0] != cycle.agents_manager.get('token3_agent').destination_distance
 
 
 def test_move_agent_failed_facility():
@@ -213,7 +215,7 @@ def test_move_agent_failed_more_parameters():
 
 
 def test_move_agent_failed_battery():
-    cycle.agents_manager.edit_agent('token3_agent', 'actual_battery', 0)
+    cycle.agents_manager.edit('token3_agent', 'actual_battery', 0)
     try:
         cycle._move_agent('token3_agent', [10, 10])
         assert False
@@ -225,8 +227,8 @@ def test_move_agent_failed_battery():
 
 
 def test_move_agent_failed_unable():
-    cycle.agents_manager.edit_agent('agent_without_abilities', 'abilities', ['move'])
-    cycle.agents_manager.edit_agent('agent_without_abilities', 'location', [10, 10])
+    cycle.agents_manager.edit('agent_without_abilities', 'abilities', ['move'])
+    cycle.agents_manager.edit('agent_without_abilities', 'location', [10, 10])
     loc = cycle.map.get_node_coord(cycle.steps[0]['flood'].list_of_nodes[3])
     try:
         cycle._move_agent('agent_without_abilities', loc)
@@ -239,25 +241,25 @@ def test_move_agent_failed_unable():
 
 
 def test_move_asset():
-    asset = cycle.social_assets_manager.get_social_asset('token3_asset')
+    asset = cycle.social_assets_manager.get('token3_asset')
     loc = list(asset.location)
     loc[0] = loc[0] + 5
     loc[1] = loc[1] + 5
 
     assert cycle._move_asset('token3_asset', loc) is None
-    assert cycle.social_assets_manager.get_social_asset('token3_asset').route
-    assert cycle.social_assets_manager.get_social_asset('token3_asset').destination_distance
-    old_dist = [cycle.social_assets_manager.get_social_asset('token3_asset').destination_distance]
+    assert cycle.social_assets_manager.get('token3_asset').route
+    assert cycle.social_assets_manager.get('token3_asset').destination_distance
+    old_dist = [cycle.social_assets_manager.get('token3_asset').destination_distance]
 
-    while cycle.social_assets_manager.get_social_asset('token3_asset').route[:-3]:
+    while cycle.social_assets_manager.get('token3_asset').route[:-3]:
         cycle._move_asset('token3_asset', loc)
 
     loc = ['cdm']
 
     assert cycle._move_asset('token3_asset', loc) is None
-    assert cycle.social_assets_manager.get_social_asset('token3_asset').route
-    assert cycle.social_assets_manager.get_social_asset('token3_asset').destination_distance
-    assert old_dist[0] != cycle.social_assets_manager.get_social_asset('token3_asset').destination_distance
+    assert cycle.social_assets_manager.get('token3_asset').route
+    assert cycle.social_assets_manager.get('token3_asset').destination_distance
+    assert old_dist[0] != cycle.social_assets_manager.get('token3_asset').destination_distance
 
 
 def test_move_asset_failed_facility():
@@ -294,8 +296,8 @@ def test_move_asset_failed_more_parameters():
 
 
 def test_move_asset_failed_unable():
-    cycle.social_assets_manager.edit_social_asset('asset_without_abilities', 'abilities', ['move'])
-    cycle.social_assets_manager.edit_social_asset('asset_without_abilities', 'location', [10, 10])
+    cycle.social_assets_manager.edit('asset_without_abilities', 'abilities', ['move'])
+    cycle.social_assets_manager.edit('asset_without_abilities', 'location', [10, 10])
     loc = cycle.map.get_node_coord(cycle.steps[0]['flood'].list_of_nodes[3])
     try:
         cycle._move_asset('asset_without_abilities', loc)
@@ -309,12 +311,12 @@ def test_move_asset_failed_unable():
 
 def test_rescue_victim_agent():
     victim_loc = cycle.steps[0]['victims'][0].location
-    cycle.agents_manager.edit_agent('token4_agent', 'location', victim_loc)
+    cycle.agents_manager.edit('token4_agent', 'location', victim_loc)
 
-    old_storage = [cycle.agents_manager.get_agent('token4_agent').physical_storage]
+    old_storage = [cycle.agents_manager.get('token4_agent').physical_storage]
     assert cycle._rescue_victim_agent('token4_agent', []) is None
 
-    agent = cycle.agents_manager.get_agent('token4_agent')
+    agent = cycle.agents_manager.get('token4_agent')
     assert agent.physical_storage_vector
     assert agent.physical_storage != old_storage[0]
 
@@ -331,7 +333,7 @@ def test_rescue_victim_agent_failed_param():
 
 
 def test_rescue_victim_agent_failed_unknown():
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
     try:
         cycle._rescue_victim_agent('token4_agent', [])
         assert False
@@ -344,12 +346,12 @@ def test_rescue_victim_agent_failed_unknown():
 
 def test_rescue_victim_asset():
     victim_loc = cycle.steps[0]['victims'][0].location
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', victim_loc)
+    cycle.social_assets_manager.edit('token4_asset', 'location', victim_loc)
 
-    old_storage = [cycle.social_assets_manager.get_social_asset('token4_asset').physical_storage]
+    old_storage = [cycle.social_assets_manager.get('token4_asset').physical_storage]
     assert cycle._rescue_victim_asset('token4_asset', []) is None
 
-    asset = cycle.social_assets_manager.get_social_asset('token4_asset')
+    asset = cycle.social_assets_manager.get('token4_asset')
     assert asset.physical_storage_vector
     assert asset.physical_storage != old_storage[0]
 
@@ -366,7 +368,7 @@ def test_rescue_victim_asset_failed_param():
 
 
 def test_rescue_victim_asset_failed_unknown():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
     try:
         cycle._rescue_victim_asset('token4_asset', [])
         assert False
@@ -379,12 +381,12 @@ def test_rescue_victim_asset_failed_unknown():
 
 def test_collect_water_agent():
     loc = cycle.steps[0]['water_samples'][0].location
-    cycle.agents_manager.edit_agent('token4_agent', 'location', loc)
+    cycle.agents_manager.edit('token4_agent', 'location', loc)
 
-    old_storage = [cycle.agents_manager.get_agent('token4_agent').physical_storage]
+    old_storage = [cycle.agents_manager.get('token4_agent').physical_storage]
     assert cycle._collect_water_agent('token4_agent', []) is None
 
-    agent = cycle.agents_manager.get_agent('token4_agent')
+    agent = cycle.agents_manager.get('token4_agent')
     assert agent.physical_storage_vector
     assert agent.physical_storage != old_storage[0]
 
@@ -401,7 +403,7 @@ def test_collect_water_agent_failed_param():
 
 
 def test_collect_water_agent_failed_unknown():
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
     try:
         cycle._collect_water_agent('token4_agent', [])
         assert False
@@ -414,12 +416,12 @@ def test_collect_water_agent_failed_unknown():
 
 def test_collect_water_asset():
     loc = cycle.steps[0]['water_samples'][0].location
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', loc)
+    cycle.social_assets_manager.edit('token4_asset', 'location', loc)
 
-    old_storage = [cycle.social_assets_manager.get_social_asset('token4_asset').physical_storage]
+    old_storage = [cycle.social_assets_manager.get('token4_asset').physical_storage]
     assert cycle._collect_water_asset('token4_asset', []) is None
 
-    asset = cycle.social_assets_manager.get_social_asset('token4_asset')
+    asset = cycle.social_assets_manager.get('token4_asset')
     assert asset.physical_storage_vector
     assert asset.physical_storage != old_storage[0]
 
@@ -436,7 +438,7 @@ def test_collect_water_asset_failed_param():
 
 
 def test_collect_water_asset_failed_unknown():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
     try:
         cycle._collect_water_asset('token4_asset', [])
         assert False
@@ -449,12 +451,12 @@ def test_collect_water_asset_failed_unknown():
 
 def test_take_photo_agent():
     loc = cycle.steps[0]['photos'][0].location
-    cycle.agents_manager.edit_agent('token4_agent', 'location', loc)
+    cycle.agents_manager.edit('token4_agent', 'location', loc)
 
-    old_storage = [cycle.agents_manager.get_agent('token4_agent').virtual_storage]
+    old_storage = [cycle.agents_manager.get('token4_agent').virtual_storage]
     assert cycle._take_photo_agent('token4_agent', []) is None
 
-    agent = cycle.agents_manager.get_agent('token4_agent')
+    agent = cycle.agents_manager.get('token4_agent')
     assert agent.virtual_storage_vector
     assert agent.virtual_storage != old_storage
 
@@ -471,7 +473,7 @@ def test_take_photo_agent_failed_param():
 
 
 def test_take_photo_agent_failed_unknown():
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
     try:
         cycle._take_photo_agent('token4_agent', [])
         assert False
@@ -484,12 +486,12 @@ def test_take_photo_agent_failed_unknown():
 
 def test_take_photo_asset():
     loc = cycle.steps[0]['photos'][0].location
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', loc)
+    cycle.social_assets_manager.edit('token4_asset', 'location', loc)
 
-    old_storage = [cycle.social_assets_manager.get_social_asset('token4_asset').virtual_storage]
+    old_storage = [cycle.social_assets_manager.get('token4_asset').virtual_storage]
     assert cycle._take_photo_asset('token4_asset', []) is None
 
-    asset = cycle.social_assets_manager.get_social_asset('token4_asset')
+    asset = cycle.social_assets_manager.get('token4_asset')
     assert asset.virtual_storage_vector
     assert asset.virtual_storage != old_storage
 
@@ -506,7 +508,7 @@ def test_take_photo_asset_failed_param():
 
 
 def test_take_photo_asset_failed_unknown():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
     try:
         cycle._take_photo_asset('token4_asset', [])
         assert False
@@ -520,7 +522,7 @@ def test_take_photo_asset_failed_unknown():
 def test_analyze_photo_agent():
     assert cycle._analyze_photo_agent('token4_agent', []) is None
 
-    agent = cycle.agents_manager.get_agent('token4_agent')
+    agent = cycle.agents_manager.get('token4_agent')
 
     assert not agent.virtual_storage_vector
     assert agent.virtual_storage == agent.virtual_capacity
@@ -551,7 +553,7 @@ def test_analyze_photo_agent_failed_no_photos():
 def test_analyze_photo_asset():
     assert cycle._analyze_photo_asset('token4_asset', []) is None
 
-    asset = cycle.social_assets_manager.get_social_asset('token4_asset')
+    asset = cycle.social_assets_manager.get('token4_asset')
 
     assert not asset.virtual_storage_vector
     assert asset.virtual_storage == asset.virtual_capacity
@@ -582,7 +584,7 @@ def test_analyze_photo_asset_failed_no_photos():
 def test_search_social_asset_agent():
     assert cycle._search_social_asset_agent('token4_agent', ['doctor']) is None
 
-    agent = cycle.agents_manager.get_agent('token4_agent')
+    agent = cycle.agents_manager.get('token4_agent')
 
     assert agent.social_assets
 
@@ -629,7 +631,7 @@ def test_search_social_asset_agent_failed_no_assets():
 def test_search_social_asset_asset():
     assert cycle._search_social_asset_asset('token4_asset', ['doctor']) is None
 
-    asset = cycle.social_assets_manager.get_social_asset('token4_asset')
+    asset = cycle.social_assets_manager.get('token4_asset')
 
     assert asset.social_assets
 
@@ -658,20 +660,22 @@ def test_search_social_asset_asset_failed_purpose():
 
 def test_deliver_physical_agent_cdm():
     loc = cycle.cdm_location
-    cycle.agents_manager.edit_agent('token4_agent', 'location', loc)
+    cycle.agents_manager.edit('token4_agent', 'location', loc)
     assert cycle._deliver_physical_agent_cdm('token4_agent', ['victim']) is None
     assert cycle._deliver_physical_agent_cdm('token4_agent', ['water_sample']) is None
 
-    agent = cycle.agents_manager.get_agent('token4_agent')
+    agent = cycle.agents_manager.get('token4_agent')
 
     assert not agent.physical_storage_vector
     assert agent.physical_storage == agent.physical_capacity
 
 
 def test_deliver_physical_agent_agent():
-    cycle.agents_manager.edit_agent('token3_agent', 'location', [10, 10])
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
-    assert cycle._deliver_physical_agent_agent('token3_agent', [Item(1), 1, 'token4_agent']) is None
+    cycle.agents_manager.edit('token3_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token3_agent', 'physical_storage_vector', [Item(2, 'victim', 2)])
+    cycle.agents_manager.edit('token3_agent', 'physical_storage', 5)
+    assert cycle._deliver_physical_agent_agent('token3_agent', ['victim', 1, 'token4_agent']) is None
 
 
 def test_deliver_physical_agent_cdm_failed_less_param():
@@ -697,7 +701,7 @@ def test_deliver_physical_agent_cdm_failed_more_param():
 
 
 def test_deliver_physical_agent_cdm_failed_location():
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
     try:
         cycle._deliver_physical_agent_cdm('token4_agent', ['victim'])
         assert False
@@ -710,23 +714,25 @@ def test_deliver_physical_agent_cdm_failed_location():
 
 def test_deliver_physical_asset_cdm():
     loc = cycle.steps[0]['water_samples'][0].location
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', loc)
+    cycle.social_assets_manager.edit('token4_asset', 'location', loc)
     cycle._collect_water_asset('token4_asset', [])
 
     loc = cycle.cdm_location
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', loc)
+    cycle.social_assets_manager.edit('token4_asset', 'location', loc)
     assert cycle._deliver_physical_asset_cdm('token4_asset', ['water_sample']) is None
 
-    asset = cycle.social_assets_manager.get_social_asset('token4_asset')
+    asset = cycle.social_assets_manager.get('token4_asset')
 
     assert not asset.physical_storage_vector
     assert asset.physical_storage == asset.physical_capacity
 
 
 def test_deliver_physical_asset_agent():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
-    assert cycle._deliver_physical_asset_agent('token4_asset', [Item(1), 1, 'token4_agent']) is None
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token4_asset', 'physical_storage', 10)
+    cycle.social_assets_manager.edit('token4_asset', 'physical_storage_vector', [Item(1, 'victim', 3)])
+    assert cycle._deliver_physical_asset_agent('token4_asset', ['victim', 1, 'token4_agent']) is None
 
 
 def test_deliver_physical_asset_cdm_failed_less_param():
@@ -752,7 +758,7 @@ def test_deliver_physical_asset_cdm_failed_more_param():
 
 
 def test_deliver_physical_asset_cdm_failed_location():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
     try:
         cycle._deliver_physical_asset_cdm('token4_asset', ['water_sample'])
         assert False
@@ -765,23 +771,25 @@ def test_deliver_physical_asset_cdm_failed_location():
 
 def test_deliver_virtual_agent_cdm():
     loc = cycle.steps[0]['photos'][0].location
-    cycle.agents_manager.edit_agent('token4_agent', 'location', loc)
+    cycle.agents_manager.edit('token4_agent', 'location', loc)
     cycle._take_photo_agent('token4_agent', [])
 
     loc = cycle.cdm_location
-    cycle.agents_manager.edit_agent('token4_agent', 'location', loc)
+    cycle.agents_manager.edit('token4_agent', 'location', loc)
     assert cycle._deliver_virtual_agent_cdm('token4_agent', ['photo']) is None
 
-    agent = cycle.agents_manager.get_agent('token4_agent')
+    agent = cycle.agents_manager.get('token4_agent')
 
     assert not agent.virtual_storage_vector
     assert agent.virtual_storage == agent.virtual_capacity
 
 
 def test_deliver_virtual_agent_agent():
-    cycle.agents_manager.edit_agent('token3_agent', 'location', [10, 10])
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
-    assert cycle._deliver_virtual_agent_agent('token3_agent', [Item(1), 1, 'token4_agent']) is None
+    cycle.agents_manager.edit('token3_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token3_agent', 'virtual_storage_vector', [Item(1, 'photo', 4)])
+    cycle.agents_manager.edit('token3_agent', 'virtual_storage', 10)
+    assert cycle._deliver_virtual_agent_agent('token3_agent', ['photo', 1, 'token4_agent']) is None
 
 
 def test_deliver_virtual_agent_cdm_failed_less_param():
@@ -807,7 +815,7 @@ def test_deliver_virtual_agent_cdm_failed_more_param():
 
 
 def test_deliver_virtual_agent_cdm_failed_location():
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
     try:
         cycle._deliver_virtual_agent_cdm('token4_agent', ['photo'])
         assert False
@@ -820,23 +828,25 @@ def test_deliver_virtual_agent_cdm_failed_location():
 
 def test_deliver_virtual_asset_cdm():
     loc = cycle.steps[0]['photos'][0].location
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', loc)
+    cycle.social_assets_manager.edit('token4_asset', 'location', loc)
     cycle._take_photo_asset('token4_asset', [])
 
     loc = cycle.cdm_location
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', loc)
+    cycle.social_assets_manager.edit('token4_asset', 'location', loc)
     assert cycle._deliver_virtual_asset_cdm('token4_asset', ['photo']) is None
 
-    asset = cycle.social_assets_manager.get_social_asset('token4_asset')
+    asset = cycle.social_assets_manager.get('token4_asset')
 
     assert not asset.virtual_storage_vector
     assert asset.virtual_storage == asset.virtual_capacity
 
 
 def test_deliver_virtual_asset_agent():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
-    assert cycle._deliver_virtual_asset_agent('token4_asset', [Item(1), 1, 'token4_agent']) is None
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token4_asset', 'virtual_storage_vector', [Item(1, 'photo', 4)])
+    cycle.social_assets_manager.edit('token4_asset', 'virtual_storage', 10)
+    assert cycle._deliver_virtual_asset_agent('token4_asset', ['photo', 1, 'token4_agent']) is None
 
 
 def test_deliver_virtual_asset_failed_less_param():
@@ -862,7 +872,7 @@ def test_deliver_virtual_asset_failed_more_param():
 
 
 def test_deliver_virtual_asset_failed_location():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
     try:
         cycle._deliver_virtual_asset_cdm('token4_asset', ['photo'])
         assert False
@@ -884,53 +894,53 @@ def test_update_photos_state():
 
 
 def test_execute_agent_action():
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+    cycle.agents_manager.edit('token4_agent', 'carried', False)
     assert cycle._execute_agent_action('token4_agent', 'unknown', [])['message'] == 'Wrong action name given.'
 
-    cycle.agents_manager.edit_agent('token4_agent', 'is_active', False)
+    cycle.agents_manager.edit('token4_agent', 'is_active', False)
     assert cycle._execute_agent_action('token4_agent', 'pass', [])['message'] == 'Agent is not active.'
-    cycle.agents_manager.edit_agent('token4_agent', 'is_active', True)
+    cycle.agents_manager.edit('token4_agent', 'is_active', True)
 
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', True)
+    cycle.agents_manager.edit('token4_agent', 'carried', True)
     assert cycle._execute_agent_action('token4_agent', 'pass', [])[
                'message'] == 'Agent can not do any action while being carried.'
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
+    cycle.agents_manager.edit('token4_agent', 'carried', False)
 
     assert not cycle._execute_agent_action('token4_agent', 'pass', [])['message']
 
     assert cycle._execute_agent_action('token4_agent', 'inactive', [])['message'] == 'Agent did not send any action.'
 
-    cycle.agents_manager.edit_agent('token4_agent', 'resources', [])
+    cycle.agents_manager.edit('token4_agent', 'resources', [])
     assert cycle._execute_agent_action('token4_agent', 'charge', [])[
                'message'] == 'Agent does not have the abilities or resources to complete the action.'
 
-    cycle.agents_manager.edit_agent('token4_agent', 'resources', ['battery'])
-    cycle.agents_manager.edit_agent('token4_agent', 'location', cycle.cdm_location)
+    cycle.agents_manager.edit('token4_agent', 'resources', ['battery'])
+    cycle.agents_manager.edit('token4_agent', 'location', cycle.cdm_location)
     assert not cycle._execute_agent_action('token4_agent', 'charge', [])['message']
 
 
 def test_execute_asset_action():
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', False)
     assert cycle._execute_asset_action('token4_asset', 'unknown', [])['message'] == 'Wrong action name given.'
 
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'is_active', False)
+    cycle.social_assets_manager.edit('token4_asset', 'is_active', False)
     assert cycle._execute_asset_action('token4_asset', 'pass', [])['message'] == 'Social asset is not active.'
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'is_active', True)
+    cycle.social_assets_manager.edit('token4_asset', 'is_active', True)
 
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', True)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', True)
     assert cycle._execute_asset_action('token4_asset', 'pass', [])[
                'message'] == 'Social asset can not do any action while being carried.'
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', False)
 
     assert not cycle._execute_asset_action('token4_asset', 'pass', [])['message']
 
-    assert cycle._execute_asset_action('token4_asset', 'inactive', [])[
-               'message'] == 'Social asset did not send any action.'
+    assert cycle._execute_asset_action('token4_asset', 'inactive', [])['message'] == 'Social asset did not send any action.'
 
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', cycle.steps[0]['victims'][0].location)
+    cycle.social_assets_manager.edit('token4_asset', 'location', cycle.steps[0]['victims'][0].location)
+    cycle.social_assets_manager.edit('token4_asset', 'physical_storage', 500)
     assert cycle._execute_asset_action('token4_asset', 'rescueVictim', [])['message'] == ''
 
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', [])
+    cycle.social_assets_manager.edit('token4_asset', 'abilities', [])
     assert cycle._execute_asset_action('token4_asset', 'rescueVictim', [])[
                'message'] == 'Social asset does not have the abilities or resources to complete the action.'
 
@@ -940,25 +950,29 @@ def test_execute_special_actions():
         {'token': 'token2_agent', 'action': 'carry', 'parameters': ['token2_asset']},
         {'token': 'token2_asset', 'action': 'getCarried', 'parameters': ['token2_agent']},
         {'token': 'token3_agent', 'action': 'receiveVirtual', 'parameters': ['token3_asset']},
-        {'token': 'token3_asset', 'action': 'deliverVirtual', 'parameters': [Item(1), 1, 'token3_agent']},
-        {'token': 'token4_agent', 'action': 'deliverPhysical', 'parameters': [Item(1), 1, 'token4_asset']},
+        {'token': 'token3_asset', 'action': 'deliverVirtual', 'parameters': ['photo', 1, 'token3_agent']},
+        {'token': 'token4_agent', 'action': 'deliverPhysical', 'parameters': ['water_sample', 1, 'token4_asset']},
         {'token': 'token4_asset', 'action': 'receivePhysical', 'parameters': ['token4_agent']},
     ]
 
-    cycle.agents_manager.edit_agent('token2_agent', 'carried', False)
-    cycle.agents_manager.edit_agent('token2_agent', 'abilities', ["carry", "physicalCapacity"])
-    cycle.agents_manager.edit_agent('token2_agent', 'location', [10, 10])
-    cycle.social_assets_manager.edit_social_asset('token2_asset', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token2_asset', 'location', [10, 10])
-    cycle.agents_manager.edit_agent('token3_agent', 'carried', False)
-    cycle.agents_manager.edit_agent('token3_agent', 'location', [10, 10])
-    cycle.social_assets_manager.edit_social_asset('token3_asset', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token3_asset', 'location', [10, 10])
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
-    cycle.agents_manager.edit_agent('token4_agent', 'location', [10, 10])
-    cycle.agents_manager.edit_agent('token4_agent', 'abilities', ["carry", "physicalCapacity"])
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'location', [10, 10])
+    cycle.agents_manager.edit('token2_agent', 'carried', False)
+    cycle.agents_manager.edit('token2_agent', 'abilities', ["carry", "physicalCapacity"])
+    cycle.agents_manager.edit('token2_agent', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token2_asset', 'carried', False)
+    cycle.social_assets_manager.edit('token2_asset', 'location', [10, 10])
+    cycle.agents_manager.edit('token3_agent', 'carried', False)
+    cycle.agents_manager.edit('token3_agent', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token3_asset', 'carried', False)
+    cycle.social_assets_manager.edit('token3_asset', 'location', [10, 10])
+    cycle.social_assets_manager.edit('token3_asset', 'virtual_storage_vector', [Item(1, 'photo', 4)])
+    cycle.social_assets_manager.edit('token3_asset', 'virtual_storage', 50)
+    cycle.agents_manager.edit('token4_agent', 'carried', False)
+    cycle.agents_manager.edit('token4_agent', 'location', [10, 10])
+    cycle.agents_manager.edit('token4_agent', 'physical_storage_vector', [Item(1, 'water_sample', 4)])
+    cycle.agents_manager.edit('token4_agent', 'physical_storage', 50)
+    cycle.agents_manager.edit('token4_agent', 'abilities', ["carry", "physicalCapacity"])
+    cycle.social_assets_manager.edit('token4_asset', 'carried', False)
+    cycle.social_assets_manager.edit('token4_asset', 'location', [10, 10])
     result = cycle.execute_actions(special_actions_list)
     assert not result[0]['message']
     assert result[0]['agent'].last_action_result
@@ -991,8 +1005,8 @@ def test_execute_special_actions_failed_being_carried():
         {'token': 'token4_asset', 'action': 'carry', 'parameters': ['token4_agent']}
     ]
 
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', True)
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', True)
+    cycle.agents_manager.edit('token4_agent', 'carried', True)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', True)
     result = cycle.execute_actions(special_actions_list)
     assert result[0]['message'] == 'Agent can not do any action while being carried.'
     assert result[1]['message'] == 'Social asset can not do any action while being carried.'
@@ -1003,10 +1017,10 @@ def test_execute_special_actions_failed_abilities():
         {'token': 'token4_agent', 'action': 'carry', 'parameters': ['token4_asset']},
         {'token': 'token4_asset', 'action': 'carry', 'parameters': ['token4_agent']}
     ]
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
-    cycle.agents_manager.edit_agent('token4_agent', 'abilities', [])
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', [])
+    cycle.agents_manager.edit('token4_agent', 'carried', False)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', False)
+    cycle.agents_manager.edit('token4_agent', 'abilities', [])
+    cycle.social_assets_manager.edit('token4_asset', 'abilities', [])
     result = cycle.execute_actions(special_actions_list)
     assert result[0]['message'] == 'Agent does not have the abilities or resources to complete the action.'
     assert result[1]['message'] == 'Social asset does not have the abilities or resources to complete the action.'
@@ -1018,13 +1032,13 @@ def test_execute_special_actions_failed_param():
         {'token': 'token4_asset', 'action': 'carry', 'parameters': [1, 2]}
     ]
 
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
-    cycle.agents_manager.edit_agent('token4_agent', 'abilities', ['carry', 'physicalCapacity'])
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', ['carry', 'physicalCapacity'])
+    cycle.agents_manager.edit('token4_agent', 'carried', False)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', False)
+    cycle.agents_manager.edit('token4_agent', 'abilities', ['carry', 'physicalCapacity'])
+    cycle.social_assets_manager.edit('token4_asset', 'abilities', ['carry', 'physicalCapacity'])
     result = cycle.execute_actions(special_actions_list)
-    assert result[0]['message'] == 'More than 1 parameter was given.'
-    assert result[1]['message'] == 'More than 1 parameter was given.'
+    assert result[0]['message'] == 'More or less than 1 parameter was given.'
+    assert result[1]['message'] == 'More or less than 1 parameter was given.'
 
 
 def test_execute_special_actions_failed_no_other_get_carried():
@@ -1032,10 +1046,10 @@ def test_execute_special_actions_failed_no_other_get_carried():
         {'token': 'token4_agent', 'action': 'carry', 'parameters': ['token4_asset']},
         {'token': 'token4_asset', 'action': 'carry', 'parameters': ['token4_agent']}
     ]
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', False)
-    cycle.agents_manager.edit_agent('token4_agent', 'abilities', ['carry', 'physicalCapacity'])
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'abilities', ['carry', 'physicalCapacity'])
+    cycle.agents_manager.edit('token4_agent', 'carried', False)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', False)
+    cycle.agents_manager.edit('token4_agent', 'abilities', ['carry', 'physicalCapacity'])
+    cycle.social_assets_manager.edit('token4_asset', 'abilities', ['carry', 'physicalCapacity'])
     result = cycle.execute_actions(special_actions_list)
     assert result[0]['message'] == 'No other agent or social asset wants to be carried.'
     assert result[1]['message'] == 'No other agent or social asset wants to be carried.'
@@ -1058,11 +1072,11 @@ def test_execute_actions():
         {'token': 'token3_agent', 'action': 'pass', 'parameters': []},
         {'token': 'token3_asset', 'action': 'rescueVictim', 'parameters': []}
     ]
-    cycle.agents_manager.edit_agent('token2_agent', 'carried', False)
-    cycle.agents_manager.edit_agent('token3_agent', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token2_asset', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token3_asset', 'carried', False)
-    cycle.social_assets_manager.edit_social_asset('token3_asset', 'location', cycle.steps[0]['victims'][1].location)
+    cycle.agents_manager.edit('token2_agent', 'carried', False)
+    cycle.agents_manager.edit('token3_agent', 'carried', False)
+    cycle.social_assets_manager.edit('token2_asset', 'carried', False)
+    cycle.social_assets_manager.edit('token3_asset', 'carried', False)
+    cycle.social_assets_manager.edit('token3_asset', 'location', cycle.steps[0]['victims'][1].location)
     result = cycle.execute_actions(actions_tokens_list)
 
     for i in range(4):
@@ -1075,18 +1089,18 @@ def test_execute_actions():
 
 
 def test_restart():
-    cycle.agents_manager.edit_agent('token4_agent', 'carried', True)
-    cycle.agents_manager.edit_agent('token4_agent', 'is_active', False)
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'carried', True)
-    cycle.social_assets_manager.edit_social_asset('token4_asset', 'is_active', False)
+    cycle.agents_manager.edit('token4_agent', 'carried', True)
+    cycle.agents_manager.edit('token4_agent', 'is_active', False)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', True)
+    cycle.social_assets_manager.edit('token4_asset', 'is_active', False)
     cycle.restart(config_json)
     assert not cycle.steps[0]['flood'].active
     assert cycle.current_step == 0
     assert not cycle.delivered_items
-    assert not cycle.agents_manager.get_agent('token4_agent').carried
-    assert cycle.agents_manager.get_agent('token4_agent').is_active
-    assert not cycle.social_assets_manager.get_social_asset('token4_asset').carried
-    assert cycle.social_assets_manager.get_social_asset('token4_asset').is_active
+    assert not cycle.agents_manager.get('token4_agent').carried
+    assert cycle.agents_manager.get('token4_agent').is_active
+    assert not cycle.social_assets_manager.get('token4_asset').carried
+    assert cycle.social_assets_manager.get('token4_asset').is_active
 
 
 if __name__ == '__main__':

@@ -23,18 +23,18 @@ class Item:
 
 
 def test_connect_agent():
-    assert manager.connect_agent('token')
+    assert manager.connect('token')
     assert len(manager.get_tokens()) == 1
-    assert manager.get_agent('token') is not None
+    assert manager.get('token') is not None
 
 
 def test_disconnect_agent():
-    assert manager.disconnect_agent('token')
-    assert not manager.get_agent('token').is_active
+    assert manager.disconnect('token')
+    assert not manager.get('token').is_active
 
 
 def test_add_physical_to_active_agent():
-    assert manager.connect_agent('token1')
+    assert manager.connect('token1')
     assert manager.add_physical('token1', Item(10)) is None
 
 
@@ -85,16 +85,16 @@ def test_add_virtual_to_no_existing_agent():
 
 
 def test_add_asset_to_active_agent():
-    assert manager.add_social_asset('token1', Item(10)) is None
+    assert manager.add('token1', Item(10)) is None
 
 
 def test_add_asset_to_inactive_agent():
-    assert manager.add_social_asset('token', Item(10)) is None
+    assert manager.add('token', Item(10)) is None
 
 
 def test_add_asset_to_no_existing_agent():
     try:
-        manager.add_social_asset('token2', Item(10))
+        manager.add('token2', Item(10))
         assert False
 
     except KeyError:
@@ -102,17 +102,17 @@ def test_add_asset_to_no_existing_agent():
 
 
 def test_charge_agent():
-    assert manager.charge_agent('token1') is None
+    assert manager.charge('token1') is None
 
 
 def test_discharge_agent():
-    assert manager.discharge_agent('token1') is None
+    assert manager.discharge('token1') is None
 
 
 def test_get_agent():
-    active_agent = manager.get_agent('token1')
-    inactive_agent = manager.get_agent('token')
-    non_existent = manager.get_agent('token2')
+    active_agent = manager.get('token1')
+    inactive_agent = manager.get('token')
+    non_existent = manager.get('token2')
     assert active_agent.is_active
     assert not inactive_agent.is_active
     assert non_existent is None
@@ -125,7 +125,7 @@ def test_get_tokens():
 
 
 def test_get_agents_info():
-    agents_infos = manager.get_agents_info()
+    agents_infos = manager.get_info()
 
     assert len(agents_infos) == 2
     assert not agents_infos[0].is_active
@@ -133,7 +133,7 @@ def test_get_agents_info():
 
 
 def test_get_active_agents_info():
-    agents_infos = manager.get_active_agents_info()
+    agents_infos = manager.get_active_info()
 
     assert len(agents_infos) == 1
     assert agents_infos[0].is_active
@@ -166,36 +166,36 @@ def test_deliver_virtual():
 
 
 def test_edit_agent():
-    manager.edit_agent('token1', 'route', [(10, 10)])
-    assert manager.get_agent('token1').route
+    manager.edit('token1', 'route', [(10, 10)])
+    assert manager.get('token1').route
 
 
 def test_update_agent_location():
-    manager.update_agent_location('token1')
-    assert manager.get_agent('token1').location == (10, 10)
+    manager.update_location('token1')
+    assert manager.get('token1').location == (10, 10)
 
 
 def test_clear_agent_physical_storage():
     for i in range(5):
         manager.add_physical('token1', Item(1))
 
-    manager.clear_agent_physical_storage('token1')
-    assert not manager.get_agent('token1').physical_storage_vector
+    manager.clear_physical_storage('token1')
+    assert not manager.get('token1').physical_storage_vector
 
 
 def test_clear_agent_virtual_storage():
     for i in range(5):
         manager.add_virtual('token1', Item(1))
 
-    manager.clear_agent_virtual_storage('token1')
-    assert not manager.get_agent('token1').virtual_storage_vector
+    manager.clear_virtual_storage('token1')
+    assert not manager.get('token1').virtual_storage_vector
 
 
 def test_restart():
     manager.restart(config_json['agents'], cdm_loc)
     assert len(manager.get_tokens()) == 2
-    assert manager.get_agent('token').is_active
-    assert manager.get_agent('token1').is_active
+    assert manager.get('token').is_active
+    assert manager.get('token1').is_active
 
 
 def test_generate_roles():
