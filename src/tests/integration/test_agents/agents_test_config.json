@@ -18,7 +18,7 @@
     "doctor": {
       "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
       "resources": ["battery", "strength", "memory"],
-      "amount": 0,
+      "amount": 1,
       "minSize": 80,
       "maxSize": 100,
       "speed": 11,
@@ -71,7 +71,7 @@
       "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
       "resources": ["battery", "strength", "memory"],
       "size": 30,
-      "amount": 1,
+      "amount": 2,
       "speed": 7,
       "physicalCapacity": 10000,
       "virtualCapacity": 2048,
