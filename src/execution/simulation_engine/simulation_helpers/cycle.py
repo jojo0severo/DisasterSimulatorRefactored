@@ -480,7 +480,6 @@ class Cycle:
                                 break
 
                     if match is not None:
-                        special_action_tokens.remove(match)
                         if self.agents_manager.get(parameters[0]) is not None:
                             self.social_assets_manager.add_physical(token, self.agents_manager.get(parameters[0]))
                             self.social_assets_manager.edit(token, 'last_action_result', True)
@@ -491,10 +490,10 @@ class Cycle:
                                 'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
                         else:
-                            self.social_assets_manager.add_physical(token, self.social_assets_manager.get(
-                                parameters[0]))
-                            self.social_assets_manager.edit(token, 'last_action_result', False)
+                            self.social_assets_manager.add_physical(token, self.social_assets_manager.get(parameters[0]))
+                            self.social_assets_manager.edit(token, 'last_action_result', True)
                             self.social_assets_manager.edit(parameters[0], 'carried', True)
                             self.social_assets_manager.edit(parameters[0], 'last_action', 'getCarried')
                             self.social_assets_manager.edit(parameters[0], 'last_action_result', True)
@@ -502,6 +501,7 @@ class Cycle:
                                 'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
                     else:
                         raise FailedNoMatch('No other agent or social asset wants to be carried.')
 
@@ -518,7 +518,6 @@ class Cycle:
                                 break
 
                     if match is not None:
-                        special_action_tokens.remove(match)
                         if self.agents_manager.get(parameters[0]) is not None:
                             self.agents_manager.add_physical(parameters[0], self.agents_manager.get(token))
                             self.agents_manager.edit(parameters[0], 'last_action_result', True)
@@ -528,6 +527,7 @@ class Cycle:
                                 'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
                         else:
                             self.social_assets_manager.add_physical(parameters[0], self.agents_manager.get(token))
                             self.social_assets_manager.edit(parameters[0], 'last_action_result', True)
@@ -537,6 +537,7 @@ class Cycle:
                                 'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
                     else:
                         raise FailedNoMatch('No other agent or social asset wants to carry.')
 
@@ -550,13 +551,13 @@ class Cycle:
                                 break
 
                     if match is not None:
-                        special_action_tokens.remove(match)
                         if self.agents_manager.get(parameters[2]) is not None:
                             self._deliver_physical_asset_agent(token, parameters)
                             secondary_result = {
                                 'agent': self.agents_manager.get(parameters[2]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         elif self.social_assets_manager.get(parameters[2]) is not None:
                             self._deliver_physical_asset_asset(token, parameters)
@@ -564,6 +565,7 @@ class Cycle:
                                 'social_asset': self.social_assets_manager.get(parameters[2]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         else:
                             raise FailedUnknownToken('Given token was not found.')
@@ -584,13 +586,13 @@ class Cycle:
                                 break
 
                     if match is not None:
-                        special_action_tokens.remove(match)
                         if self.agents_manager.get(parameters[2]) is not None:
                             self._deliver_virtual_asset_agent(token, parameters)
                             secondary_result = {
                                 'agent': self.agents_manager.get(parameters[2]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         elif self.social_assets_manager.get(parameters[2]) is not None:
                             self._deliver_virtual_asset_asset(token, parameters)
@@ -598,6 +600,7 @@ class Cycle:
                                 'social_asset': self.social_assets_manager.get(parameters[2]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         else:
                             raise FailedUnknownToken('Given token was not found.')
@@ -618,7 +621,6 @@ class Cycle:
                                 break
 
                     if match is not None:
-                        special_action_tokens.remove(match)
                         if self.agents_manager.get(parameters[0]) is not None:
                             self._deliver_physical_agent_asset(match[0], match[2])
                             self.agents_manager.edit(parameters[0], 'last_action', 'deliverPhysical')
@@ -626,6 +628,7 @@ class Cycle:
                                 'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         elif self.social_assets_manager.get(parameters[0]) is not None:
                             self._deliver_physical_asset_asset(match[0], match[2])
@@ -634,6 +637,7 @@ class Cycle:
                                 'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         else:
                             raise FailedUnknownToken('Given token was not found.')
@@ -651,7 +655,6 @@ class Cycle:
                                 break
 
                     if match is not None:
-                        special_action_tokens.remove(match)
                         if self.agents_manager.get(parameters[0]) is not None:
                             self._deliver_virtual_agent_asset(match[0], match[2])
                             self.agents_manager.edit(parameters[0], 'last_action', 'deliverVirtual')
@@ -659,6 +662,7 @@ class Cycle:
                                 'agent': self.agents_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         elif self.social_assets_manager.get(parameters[0]) is not None:
                             self._deliver_virtual_asset_asset(match[0], match[2])
@@ -667,6 +671,7 @@ class Cycle:
                                 'social_asset': self.social_assets_manager.get(parameters[0]),
                                 'message': ''
                             }
+                            special_action_tokens.remove(match)
 
                         else:
                             raise FailedUnknownToken('Given token was not found.')
