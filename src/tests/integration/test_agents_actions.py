@@ -49,7 +49,7 @@ def execute_modules():
     start_system_path = str((pathlib.Path(__file__).parents[3] / 'start_system.py').absolute())
     venv_path = get_venv_path()
     command = [venv_path, start_system_path,
-               *'-conf src/tests/integration/test_agents/agents_test_config.json -first_t 40 -secret batata -log false'.split(' ')]
+               *'-conf src/tests/integration/test_agents/agents_test_config.json -first_t 10 -secret batata -log false'.split(' ')]
 
     tests_passed = []
     modules = collect_modules()
@@ -74,7 +74,7 @@ def execute_modules():
 
         time.sleep(5)
 
-        os.kill(system_proc.pid, signal.SIGKILL)
+        system_proc.kill()
         del system_proc
 
         time.sleep(10)
@@ -86,3 +86,7 @@ def test_system():
     """Call the function to execute all test modules and check if all the responses were True."""
 
     assert all(execute_modules())
+
+
+if __name__ == '__main__':
+    test_system()

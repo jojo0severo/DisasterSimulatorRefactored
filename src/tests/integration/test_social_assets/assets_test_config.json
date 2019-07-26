@@ -22,7 +22,7 @@
       "minSize": 80,
       "maxSize": 100,
       "speed": 11,
-      "physicalCapacity": 60,
+      "physicalCapacity": 300,
       "virtualCapacity": 0
     },
     "teacher": {

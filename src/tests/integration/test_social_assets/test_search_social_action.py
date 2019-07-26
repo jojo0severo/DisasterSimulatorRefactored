@@ -54,11 +54,13 @@ def quit_program(*args):
 
 def test_cycle():
     socket.connect('http://127.0.0.1:12345')
+    other_socket.connect('http://127.0.0.1:12345')
     connect_asset()
     while wait:
         pass
 
     socket.disconnect()
+    other_socket.disconnect()
     assert all(responses)
 
 
