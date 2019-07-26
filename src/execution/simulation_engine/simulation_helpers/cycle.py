@@ -506,7 +506,7 @@ class Cycle:
                         raise FailedNoMatch('No other agent or social asset wants to be carried.')
 
                 else:
-                    raise FailedWrongParam('More than 1 parameter was given.')
+                    raise FailedWrongParam('More or less than 1 parameter was given.')
 
             elif action_name == 'getCarried':
                 if len(parameters) == 1:
@@ -540,6 +540,9 @@ class Cycle:
                             special_action_tokens.remove(match)
                     else:
                         raise FailedNoMatch('No other agent or social asset wants to carry.')
+
+                else:
+                    raise FailedWrongParam('More or less than 1 parameter was given.')
 
             elif action_name == 'deliverPhysical':
                 if len(parameters) == 3:

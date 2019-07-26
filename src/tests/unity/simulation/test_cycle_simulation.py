@@ -1040,6 +1040,19 @@ def test_execute_special_actions_failed_param():
     assert result[0]['message'] == 'More or less than 1 parameter was given.'
     assert result[1]['message'] == 'More or less than 1 parameter was given.'
 
+    special_actions_list = [
+        {'token': 'token4_agent', 'action': 'getCarried', 'parameters': []},
+        {'token': 'token4_asset', 'action': 'getCarried', 'parameters': [1, 2]}
+    ]
+
+    cycle.agents_manager.edit('token4_agent', 'carried', False)
+    cycle.social_assets_manager.edit('token4_asset', 'carried', False)
+    cycle.agents_manager.edit('token4_agent', 'abilities', ['carry', 'physicalCapacity'])
+    cycle.social_assets_manager.edit('token4_asset', 'abilities', ['carry', 'physicalCapacity'])
+    result = cycle.execute_actions(special_actions_list)
+    assert result[0]['message'] == 'More or less than 1 parameter was given.'
+    assert result[1]['message'] == 'More or less than 1 parameter was given.'
+
 
 def test_execute_special_actions_failed_no_other_get_carried():
     special_actions_list = [
