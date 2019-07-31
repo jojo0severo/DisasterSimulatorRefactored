@@ -1,9 +1,10 @@
 {
   "map": {
     "id": "2018-SampleSimulation",
-    "steps": 10,
+    "steps": 500,
     "maps": [
-      "files/map0.osm"
+      "files/map0.osm", "files/map0.osm", "files/map0.osm", "files/map0.osm", "files/map0.osm", "files/map0.osm",
+      "files/map0.osm", "files/map0.osm", "files/map0.osm", "files/map0.osm", "files/map0.osm", "files/map0.osm"
     ],
     "minLon": -51.2163800,
     "maxLon": -51.2076000,
@@ -16,9 +17,9 @@
   },
   "socialAssets": {
     "doctor": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
-      "amount": 1,
+      "abilities": ["move", "carry", "physicalCapacity"],
+      "resources": ["strength"],
+      "amount": 0,
       "minSize": 80,
       "maxSize": 100,
       "speed": 11,
@@ -26,9 +27,9 @@
       "virtualCapacity": 0
     },
     "teacher": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
-      "amount": 1,
+      "abilities": ["move"],
+      "resources": [],
+      "amount": 0,
       "minSize": 66,
       "maxSize": 70,
       "speed": 10,
@@ -36,9 +37,9 @@
       "virtualCapacity": 0
     },
     "nurse": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
-      "amount": 1,
+      "abilities": ["move", "carry", "physicalCapacity"],
+      "resources": ["strength"],
+      "amount": 0,
       "minSize": 70,
       "maxSize": 86,
       "speed": 15,
@@ -46,9 +47,9 @@
       "virtualCapacity": 0
     },
     "pharmacist": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
-      "amount": 1,
+      "abilities": ["move", "carry", "physicalCapacity"],
+      "resources": ["strength"],
+      "amount": 0,
       "minSize": 60,
       "maxSize": 86,
       "speed": 14,
@@ -56,9 +57,9 @@
       "virtualCapacity": 0
     },
     "photographer": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
-      "amount": 4,
+      "abilities": ["move", "virtualCapacity"],
+      "resources": ["memory"],
+      "amount": 0,
       "minSize": 65,
       "maxSize": 73,
       "speed": 20,
@@ -72,20 +73,20 @@
       "resources": ["battery", "strength", "memory"],
       "size": 30,
       "amount": 1,
-      "speed": 7,
-      "physicalCapacity": 10000,
-      "virtualCapacity": 2048,
-      "battery": 20
+      "speed": 10,
+      "physicalCapacity": 50,
+      "virtualCapacity": 4096,
+      "battery": 50
     },
     "car": {
-      "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
-      "resources": ["battery", "strength", "memory"],
+      "abilities": ["move", "charge", "carry", "physicalCapacity"],
+      "resources": ["battery", "strength"],
       "size": 1200,
       "amount": 0,
       "speed": 7,
       "physicalCapacity": 450,
       "virtualCapacity": 0,
-      "battery": 20
+      "battery": 150
     },
     "boat": {
       "abilities": ["move", "charge", "carry", "virtualCapacity", "physicalCapacity"],
@@ -93,9 +94,9 @@
       "size": 8000,
       "amount": 0,
       "speed": 7,
-      "physicalCapacity": 10000,
-      "virtualCapacity": 100,
-      "battery": 20
+      "physicalCapacity": 1000,
+      "virtualCapacity": 128,
+      "battery": 200
     }
   },
   "actions": {
@@ -158,34 +159,34 @@
   },
   "generate": {
     "flood": {
-      "probability": 0,
-      "minPeriod": 40,
-      "maxPeriod": 80,
+      "probability": 50,
+      "minPeriod": 10,
+      "maxPeriod": 20,
       "circle": {
         "minRadius": 0.05,
         "maxRadius": 0.5
       }
     },
     "photo": {
-      "minSize": 16,
-      "maxSize": 64,
-      "minAmount": 20,
-      "maxAmount": 40,
-      "victimProbability": 2
+      "minSize": 8,
+      "maxSize": 128,
+      "minAmount": 0,
+      "maxAmount": 8,
+      "victimProbability": 10
     },
     "victim": {
       "minSize": 55,
-      "maxSize": 110,
-      "minAmount": 20,
-      "maxAmount": 40,
-      "minLifetime": 2,
-      "maxLifetime": 9
+      "maxSize": 120,
+      "minAmount": 0,
+      "maxAmount": 10,
+      "minLifetime": 15,
+      "maxLifetime": 30
     },
     "waterSample": {
-      "minSize": 4,
-      "maxSize": 16,
-      "minAmount": 20,
-      "maxAmount": 40
+      "minSize": 1,
+      "maxSize": 12,
+      "minAmount": 0,
+      "maxAmount": 5
     }
   }
 }
