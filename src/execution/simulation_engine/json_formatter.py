@@ -178,7 +178,7 @@ class JsonFormatter:
         minute = '{:0>2d}'.format(minute)
 
         for log in logs:
-            json_items = self.jsonify_delivered_items(logs[log]['environment']['delivered_items'])
+            json_items = self.jsonify_log_delivered_items(logs[log]['environment']['delivered_items'])
             json_agents = self.jsonify_agents(logs[log]['agents']['agents'])
             json_active_agents = self.jsonify_agents(logs[log]['agents']['active_agents'])
             json_action_token_by_step = self.jsonify_action_token_by_step(logs[log]['actions']['action_token_by_step'])
@@ -366,6 +366,26 @@ class JsonFormatter:
             json_photos.append(json_photo)
 
         return {'flood': json_flood, 'victims': json_victims, 'water_samples': json_water_samples, 'photos': json_photos}
+
+    def jsonify_log_delivered_items(self, items):
+        """Transform all the items delivered to the base to JSON.
+
+        The items supported are in the format of JSON with a list of Python objects which will be
+        converted to JSON as well.
+
+        :param items: List of the delivered items.
+        :return list: List of all the items converted to JSON."""
+
+        json_delivered_items = []
+        for item in items:
+            json_delivered_items.append({
+                'token': item['token'],
+                'kind': item['kind'],
+                'items': self.jsonify_delivered_items(item['items']),
+                'step': item['step']
+            })
+
+        return json_delivered_items
 
     def jsonify_delivered_items(self, items):
         """Transform all the items to JSON.
